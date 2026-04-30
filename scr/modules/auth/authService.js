@@ -1,4 +1,5 @@
-const users = [{id:1, email: "enzopsette@gmail.com", password: "2404"}];
+// const users = [{id:1, email: "enzopsette@gmail.com", password: "2404"}];
+// Aqui entraria a conexão com o banco de dados
 
 const login = async ({email, password}) =>{
     const user = users.find(u=> u.email === email);
@@ -31,8 +32,6 @@ const cadastrar = async ({email, password}) =>{
         email: newUser.email
     };
 };
-
-login({email: "enzopsette@gmail.com", password: "2404"});
 
 module.exports = {
     login,
