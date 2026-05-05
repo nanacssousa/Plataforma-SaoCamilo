@@ -1,39 +1,53 @@
-// const users = [{id:1, email: "enzopsette@gmail.com", password: "2404"}];
-// Aqui entraria a conexão com o banco de dados
+const bcrypt = require("bcrypt")
+const jwt = require("jsonwebtoken")
 
-const login = async ({email, password}) =>{
-    const user = users.find(u=> u.email === email);
-    if(!user) throw new Error ("Usuário não encontrado!");
-    if(user.password != password) throw new Error ("password inválida!")
+const { usuarioService } = require("../user/userService")
+const { usuarioRepository } = require("../user/userRepository")
+
+const JWT_SECRET = process.env.JWT_SECRET
+
+const login = async ({ email, password }) => {
+    const user = usuarioRepository.findByEmail(email)
+
+    if (!user) throw new Error("Usuário não encontrado!")
+
+    const senhaValida = bcrypt.compareSync(password, user.senha)
+
+    if (!senhaValida) throw new Error("Senha inválida!")
+
+    const token = jwt.sign(
+        { id: user.id, tipo: user.tipo },
+        JWT_SECRET,
+        { expiresIn: "1d" }
+    )
 
     return {
         user: {
             id: user.id,
             email: user.email
         },
-        token: "fake-token"
-    };
-};
+        token
+    }
+}
 
-const cadastrar = async ({email, password}) =>{
-    const existe = users.find(u => u.email === email);
-    if(existe) throw new Error ("Email já existente")
-    
-    const newUser = {
-        id: users.length + 1,
-        email: email,
-        password: password
-    };
+const cadastrar = async ({ nome, email, password, tipo }) => {
 
-    users.push(newUser);
+    const senhaHash = bcrypt.hashSync(password, 10)
+
+    const user = usuarioService.create({
+        nome,
+        email,
+        senha: senhaHash,
+        tipo
+    })
 
     return {
-        id: newUser.id,
-        email: newUser.email
-    };
-};
+        id: user.id,
+        email: user.email
+    }
+}
 
 module.exports = {
     login,
     cadastrar
-};
+}
