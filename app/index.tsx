@@ -1,6 +1,5 @@
 // Coloque em: app/index.tsx
 // Tela principal — Clinical Athlete convertida para React Native + Expo Router
-console.log("THEME:", require("@/constants/theme"));
 import { colors, fontFamilies } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";

@@ -4,8 +4,9 @@
     "slug": "h2o-elite",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./src/assets/icon.png",
     "userInterfaceStyle": "light",
+    "scheme": "h2oelite",
     "splash": {
       "backgroundColor": "#FAFAF8"
     },
@@ -18,7 +19,8 @@
       }
     },
     "web": {
-      "favicon": "./assets/favicon.png"
-    }
+      "favicon": "./src/assets/icon.png"
+    },
+    "plugins": ["expo-router"]
   }
 }

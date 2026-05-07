@@ -10,8 +10,8 @@ import {
   View,
 } from "react-native";
 
-import { colors } from "../constants/theme";
-import { styles } from "../styles/ProfileStyle";
+import { colors } from "../src/constants/theme";
+import { styles } from "../src/styles/ProfileStyle";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
