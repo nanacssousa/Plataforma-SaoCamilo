@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import {
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 import { styles } from "@/styles/PosSessaoStyle";
-import { colors } from "../constants/theme";
+import { colors } from "../src/constants/theme";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Sintoma = "caibras" | "tontura" | "fadiga";

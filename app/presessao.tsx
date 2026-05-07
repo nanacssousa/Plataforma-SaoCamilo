@@ -11,7 +11,7 @@ import {
 } from "react-native";
 
 import { colors } from "@/constants/theme";
-import { styles } from "../styles/PreSessaoStyle";
+import { styles } from "../src/styles/PreSessaoStyle";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type TipoTreino = "alta" | "resistencia" | "forca" | "recuperacao";
