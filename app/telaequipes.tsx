@@ -1,16 +1,16 @@
+import { styles } from "@/styles/TelaEquipesStyle";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
-  SafeAreaView,
-  StatusBar,
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
-import { styles } from "@/styles/PainelNutricionistaStyle";
 
-// ─── Sidebar ──────────────────────────────────────────────────────────────────
+// ─── Sidebar (compartilhada) ──────────────────────────────────────────────────
 
 type NavItem = "equipes" | "atletas" | "relatorios" | "configuracoes";
 
@@ -29,13 +29,10 @@ const Sidebar = ({
   onNavChange: (id: NavItem) => void;
 }) => (
   <View style={styles.sidebar}>
-    {/* Logo */}
     <View style={styles.sidebarLogo}>
       <Text style={styles.sidebarLogoTop}>CLINICAL</Text>
       <Text style={styles.sidebarLogoBottom}>ATHLETE</Text>
     </View>
-
-    {/* Itens de navegação */}
     <View style={styles.sidebarNav}>
       {NAV_ITEMS.map((item) => {
         const isActive = item.id === activeNav;
@@ -67,9 +64,15 @@ interface Atleta {
   posicao: string;
   categoria: string;
   massaAtual: number;
-  deltaMassa: number; // percentual
+  deltaMassa: number;
   usg: number;
   statusHidrico: StatusHidrico;
+}
+
+interface DiaGrafico {
+  dia: string;
+  massaBar: number; // altura relativa barra massa (0–1)
+  usgBar: number; // altura relativa barra USG (0–1)
 }
 
 interface Sugestao {
@@ -80,6 +83,16 @@ interface Sugestao {
 }
 
 // ─── Dados mockados ───────────────────────────────────────────────────────────
+
+const DIAS_GRAFICO: DiaGrafico[] = [
+  { dia: "SEGUNDA", massaBar: 0.55, usgBar: 0.3 },
+  { dia: "TERÇA", massaBar: 0.82, usgBar: 0.45 },
+  { dia: "QUARTA", massaBar: 0.5, usgBar: 0.28 },
+  { dia: "QUINTA", massaBar: 0.95, usgBar: 0.6 },
+  { dia: "SEXTA", massaBar: 0.42, usgBar: 0.22 },
+  { dia: "SÁBADO", massaBar: 0.75, usgBar: 0.4 },
+  { dia: "DOMINGO", massaBar: 0.6, usgBar: 0.35 },
+];
 
 const ATLETAS: Atleta[] = [
   {
@@ -132,6 +145,40 @@ const SUGESTOES: Sugestao[] = [
 
 // ─── Sub-componentes ──────────────────────────────────────────────────────────
 
+/** Gráfico de barras lado a lado (massa × USG) */
+const GraficoBarras = () => {
+  const ALTURA_MAX = 130;
+
+  return (
+    <View style={styles.graficoContainer}>
+      {DIAS_GRAFICO.map((item) => (
+        <View key={item.dia} style={styles.graficoGrupo}>
+          <View style={styles.graficoBarras}>
+            {/* Barra USG — azul claro (atrás / esquerda) */}
+            <View
+              style={[
+                styles.barra,
+                styles.barraUsg,
+                { height: ALTURA_MAX * item.usgBar },
+              ]}
+            />
+            {/* Barra Massa — vermelho claro (frente / direita) */}
+            <View
+              style={[
+                styles.barra,
+                styles.barraMassa,
+                { height: ALTURA_MAX * item.massaBar },
+              ]}
+            />
+          </View>
+          <Text style={styles.graficoDia}>{item.dia}</Text>
+        </View>
+      ))}
+    </View>
+  );
+};
+
+/** Badge de status hídrico */
 const BadgeStatus = ({ status }: { status: StatusHidrico }) => {
   const config: Record<
     StatusHidrico,
@@ -144,7 +191,7 @@ const BadgeStatus = ({ status }: { status: StatusHidrico }) => {
       dotStyle: styles.dotDesidratado,
     },
     hidratado: {
-      label: "HIDRATADO",
+      label: "EU·HIDRATADO",
       style: styles.badgeHidratado,
       textStyle: styles.badgeTextHidratado,
       dotStyle: styles.dotHidratado,
@@ -166,12 +213,11 @@ const BadgeStatus = ({ status }: { status: StatusHidrico }) => {
   );
 };
 
+/** Linha de atleta na tabela */
 const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
-  const deltaPositivo = atleta.deltaMassa >= 0;
-
+  const deltaPos = atleta.deltaMassa >= 0;
   return (
     <View style={[styles.atletaRow, !isLast && styles.atletaRowBorder]}>
-      {/* Avatar */}
       <View style={styles.avatar}>
         <Text style={styles.avatarText}>
           {atleta.nome
@@ -181,44 +227,32 @@ const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
             .join("")}
         </Text>
       </View>
-
-      {/* Nome + posição */}
       <View style={styles.atletaInfo}>
         <Text style={styles.atletaNome}>{atleta.nome}</Text>
         <Text style={styles.atletaDetalhe}>
           {atleta.posicao.toUpperCase()} • {atleta.categoria.toUpperCase()}
         </Text>
       </View>
-
-      {/* Status */}
       <View style={styles.colStatus}>
         <BadgeStatus status={atleta.statusHidrico} />
       </View>
-
-      {/* Massa */}
       <View style={styles.colMassa}>
         <Text style={styles.colValue}>{atleta.massaAtual.toFixed(1)} kg</Text>
       </View>
-
-      {/* Delta */}
       <View style={styles.colDelta}>
         <Text
           style={[
             styles.deltaText,
-            deltaPositivo ? styles.deltaPos : styles.deltaNeg,
+            deltaPos ? styles.deltaPos : styles.deltaNeg,
           ]}
         >
-          {deltaPositivo ? "+" : ""}
+          {deltaPos ? "+" : ""}
           {atleta.deltaMassa.toFixed(1)}%
         </Text>
       </View>
-
-      {/* USG */}
       <View style={styles.colUsg}>
         <Text style={styles.colValue}>{atleta.usg.toFixed(3)}</Text>
       </View>
-
-      {/* Ações */}
       <TouchableOpacity style={styles.acaoBtn} activeOpacity={0.6}>
         <Text style={styles.acaoDots}>⋮</Text>
       </TouchableOpacity>
@@ -226,20 +260,17 @@ const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
   );
 };
 
+/** Card de sugestão */
 const SugestaoCard = ({ sugestao }: { sugestao: Sugestao }) => (
   <View style={styles.sugestaoCard}>
     <View
       style={[
-        styles.sugestaoIcone,
+        styles.sugestaoLinha,
         sugestao.tipo === "emergencial"
-          ? styles.sugestaoIconeEmergencial
-          : styles.sugestaoIconeAjuste,
+          ? styles.sugestaoLinhaEmergencial
+          : styles.sugestaoLinhaAjuste,
       ]}
-    >
-      <Text style={styles.sugestaoIconeText}>
-        {sugestao.tipo === "emergencial" ? "⚠" : "🧪"}
-      </Text>
-    </View>
+    />
     <View style={styles.sugestaoTexto}>
       <Text style={styles.sugestaoTitulo}>{sugestao.titulo}</Text>
       <Text style={styles.sugestaoDesc}>{sugestao.descricao}</Text>
@@ -249,9 +280,11 @@ const SugestaoCard = ({ sugestao }: { sugestao: Sugestao }) => (
 
 // ─── Tela principal ───────────────────────────────────────────────────────────
 
-export default function PainelNutricionista() {
+export default function TelaEquipes() {
   const [filtro, setFiltro] = useState("");
-  const [activeNav, setActiveNav] = useState<NavItem>("atletas");
+  const [activeNav, setActiveNav] = useState<NavItem>("equipes");
+  const [filtroPeriodo] = useState("ÚLTIMOS\n7 DIAS");
+  const [filtroLiga] = useState("FILTRO:\nPRO-LEAGUE");
 
   const atletasFiltrados = ATLETAS.filter((a) =>
     a.nome.toLowerCase().includes(filtro.toLowerCase()),
@@ -264,20 +297,81 @@ export default function PainelNutricionista() {
         {/* ── Sidebar ── */}
         <Sidebar activeNav={activeNav} onNavChange={setActiveNav} />
 
-        {/* ── Conteúdo principal ── */}
+        {/* ── Conteúdo ── */}
         <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-          {/* ── Header ── */}
+          {/* Header */}
           <View style={styles.header}>
-            <View>
-              <Text style={styles.headerBreadcrumb}>
-                Visão Geral da Equipe
-                <Text style={styles.headerBreadcrumbSep}> / </Text>
-                <Text style={styles.headerEquipe}>Alta Performance A</Text>
-              </Text>
-            </View>
+            <Text style={styles.headerBreadcrumb}>
+              Visão Geral da Equipe
+              <Text style={styles.headerSep}> / </Text>
+              <Text style={styles.headerEquipe}>Alta Performance A</Text>
+            </Text>
             <TouchableOpacity style={styles.syncBtn} activeOpacity={0.7}>
               <Text style={styles.syncText}>↻ Sincronizar</Text>
             </TouchableOpacity>
+          </View>
+
+          {/* ── Linha superior: Gráfico + KPIs ── */}
+          <View style={styles.topoRow}>
+            {/* Card do gráfico */}
+            <View style={[styles.card, styles.cardGrafico]}>
+              <View style={styles.graficoHeader}>
+                <View>
+                  <Text style={styles.graficoTitulo}>
+                    Status Hídrico Longitudinal
+                  </Text>
+                  <Text style={styles.graficoSubtitulo}>
+                    VARIAÇÃO DE MASSA CORPORAL (%) VS. GRAVIDADE{"\n"}ESPECÍFICA
+                    URINÁRIA (USG)
+                  </Text>
+                </View>
+                <View style={styles.filtroBtns}>
+                  <View style={styles.filtroBtn}>
+                    <Text style={styles.filtroBtnText}>{filtroPeriodo}</Text>
+                  </View>
+                  <View style={styles.filtroBtn}>
+                    <Text style={styles.filtroBtnText}>{filtroLiga}</Text>
+                  </View>
+                </View>
+              </View>
+              <GraficoBarras />
+              {/* Legenda */}
+              <View style={styles.legenda}>
+                <View style={styles.legendaItem}>
+                  <View style={[styles.legendaDot, styles.legendaDotMassa]} />
+                  <Text style={styles.legendaText}>Δ Massa (%)</Text>
+                </View>
+                <View style={styles.legendaItem}>
+                  <View style={[styles.legendaDot, styles.legendaDotUsg]} />
+                  <Text style={styles.legendaText}>USG</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* KPIs verticais */}
+            <View style={styles.kpiColuna}>
+              {/* Atletas em risco */}
+              <View style={[styles.card, styles.cardKpiRisco]}>
+                <Text style={styles.kpiAlerta}>▲</Text>
+                <Text style={styles.kpiLabel}>ATLETAS EM RISCO</Text>
+                <Text style={styles.kpiNumero}>04</Text>
+                <Text style={styles.kpiSubLabel}>
+                  PERDA DE MASSA {">"} 2% DETECTADA
+                </Text>
+              </View>
+
+              {/* Média de hidratação */}
+              <View style={[styles.card, styles.cardKpiHid]}>
+                <Text style={styles.kpiGota}>💧</Text>
+                <Text style={styles.kpiLabelHid}>MÉDIA DE HIDRATAÇÃO</Text>
+                <Text style={styles.kpiPorcentagem}>
+                  82<Text style={styles.kpiPorcentagemSufixo}>%</Text>
+                </Text>
+                <Text style={styles.kpiSubLabelHid}>
+                  EQUIPE DENTRO DA META IDEAL
+                </Text>
+              </View>
+            </View>
           </View>
 
           {/* ── Card de monitoramento ── */}
@@ -296,7 +390,7 @@ export default function PainelNutricionista() {
               </View>
             </View>
 
-            {/* Cabeçalho da tabela */}
+            {/* Cabeçalho tabela */}
             <View style={styles.tableHeader}>
               <Text style={[styles.tableHeaderText, styles.colAtleta]}>
                 ATLETA
@@ -318,7 +412,6 @@ export default function PainelNutricionista() {
               </Text>
             </View>
 
-            {/* Linhas */}
             {atletasFiltrados.map((atleta, index) => (
               <AtletaRow
                 key={atleta.id}
@@ -330,7 +423,6 @@ export default function PainelNutricionista() {
 
           {/* ── Rodapé: Sugestões + Relatório ── */}
           <View style={styles.rodape}>
-            {/* Sugestões de Recomposição */}
             <View style={[styles.card, styles.cardSugestoes]}>
               <Text style={styles.cardTitulo}>Sugestões de Recomposição</Text>
               <View style={styles.sugestaoLista}>
@@ -340,9 +432,8 @@ export default function PainelNutricionista() {
               </View>
             </View>
 
-            {/* Relatório Consolidado */}
             <View style={[styles.card, styles.cardRelatorio]}>
-              <Text style={styles.relatorioIcone}>📋</Text>
+              <Text style={styles.relatorioIcone}>✅</Text>
               <Text style={styles.cardTitulo}>Relatório Consolidado</Text>
               <Text style={styles.relatorioDesc}>
                 O sumário da semana 42 está pronto para análise. O desempenho
@@ -354,7 +445,7 @@ export default function PainelNutricionista() {
             </View>
           </View>
 
-          {/* ── Rodapé nutricionista ── */}
+          {/* Badge nutricionista */}
           <View style={styles.nutricionistaBadge}>
             <View style={styles.nutAvatar}>
               <Text style={styles.nutAvatarText}>MS</Text>
