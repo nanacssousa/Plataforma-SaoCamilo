@@ -11,7 +11,7 @@ import {
 } from "react-native";
 
 import { styles } from "@/styles/HistoricoStyle";
-import { colors } from "../src/constants/theme";
+import { colors } from "@/constants/theme";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Intensidade = "ALTA INTENSIDADE" | "RESISTÊNCIA" | "MODERADO";

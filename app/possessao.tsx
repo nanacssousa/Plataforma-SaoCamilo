@@ -10,7 +10,7 @@ import {
 } from "react-native";
 
 import { styles } from "@/styles/PosSessaoStyle";
-import { colors } from "../src/constants/theme";
+import { colors } from "@/constants/theme";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Sintoma = "caibras" | "tontura" | "fadiga";
