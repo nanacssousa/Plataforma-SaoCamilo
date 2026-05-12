@@ -1,14 +1,14 @@
-import { styles } from "@/styles/TelaEquipesStyle";
 import React, { useState } from "react";
 import {
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
+import { styles } from "@/styles/TelaEquipesStyle";
 
 // ─── Sidebar (compartilhada) ──────────────────────────────────────────────────
 
