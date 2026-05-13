@@ -7,7 +7,15 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 1. Install dependencies
 
    ```bash
-   npm install
+   npm install expo
+
+   npm run build
+
+   npx tsc --noEmit
+
+   npm install typescript ts-node-dev @types/node @types/express -D
+
+   npm install @types/jsonwebtoken @types/bcrypt -D
    ```
 
 2. Start the app
