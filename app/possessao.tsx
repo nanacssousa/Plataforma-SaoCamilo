@@ -51,7 +51,7 @@ export default function PosSessaoScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity>
-          <Text style={styles.headerSettings}>⚙</Text>
+          <Text style={styles.headerSettings}></Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>ATLETA</Text>
         <View style={styles.headerAvatar}>

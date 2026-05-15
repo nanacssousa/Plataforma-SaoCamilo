@@ -82,8 +82,8 @@ const SessionCard = ({ sessao }: { sessao: Sessao }) => {
     sessao.intensidade === "ALTA INTENSIDADE"
       ? styles.cardBadgeHigh
       : sessao.intensidade === "RESISTÊNCIA"
-        ? styles.cardBadgeResist
-        : {};
+      ? styles.cardBadgeResist
+      : {};
 
   return (
     <View style={styles.sessionCard}>
@@ -197,18 +197,18 @@ export default function HistoricoScreen() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
 
-      {/* Header */}
+      {/* Header — padrão pós-sessão */}
       <View style={styles.header}>
         <TouchableOpacity>
-          <Text style={styles.headerMenu}>☰</Text>
+          <Text style={styles.headerSettings}></Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Histórico Sessões</Text>
-        <TouchableOpacity>
-          <Text style={styles.headerFilter}>⚙</Text>
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>ATLETA</Text>
+        <View style={styles.headerAvatar}>
+          <Text style={styles.headerAvatarText}>GM</Text>
+        </View>
       </View>
 
-      {/* Search */}
+      {/* Search centralizado */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBox}>
           <Text style={styles.searchIcon}>🔍</Text>

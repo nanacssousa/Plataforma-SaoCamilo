@@ -1,4 +1,4 @@
-// src/app/ProfileScreen.tsx
+// app/perfil.tsx
 import React, { useState } from "react";
 import {
   SafeAreaView,
@@ -14,7 +14,6 @@ import { colors } from "@/constants/theme";
 import { styles } from "@/styles/ProfileStyle";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-
 const Divider = () => <View style={styles.divider} />;
 
 const SectionLabel = ({ label }: { label: string }) => (
@@ -131,16 +130,18 @@ export default function ProfileScreen() {
   const metaDiaria = 3.5;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
 
-      {/* Header */}
+      {/* Header — padrão pós-sessão */}
       <View style={styles.header}>
         <TouchableOpacity>
-          <Text style={styles.headerMenu}>☰</Text>
+          <Text style={styles.headerSettings}></Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>PERFIL</Text>
-        <Text style={styles.headerBrand}>H2O-Elite</Text>
+        <Text style={styles.headerTitle}>ATLETA</Text>
+        <View style={styles.headerAvatar}>
+          <Text style={styles.headerAvatarText}>GM</Text>
+        </View>
       </View>
 
       <ScrollView
@@ -148,7 +149,7 @@ export default function ProfileScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Avatar + Nome */}
+        {/* Avatar + Nome centralizados */}
         <View style={styles.avatarSection}>
           <View style={styles.avatarWrapper}>
             <View style={styles.avatarPlaceholder}>
