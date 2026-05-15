@@ -5,10 +5,12 @@ import { styles } from "../src/styles/duranteTreinoStyle";
 export default function TelaDuranteTreino() {
   return (
     <SafeAreaView style={styles.safeArea}>
+      {/* Top Bar ajustada */}
       <View style={styles.topBar}>
-        <Text style={styles.topIcon}>⚙️</Text>
         <Text style={styles.topTitle}>ATLETA</Text>
-        <View style={styles.avatarMini}><Text style={{color: '#fff', fontSize: 10}}>IMG</Text></View>
+        <View style={styles.avatarMini}>
+          <Text style={{ color: "#fff", fontSize: 10 }}>IMG</Text>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -22,11 +24,15 @@ export default function TelaDuranteTreino() {
         <View style={styles.statsRow}>
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>INGESTÃO TOTAL</Text>
-            <Text style={styles.statValue}>1,2<Text style={styles.statUnit}> L</Text></Text>
+            <Text style={styles.statValue}>
+              1,2<Text style={styles.statUnit}> L</Text>
+            </Text>
           </View>
           <View style={styles.statBox}>
             <Text style={styles.statLabel}>META RESTANTE</Text>
-            <Text style={styles.statValue}>800<Text style={styles.statUnit}> ML</Text></Text>
+            <Text style={styles.statValue}>
+              800<Text style={styles.statUnit}> ML</Text>
+            </Text>
           </View>
         </View>
 
@@ -43,7 +49,7 @@ export default function TelaDuranteTreino() {
             <Text style={styles.quickLogDescLight}>GARRAFA PADRÃO</Text>
           </TouchableOpacity>
         </View>
-        
+
         <TouchableOpacity style={styles.customLogBtn}>
           <Text style={styles.customLogText}>⊕ VALOR PERSONALIZADO</Text>
         </TouchableOpacity>
@@ -74,7 +80,6 @@ export default function TelaDuranteTreino() {
         <TouchableOpacity style={styles.endSessionBtn}>
           <Text style={styles.endSessionText}>PRÓXIMA SESSÃO →</Text>
         </TouchableOpacity>
-
       </ScrollView>
     </SafeAreaView>
   );

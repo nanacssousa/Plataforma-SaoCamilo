@@ -8,28 +8,40 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
 
-  // Header
+  // Header ajustado (ATLETA centralizado, avatar à direita)
   header: {
     flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingVertical: 14,
     backgroundColor: colors.surface,
-  },
-  headerMenu: {
-    fontSize: 20,
-    color: colors.onSurface,
+    position: 'relative',
+    borderBottomWidth: 1,
+    borderColor: colors.surfaceContainerHigh,
   },
   headerTitle: {
-    fontFamily: fontFamilies.headlineBold,
-    fontSize: 16,
+    fontFamily: fontFamilies.technicalBold,
+    fontSize: 14,
     letterSpacing: 2,
     textTransform: 'uppercase',
-    color: colors.primary,
+    color: colors.onSurface,
+    textAlign: 'center',
   },
-  headerFilter: {
-    fontSize: 20,
+  headerAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.surfaceContainerHigh,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    position: 'absolute',
+    right: 20,
+  },
+  headerAvatarText: {
+    fontFamily: fontFamilies.headlineBold,
+    fontSize: 14,
     color: colors.onSurface,
   },
 
@@ -55,7 +67,7 @@ export const styles = StyleSheet.create({
   searchInput: {
     fontFamily: fontFamilies.body,
     fontSize: 14,
-    color: colors.onSurfaceVariant,
+    color: colors.onSurface,
     flex: 1,
   },
 

@@ -13,21 +13,11 @@ import {
 import { colors } from "@/constants/theme";
 import { styles } from "@/styles/PreSessaoStyle";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 type TipoTreino = "alta" | "resistencia" | "forca" | "recuperacao";
 type Sintoma = "caibras" | "tontura" | "fadiga";
 
-// ─── Urine Colors ─────────────────────────────────────────────────────────────
-const URINE_COLORS = [
-  "#FFFFFF",
-  "#FFF9C4",
-  "#FFF176",
-  "#FFD54F",
-  "#FFB300",
-  "#FB8C00",
-];
+const URINE_COLORS = ["#FFFFFF", "#FFF9C4", "#FFF176", "#FFD54F", "#FFB300", "#FB8C00"];
 
-// ─── Training Types ───────────────────────────────────────────────────────────
 const TRAINING_TYPES = [
   { key: "alta" as TipoTreino, icon: "⚡", label: "Alta Intensidade" },
   { key: "resistencia" as TipoTreino, icon: "⏱", label: "Resistência" },
@@ -35,14 +25,12 @@ const TRAINING_TYPES = [
   { key: "recuperacao" as TipoTreino, icon: "🚶", label: "Recuperação" },
 ];
 
-// ─── Symptoms ─────────────────────────────────────────────────────────────────
 const SYMPTOMS = [
   { key: "caibras" as Sintoma, icon: "⚡", label: "Câibras" },
   { key: "tontura" as Sintoma, icon: "🧍", label: "Tontura" },
   { key: "fadiga" as Sintoma, icon: "🔋", label: "Fadiga" },
 ];
 
-// ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function PreSessaoScreen() {
   const [peso, setPeso] = useState("");
   const [tipoTreino, setTipoTreino] = useState<TipoTreino>("alta");
@@ -62,11 +50,8 @@ export default function PreSessaoScreen() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
 
-      {/* Header */}
+      {/* Header ajustado */}
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Text style={styles.headerSettings}></Text>
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>ATLETA</Text>
         <View style={styles.headerAvatar}>
           <Text style={styles.headerAvatarText}>GM</Text>
@@ -88,7 +73,6 @@ export default function PreSessaoScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title */}
         <Text style={styles.sectionTitle}>Pré-Sessão</Text>
         <Text style={styles.sectionSubtitle}>
           Configure seus biomarcadores iniciais para precisão técnica.
@@ -175,9 +159,7 @@ export default function PreSessaoScreen() {
 
         <View style={styles.sliderTrack}>
           <View style={[styles.sliderFill, { width: `${sliderPercent}%` }]} />
-          <View
-            style={[styles.sliderThumb, { left: `${sliderPercent - 2}%` }]}
-          />
+          <View style={[styles.sliderThumb, { left: `${sliderPercent - 2}%` }]} />
         </View>
         <View style={styles.sliderLabels}>
           <Text style={styles.sliderLabel}>NULA</Text>

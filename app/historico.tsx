@@ -13,7 +13,6 @@ import {
 import { styles } from "@/styles/HistoricoStyle";
 import { colors } from "@/constants/theme";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 type Intensidade = "ALTA INTENSIDADE" | "RESISTÊNCIA" | "MODERADO";
 
 interface Sessao {
@@ -28,7 +27,6 @@ interface Sessao {
   desidratacaoAlta: boolean;
 }
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
 const SESSOES: Sessao[] = [
   {
     id: "1",
@@ -76,7 +74,6 @@ const SESSOES: Sessao[] = [
   },
 ];
 
-// ─── Session Card ─────────────────────────────────────────────────────────────
 const SessionCard = ({ sessao }: { sessao: Sessao }) => {
   const badgeStyle =
     sessao.intensidade === "ALTA INTENSIDADE"
@@ -87,7 +84,6 @@ const SessionCard = ({ sessao }: { sessao: Sessao }) => {
 
   return (
     <View style={styles.sessionCard}>
-      {/* Topo: badge + data */}
       <View style={styles.cardHeader}>
         <Text style={[styles.cardBadge, badgeStyle]}>{sessao.intensidade}</Text>
         <View style={styles.cardDateContainer}>
@@ -98,15 +94,11 @@ const SessionCard = ({ sessao }: { sessao: Sessao }) => {
         </View>
       </View>
 
-      {/* Título */}
       <Text style={styles.cardTitle}>{sessao.titulo}</Text>
-
       <View style={styles.cardDivider} />
 
-      {/* Stats */}
       <View style={styles.cardStats}>
         <View style={styles.cardStatsLeft}>
-          {/* Duração */}
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>DURAÇÃO</Text>
             <View style={styles.statValue}>
@@ -115,7 +107,6 @@ const SessionCard = ({ sessao }: { sessao: Sessao }) => {
             </View>
           </View>
 
-          {/* Taxa de Sudose */}
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>TAXA DE SUDOSE</Text>
             <View style={styles.statValue}>
@@ -124,7 +115,6 @@ const SessionCard = ({ sessao }: { sessao: Sessao }) => {
             </View>
           </View>
 
-          {/* Desidratação */}
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>DESIDRATAÇÃO</Text>
             <View style={styles.statValue}>
@@ -145,7 +135,6 @@ const SessionCard = ({ sessao }: { sessao: Sessao }) => {
           </View>
         </View>
 
-        {/* Seta */}
         <TouchableOpacity style={styles.arrowButton}>
           <Text style={styles.arrowText}>→</Text>
         </TouchableOpacity>
@@ -154,7 +143,6 @@ const SessionCard = ({ sessao }: { sessao: Sessao }) => {
   );
 };
 
-// ─── Bottom Tab Bar ───────────────────────────────────────────────────────────
 type TabKey = "sessao" | "historico" | "perfil";
 
 const TABS: { key: TabKey; label: string; icon: string }[] = [
@@ -183,7 +171,6 @@ const BottomTabBar = ({ active }: { active: TabKey }) => (
   </View>
 );
 
-// ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function HistoricoScreen() {
   const [search, setSearch] = useState("");
 
@@ -197,18 +184,14 @@ export default function HistoricoScreen() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
 
-      {/* Header — padrão pós-sessão */}
+      {/* Header ajustado */}
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Text style={styles.headerSettings}></Text>
-        </TouchableOpacity>
         <Text style={styles.headerTitle}>ATLETA</Text>
         <View style={styles.headerAvatar}>
           <Text style={styles.headerAvatarText}>GM</Text>
         </View>
       </View>
 
-      {/* Search centralizado */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBox}>
           <Text style={styles.searchIcon}>🔍</Text>
@@ -222,12 +205,10 @@ export default function HistoricoScreen() {
         </View>
       </View>
 
-      {/* Export Button */}
       <TouchableOpacity style={styles.exportButton}>
         <Text style={styles.exportButtonText}>Extrair relatório</Text>
       </TouchableOpacity>
 
-      {/* List */}
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}

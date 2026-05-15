@@ -8,8 +8,8 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
 
-  // ─── Top Bar ────────────────────────────────────────────────────────────────
-  topBar: {
+  // ─── Header ────────────────────────────────────────────────────────────────
+  header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -17,14 +17,14 @@ export const styles = StyleSheet.create({
     paddingVertical: 14,
     backgroundColor: colors.surface,
   },
-  topTitle: {
-    fontFamily: fontFamilies.technicalBold,
-    fontSize: 14,
-    letterSpacing: 2,
-    textTransform: "uppercase",
+  headerTitle: {
+    fontFamily: fontFamilies.headlineBold,
+    fontSize: 20,
     color: colors.onSurface,
+    textAlign: "center",
+    flex: 1,
   },
-  avatarMini: {
+  headerAvatar: {
     width: 36,
     height: 36,
     borderRadius: 18,
@@ -32,7 +32,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  avatarMiniText: {
+  headerAvatarText: {
     fontFamily: fontFamilies.headlineBold,
     fontSize: 14,
     color: colors.onSurface,
