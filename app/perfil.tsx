@@ -13,6 +13,7 @@ import {
 import { colors } from "@/constants/theme";
 import { styles } from "@/styles/ProfileStyle";
 
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 const Divider = () => <View style={styles.divider} />;

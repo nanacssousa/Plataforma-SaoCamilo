@@ -11,6 +11,7 @@ import {
 } from "react-native";
 
 import { styles } from "@/styles/HistoricoStyle";
+
 import { colors } from "@/constants/theme";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
