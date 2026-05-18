@@ -133,11 +133,9 @@ export default function ProfileScreen() {
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
 
-      {/* Header — padrão pós-sessão */}
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Text style={styles.headerSettings}></Text>
-        </TouchableOpacity>
+        <View style={{ width: 36 }} />
         <Text style={styles.headerTitle}>ATLETA</Text>
         <View style={styles.headerAvatar}>
           <Text style={styles.headerAvatarText}>GM</Text>

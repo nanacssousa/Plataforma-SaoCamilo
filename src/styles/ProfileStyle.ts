@@ -10,7 +10,6 @@ export const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 14,
     backgroundColor: colors.surface,
@@ -20,6 +19,8 @@ export const styles = StyleSheet.create({
     color: colors.onSurface,
   },
   headerTitle: {
+    flex: 1,
+    textAlign: "center",
     fontFamily: fontFamilies.technicalBold,
     fontSize: 14,
     letterSpacing: 2,
@@ -32,6 +33,20 @@ export const styles = StyleSheet.create({
     letterSpacing: 1,
     textTransform: "uppercase",
     color: colors.primary,
+  },
+  headerAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.surfaceContainerHigh,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerAvatarText: {
+    fontFamily: fontFamilies.headlineBold,
+    fontSize: 14,
+    letterSpacing: 1,
+    color: colors.onSurface,
   },
   scroll: { flex: 1 },
   scrollContent: { paddingHorizontal: 20, paddingTop: 8 },
