@@ -4,7 +4,7 @@ import { colors, fontFamilies } from "../constants/theme";
 export const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.surface },
 
-  // Top Bar ajustada (ATLETA centralizado, avatar à direita)
+  // Top Bar
   topBar: {
     flexDirection: "row",
     justifyContent: "center",
@@ -22,14 +22,19 @@ export const styles = StyleSheet.create({
     textAlign: "center",
   },
   avatarMini: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.onSurface,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#ebe8e4",
     justifyContent: "center",
     alignItems: "center",
     position: "absolute",
     right: 16,
+  },
+  avatarMiniText: {
+    fontFamily: fontFamilies.headlineBold,
+    fontSize: 13,
+    color: "#2E2A25",
   },
 
   // Conteúdo
@@ -197,4 +202,3 @@ export const styles = StyleSheet.create({
     color: colors.white,
   },
 });
-  
