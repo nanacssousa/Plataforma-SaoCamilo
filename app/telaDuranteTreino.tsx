@@ -1,15 +1,22 @@
 import React from "react";
-import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { styles } from "../src/styles/duranteTreinoStyle";
 
 export default function TelaDuranteTreino() {
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Top Bar ajustada */}
+      {/* Top Bar */}
       <View style={styles.topBar}>
+        <View style={{ width: 36 }} />
         <Text style={styles.topTitle}>ATLETA</Text>
         <View style={styles.avatarMini}>
-          <Text style={{ color: "#fff", fontSize: 10 }}>IMG</Text>
+          <Text style={styles.avatarMiniText}>GM</Text>
         </View>
       </View>
 
@@ -60,7 +67,9 @@ export default function TelaDuranteTreino() {
         </View>
 
         <View style={styles.logItem}>
-          <View style={styles.logIconWrapperRed}><Text>💧</Text></View>
+          <View style={styles.logIconWrapperRed}>
+            <Text>💧</Text>
+          </View>
           <View style={styles.logTextWrapper}>
             <Text style={styles.logItemTitle}>500ml Ingeridos</Text>
             <Text style={styles.logItemSub}>11:45 • HIDRATAÇÃO PADRÃO</Text>
@@ -69,7 +78,9 @@ export default function TelaDuranteTreino() {
         </View>
 
         <View style={styles.logItem}>
-          <View style={styles.logIconWrapperRed}><Text>💧</Text></View>
+          <View style={styles.logIconWrapperRed}>
+            <Text>💧</Text>
+          </View>
           <View style={styles.logTextWrapper}>
             <Text style={styles.logItemTitle}>200ml Ingeridos</Text>
             <Text style={styles.logItemSub}>11:20 • INGESTÃO RÁPIDA</Text>

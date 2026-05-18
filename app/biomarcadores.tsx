@@ -1,13 +1,13 @@
-import { styles } from "@/styles/biomarcadoresStyle";
 import React, { useState } from "react";
 import {
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    Text,
-    TouchableOpacity,
-    View,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
+import { styles } from "@/styles/biomarcadoresStyle";
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 

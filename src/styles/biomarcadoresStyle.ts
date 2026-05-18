@@ -1,5 +1,5 @@
-import { colors, fontFamilies, radius, spacing } from "@/constants/theme";
 import { StyleSheet } from "react-native";
+import { colors, spacing, radius, fontFamilies } from "@/constants/theme";
 
 export const styles = StyleSheet.create({
   // ─── Layout base ─────────────────────────────────────────────────────────────
