@@ -25,12 +25,16 @@ export default function TelaCadastroAtleta() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Tag / Title / Subtitle */}
         <Text style={styles.tag}>PROTOCOLO DE REGISTRO</Text>
         <Text style={styles.title}>Cadastro de{"\n"}Atleta</Text>
         <Text style={styles.subtitle}>
-          Inicie sua jornada de alto rendimento. O mapeamento biomecânico e fisiológico começa com a precisão dos seus dados base.
+          Inicie sua jornada de alto rendimento. O mapeamento biomecânico e
+          fisiológico começa com a precisão dos seus dados base.
         </Text>
 
         {/* Info Card */}
@@ -49,7 +53,8 @@ export default function TelaCadastroAtleta() {
             <View style={styles.infoTextContainer}>
               <Text style={styles.infoTitle}>PRIVACIDADE</Text>
               <Text style={styles.infoDesc}>
-                Criptografia de nível médico para proteção de métricas sensíveis.
+                Criptografia de nível médico para proteção de métricas
+                sensíveis.
               </Text>
             </View>
           </View>

@@ -16,8 +16,9 @@ export const styles = StyleSheet.create({
     paddingTop: 20,
   },
   headerTitle: {
-    fontFamily: fontFamilies.headlineBold,
-    fontSize: 22,
+    fontFamily: fontFamilies.technicalBold,
+    fontSize: 14,
+    letterSpacing: 2,
     color: colors.onSurface,
     textAlign: "center",
     marginBottom: 8,
