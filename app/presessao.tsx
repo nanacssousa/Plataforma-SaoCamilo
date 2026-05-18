@@ -16,7 +16,14 @@ import { styles } from "@/styles/PreSessaoStyle";
 type TipoTreino = "alta" | "resistencia" | "forca" | "recuperacao";
 type Sintoma = "caibras" | "tontura" | "fadiga";
 
-const URINE_COLORS = ["#FFFFFF", "#FFF9C4", "#FFF176", "#FFD54F", "#FFB300", "#FB8C00"];
+const URINE_COLORS = [
+  "#FFFFFF",
+  "#FFF9C4",
+  "#FFF176",
+  "#FFD54F",
+  "#FFB300",
+  "#FB8C00",
+];
 
 const TRAINING_TYPES = [
   { key: "alta" as TipoTreino, icon: "⚡", label: "Alta Intensidade" },
@@ -50,8 +57,8 @@ export default function PreSessaoScreen() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
 
-      {/* Header ajustado */}
       <View style={styles.header}>
+        <View style={{ width: 36 }} />
         <Text style={styles.headerTitle}>ATLETA</Text>
         <View style={styles.headerAvatar}>
           <Text style={styles.headerAvatarText}>GM</Text>
@@ -159,7 +166,9 @@ export default function PreSessaoScreen() {
 
         <View style={styles.sliderTrack}>
           <View style={[styles.sliderFill, { width: `${sliderPercent}%` }]} />
-          <View style={[styles.sliderThumb, { left: `${sliderPercent - 2}%` }]} />
+          <View
+            style={[styles.sliderThumb, { left: `${sliderPercent - 2}%` }]}
+          />
         </View>
         <View style={styles.sliderLabels}>
           <Text style={styles.sliderLabel}>NULA</Text>
