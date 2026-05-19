@@ -9,8 +9,8 @@ import {
   View,
 } from "react-native";
 
-import { styles } from "@/styles/PosSessaoStyle";
 import { colors } from "@/constants/theme";
+import { styles } from "@/styles/PosSessaoStyle";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type Sintoma = "caibras" | "tontura" | "fadiga";
@@ -42,6 +42,18 @@ export default function PosSessaoScreen() {
     setSintomas((prev) =>
       prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s],
     );
+  };
+
+  const handlePesoChange = (text: string) => {
+    // permite apenas números e vírgula/ponto
+    const cleaned = text.replace(/[^0-9.,]/g, "");
+    // bloqueia mais de um separador decimal
+    const separadores = (cleaned.match(/[.,]/g) || []).length;
+    if (separadores > 1) return;
+    // bloqueia mais de 2 casas decimais
+    const parts = cleaned.split(/[.,]/);
+    if (parts.length > 1 && parts[1].length > 2) return;
+    setPeso(cleaned);
   };
 
   return (
@@ -89,7 +101,7 @@ export default function PosSessaoScreen() {
             placeholderTextColor={colors.outlineVariant}
             keyboardType="decimal-pad"
             value={peso}
-            onChangeText={setPeso}
+            onChangeText={handlePesoChange}
           />
           <Text style={styles.weightUnit}>KG</Text>
         </View>
