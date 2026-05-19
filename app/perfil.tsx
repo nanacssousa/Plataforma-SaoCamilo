@@ -1,6 +1,7 @@
 // app/perfil.tsx
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
+  PanResponder,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -94,6 +95,77 @@ const PerformanceCard = ({
   </View>
 );
 
+// ─── Slider funcional ─────────────────────────────────────────────────────────
+const HydrationSlider = ({
+  value,
+  onChange,
+  onDragging,
+  min = 1,
+  max = 5,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  onDragging: (v: boolean) => void;
+  min?: number;
+  max?: number;
+}) => {
+  const trackWidth = useRef(0);
+  const percent = ((value - min) / (max - min)) * 100;
+
+  const calcValue = (locationX: number) => {
+    const ratio = Math.min(Math.max(locationX / trackWidth.current, 0), 1);
+    const raw = ratio * (max - min) + min;
+    return Math.round(raw * 10) / 10;
+  };
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponderCapture: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponderCapture: () => true,
+      onPanResponderGrant: (e) => {
+        onDragging(true);
+        if (trackWidth.current === 0) return;
+        onChange(calcValue(e.nativeEvent.locationX));
+      },
+      onPanResponderMove: (e) => {
+        if (trackWidth.current === 0) return;
+        onChange(calcValue(e.nativeEvent.locationX));
+      },
+      onPanResponderRelease: () => {
+        onDragging(false);
+      },
+      onPanResponderTerminate: () => {
+        onDragging(false);
+      },
+    }),
+  ).current;
+
+  return (
+    <View>
+      <View style={styles.metaRow}>
+        <Text style={styles.settingTitle}>Meta Diária de Hidratação</Text>
+        <Text style={styles.metaValue}>{value.toFixed(1)}L</Text>
+      </View>
+      <View
+        style={styles.sliderTrack}
+        onLayout={(e) => {
+          trackWidth.current = e.nativeEvent.layout.width;
+        }}
+        {...panResponder.panHandlers}
+      >
+        <View style={[styles.sliderFill, { width: `${percent}%` }]} />
+        <View style={[styles.sliderThumb, { left: `${percent - 1.5}%` }]} />
+      </View>
+      <View style={styles.sliderLabels}>
+        <Text style={styles.sliderLabel}>1.0 LITRO</Text>
+        <Text style={styles.sliderLabel}>5.0 LITROS</Text>
+      </View>
+    </View>
+  );
+};
+
 // ─── Bottom Tab Bar ───────────────────────────────────────────────────────────
 type TabKey = "sessao" | "historico" | "perfil";
 
@@ -127,7 +199,8 @@ const BottomTabBar = ({ active }: { active: TabKey }) => (
 export default function ProfileScreen() {
   const [lembretesPreTreino, setLembretesPreTreino] = useState<boolean>(true);
   const [notifDesidratacao, setNotifDesidratacao] = useState<boolean>(true);
-  const metaDiaria = 3.5;
+  const [metaDiaria, setMetaDiaria] = useState(3.5);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }}>
@@ -146,6 +219,7 @@ export default function ProfileScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        scrollEnabled={scrollEnabled}
       >
         {/* Avatar + Nome centralizados */}
         <View style={styles.avatarSection}>
@@ -208,29 +282,14 @@ export default function ProfileScreen() {
 
           <View style={styles.settingRowSeparator} />
 
-          {/* Meta Diária */}
-          <View style={styles.metaRow}>
-            <Text style={styles.settingTitle}>Meta Diária de Hidratação</Text>
-            <Text style={styles.metaValue}>{metaDiaria}L</Text>
-          </View>
-          <View style={styles.sliderTrack}>
-            <View
-              style={[
-                styles.sliderFill,
-                { width: `${((metaDiaria - 1) / 4) * 100}%` },
-              ]}
-            />
-            <View
-              style={[
-                styles.sliderThumb,
-                { left: `${((metaDiaria - 1) / 4) * 100 - 2}%` },
-              ]}
-            />
-          </View>
-          <View style={styles.sliderLabels}>
-            <Text style={styles.sliderLabel}>1.0 LITRO</Text>
-            <Text style={styles.sliderLabel}>5.0 LITROS</Text>
-          </View>
+          {/* Meta Diária — Slider funcional */}
+          <HydrationSlider
+            value={metaDiaria}
+            onChange={setMetaDiaria}
+            onDragging={(dragging) => setScrollEnabled(!dragging)}
+            min={1}
+            max={5}
+          />
         </View>
 
         <Divider />
