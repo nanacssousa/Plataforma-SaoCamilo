@@ -1,23 +1,17 @@
+import { styles } from "@/styles/admSistemaStyle";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
   SafeAreaView,
+  ScrollView,
   StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { styles } from "@/styles/admSistemaStyle";
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
-type NavItem =
-  | "central"
-  | "hidratacao"
-  | "atletas"
-  | "protocolos"
-  | "laboratorio"
-  | "adm";
+type NavItem = "equipes" | "atletas" | "relatorios" | "configuracoes";
 
 const NAV_ITEMS: { id: NavItem; label: string; icon: string }[] = [
   { id: "equipes", label: "Equipes", icon: "👥" },
@@ -119,8 +113,14 @@ const PROFISSIONAIS: Profissional[] = [
 
 const EQUIPES: Equipe[] = [
   { id: "1", nome: "Resistência Alpha", atletas: 12 },
-  { id: "2", nome: "Sprint Elite",      atletas: 8  },
-  { id: "3", nome: "Hidratação Beta",   atletas: 0, destaque: true, tag: "Nova Unidade" },
+  { id: "2", nome: "Sprint Elite", atletas: 8 },
+  {
+    id: "3",
+    nome: "Hidratação Beta",
+    atletas: 0,
+    destaque: true,
+    tag: "Nova Unidade",
+  },
 ];
 
 const CARDS_CONFIG: CardConfigData[] = [
@@ -164,13 +164,13 @@ const BadgeCargo = ({
   label: string;
 }) => {
   const estiloMap: Record<Profissional["cargoTipo"], object> = {
-    medico:          styles.badgeMedico,
-    bioanalista:     styles.badgeBioanalista,
+    medico: styles.badgeMedico,
+    bioanalista: styles.badgeBioanalista,
     esp_recuperacao: styles.badgeEsp,
   };
   const textoMap: Record<Profissional["cargoTipo"], object> = {
-    medico:          styles.badgeMedicoText,
-    bioanalista:     styles.badgeBioanalistaText,
+    medico: styles.badgeMedicoText,
+    bioanalista: styles.badgeBioanalistaText,
     esp_recuperacao: styles.badgeEspText,
   };
   return (
@@ -221,7 +221,9 @@ const EquipeItem = ({
       equipe.destaque && styles.equipeItemDestaque,
     ]}
   >
-    <Text style={[styles.equipeNome, equipe.destaque && styles.equipeNomeDestaque]}>
+    <Text
+      style={[styles.equipeNome, equipe.destaque && styles.equipeNomeDestaque]}
+    >
       {equipe.nome}
     </Text>
     <View style={styles.equipeRight}>
@@ -258,19 +260,17 @@ const CardConfigItem = ({ card }: { card: CardConfigData }) => (
 // ─── Tela principal ───────────────────────────────────────────────────────────
 
 export default function AdmSistema() {
-  const [activeNav, setActiveNav] = useState<NavItem>("adm");
+  const [activeNav, setActiveNav] = useState<NavItem>("equipes");
 
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor="#fcf9f5" />
       <View style={styles.layout}>
-
         {/* ── Sidebar ── */}
         <Sidebar activeNav={activeNav} onNavChange={setActiveNav} />
 
         {/* ── Conteúdo ── */}
         <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.headerBreadcrumb}>
@@ -295,7 +295,6 @@ export default function AdmSistema() {
 
           {/* ── Linha principal: Tabela + Matriz ── */}
           <View style={styles.linhaMain}>
-
             {/* Card — Lista de Profissionais */}
             <View style={[styles.card, styles.cardTabela]}>
               <View style={styles.cardTabelaHeader}>
@@ -349,17 +348,15 @@ export default function AdmSistema() {
                   />
                 ))}
               </View>
-              <TouchableOpacity style={styles.btnCriarEquipe} activeOpacity={0.8}>
-                <Text style={styles.btnCriarEquipeText}>+ CRIAR NOVA EQUIPE</Text>
+              <TouchableOpacity
+                style={styles.btnCriarEquipe}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.btnCriarEquipeText}>
+                  + CRIAR NOVA EQUIPE
+                </Text>
               </TouchableOpacity>
             </View>
-          </View>
-
-          {/* ── Cards de configuração ── */}
-          <View style={styles.linhaCards}>
-            {CARDS_CONFIG.map((card) => (
-              <CardConfigItem key={card.id} card={card} />
-            ))}
           </View>
 
           {/* ── Rodapé de conformidade ── */}
@@ -371,7 +368,6 @@ export default function AdmSistema() {
               LOG DO SISTEMA V4.2.1-CLINICAL
             </Text>
           </View>
-
         </ScrollView>
       </View>
     </SafeAreaView>

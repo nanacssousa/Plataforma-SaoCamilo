@@ -2,7 +2,6 @@ import { StyleSheet } from "react-native";
 import { colors, fontFamilies, radius, spacing } from "../constants/theme";
 
 export const styles = StyleSheet.create({
-
   // ─── Layout base ─────────────────────────────────────────────────────────────
 
   safe: {
@@ -17,6 +16,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.surface,
     paddingHorizontal: spacing.s4,
+    paddingTop: spacing.s4,
   },
 
   // ─── Sidebar ─────────────────────────────────────────────────────────────────
@@ -66,11 +66,11 @@ export const styles = StyleSheet.create({
     fontSize: 15,
   },
   navLabel: {
-  fontFamily: fontFamilies.technicalBold,
-  fontSize: 12,
-  color: colors.onSurfaceVariant,
-  letterSpacing: 0.2,
-},
+    fontFamily: fontFamilies.technicalBold,
+    fontSize: 12,
+    color: colors.onSurfaceVariant,
+    letterSpacing: 0.2,
+  },
   navLabelActive: {
     color: colors.white,
   },
@@ -116,6 +116,7 @@ export const styles = StyleSheet.create({
   // ─── Título da seção ─────────────────────────────────────────────────────────
 
   secaoTitulo: {
+    paddingTop: spacing.s2,
     paddingBottom: spacing.s4,
   },
   tituloPrincipal: {
@@ -206,9 +207,9 @@ export const styles = StyleSheet.create({
     lineHeight: 13,
   },
   colProfissional: { flex: 2.2 },
-  colCargo:        { flex: 1.4 },
-  colAcesso:       { flex: 1.6 },
-  colAcoes:        { width: 36 },
+  colCargo: { flex: 1.4 },
+  colAcesso: { flex: 1.6 },
+  colAcoes: { width: 36 },
 
   // ─── Linha de profissional ────────────────────────────────────────────────────
 
@@ -279,12 +280,12 @@ export const styles = StyleSheet.create({
     lineHeight: 13,
     textAlign: "center",
   },
-  badgeMedico:          { backgroundColor: colors.primaryTint },
-  badgeMedicoText:      { color: colors.primary },
-  badgeBioanalista:     { backgroundColor: colors.surfaceContainerHighest },
+  badgeMedico: { backgroundColor: colors.primaryTint },
+  badgeMedicoText: { color: colors.primary },
+  badgeBioanalista: { backgroundColor: colors.surfaceContainerHighest },
   badgeBioanalistaText: { color: colors.onSurfaceVariant },
-  badgeEsp:             { backgroundColor: colors.surfaceContainerHighest },
-  badgeEspText:         { color: colors.onSurfaceVariant },
+  badgeEsp: { backgroundColor: colors.surfaceContainerHighest },
+  badgeEspText: { color: colors.onSurfaceVariant },
 
   // ─── Card Matriz de Equipes ───────────────────────────────────────────────────
 
