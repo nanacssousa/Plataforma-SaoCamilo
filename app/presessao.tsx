@@ -1,6 +1,7 @@
 // src/app/pre-sessao.tsx
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
+  PanResponder,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -38,12 +39,82 @@ const SYMPTOMS = [
   { key: "fadiga" as Sintoma, icon: "🔋", label: "Fadiga" },
 ];
 
+// ─── Slider funcional ─────────────────────────────────────────────────────────
+const ThirstSlider = ({
+  value,
+  onChange,
+  onDragging,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  onDragging: (v: boolean) => void;
+}) => {
+  const trackWidth = useRef(0);
+  const min = 1;
+  const max = 10;
+  const percent = ((value - min) / (max - min)) * 100;
+
+  const calcValue = (locationX: number) => {
+    const ratio = Math.min(Math.max(locationX / trackWidth.current, 0), 1);
+    return Math.round(ratio * (max - min) + min);
+  };
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponderCapture: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponderCapture: () => true,
+      onPanResponderGrant: (e) => {
+        onDragging(true);
+        if (trackWidth.current === 0) return;
+        onChange(calcValue(e.nativeEvent.locationX));
+      },
+      onPanResponderMove: (e) => {
+        if (trackWidth.current === 0) return;
+        onChange(calcValue(e.nativeEvent.locationX));
+      },
+      onPanResponderRelease: () => onDragging(false),
+      onPanResponderTerminate: () => onDragging(false),
+    }),
+  ).current;
+
+  return (
+    <>
+      <View style={styles.symptomsHeader}>
+        <View style={styles.thirstLabelRow}>
+          <Text style={styles.thirstIcon}>💧</Text>
+          <Text style={styles.thirstTitle}>NÍVEL DE SEDE</Text>
+        </View>
+        <Text style={styles.thirstValue}>{value}</Text>
+      </View>
+      <View
+        style={styles.sliderTrack}
+        onLayout={(e) => {
+          trackWidth.current = e.nativeEvent.layout.width;
+        }}
+        {...panResponder.panHandlers}
+      >
+        <View style={[styles.sliderFill, { width: `${percent}%` }]} />
+        <View style={[styles.sliderThumb, { left: `${percent - 2}%` }]} />
+      </View>
+      <View style={styles.sliderLabels}>
+        <Text style={styles.sliderLabel}>NULA</Text>
+        <Text style={styles.sliderLabel}>MODERADA</Text>
+        <Text style={styles.sliderLabel}>EXTREMA</Text>
+      </View>
+    </>
+  );
+};
+
+// ─── Tela principal ───────────────────────────────────────────────────────────
 export default function PreSessaoScreen() {
   const [peso, setPeso] = useState("");
   const [tipoTreino, setTipoTreino] = useState<TipoTreino>("alta");
   const [urineSelecionada, setUrineSelecionada] = useState(2);
   const [nivelSede, setNivelSede] = useState(7);
   const [sintomas, setSintomas] = useState<Sintoma[]>([]);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
 
   const toggleSintoma = (s: Sintoma) => {
     setSintomas((prev) =>
@@ -51,12 +122,20 @@ export default function PreSessaoScreen() {
     );
   };
 
-  const sliderPercent = ((nivelSede - 1) / 9) * 100;
+  const handlePesoChange = (text: string) => {
+    const cleaned = text.replace(/[^0-9.,]/g, "");
+    const separadores = (cleaned.match(/[.,]/g) || []).length;
+    if (separadores > 1) return;
+    const parts = cleaned.split(/[.,]/);
+    if (parts.length > 1 && parts[1].length > 2) return;
+    setPeso(cleaned);
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
 
+      {/* Header */}
       <View style={styles.header}>
         <View style={{ width: 36 }} />
         <Text style={styles.headerTitle}>ATLETA</Text>
@@ -79,6 +158,7 @@ export default function PreSessaoScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        scrollEnabled={scrollEnabled}
       >
         <Text style={styles.sectionTitle}>Pré-Sessão</Text>
         <Text style={styles.sectionSubtitle}>
@@ -94,7 +174,7 @@ export default function PreSessaoScreen() {
             placeholderTextColor={colors.outlineVariant}
             keyboardType="decimal-pad"
             value={peso}
-            onChangeText={setPeso}
+            onChangeText={handlePesoChange}
           />
           <Text style={styles.weightUnit}>KG</Text>
         </View>
@@ -155,26 +235,12 @@ export default function PreSessaoScreen() {
           </View>
         </View>
 
-        {/* Nível de Sede */}
-        <View style={styles.symptomsHeader}>
-          <View style={styles.thirstLabelRow}>
-            <Text style={styles.thirstIcon}>💧</Text>
-            <Text style={styles.thirstTitle}>NÍVEL DE SEDE</Text>
-          </View>
-          <Text style={styles.thirstValue}>{nivelSede}</Text>
-        </View>
-
-        <View style={styles.sliderTrack}>
-          <View style={[styles.sliderFill, { width: `${sliderPercent}%` }]} />
-          <View
-            style={[styles.sliderThumb, { left: `${sliderPercent - 2}%` }]}
-          />
-        </View>
-        <View style={styles.sliderLabels}>
-          <Text style={styles.sliderLabel}>NULA</Text>
-          <Text style={styles.sliderLabel}>MODERADA</Text>
-          <Text style={styles.sliderLabel}>EXTREMA</Text>
-        </View>
+        {/* Nível de Sede — Slider funcional */}
+        <ThirstSlider
+          value={nivelSede}
+          onChange={setNivelSede}
+          onDragging={(dragging) => setScrollEnabled(!dragging)}
+        />
 
         {/* Escala de Sintomas */}
         <View style={styles.symptomsHeader}>
