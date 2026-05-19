@@ -1,29 +1,39 @@
 import { StyleSheet } from "react-native";
-import { colors, fontFamilies, radius } from "../constants/theme";
+import { colors, fontFamilies, radius, spacing } from "../constants/theme";
 
 export const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#FDFCF8" },
-  scrollContent: { padding: 24, paddingBottom: 48 },
+
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.surface,
+  },
+  scrollContent: {
+    padding: spacing.s6,
+    paddingBottom: spacing.s12,
+  },
 
   // ── Header ──────────────────────────────────────────────────────────────────
-  header: { marginBottom: 28 },
+
+  header: {
+    marginBottom: spacing.s8,
+  },
   tag: {
     backgroundColor: colors.primary,
     color: colors.white,
     alignSelf: "flex-start",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingHorizontal: spacing.s2,
+    paddingVertical: spacing.s1,
     fontSize: 10,
     fontFamily: fontFamilies.technicalBold,
     letterSpacing: 1,
     borderRadius: radius.xs,
-    marginBottom: 16,
+    marginBottom: spacing.s4,
   },
   title: {
     fontSize: 40,
     fontFamily: fontFamilies.headlineBold,
     color: colors.onSurface,
-    marginBottom: 12,
+    marginBottom: spacing.s3,
     lineHeight: 44,
   },
   subtitle: {
@@ -33,32 +43,40 @@ export const styles = StyleSheet.create({
     lineHeight: 22,
   },
 
-  // ── Seleção de cargo (role picker) ──────────────────────────────────────────
-  roleSection: { marginBottom: 28 },
+  // ── Role picker ─────────────────────────────────────────────────────────────
+
+  roleSection: {
+    marginBottom: spacing.s8,
+  },
   roleSectionLabel: {
     fontSize: 10,
     fontFamily: fontFamilies.technicalBold,
-    color: "#6A6A6A",
+    color: colors.gray400,
     letterSpacing: 1,
-    marginBottom: 12,
+    marginBottom: spacing.s3,
   },
-  roleRow: { flexDirection: "row", gap: 10 },
+  roleRow: {
+    flexDirection: "row",
+    gap: spacing.s3,
+  },
   roleCard: {
     flex: 1,
     borderRadius: radius.lg,
     borderWidth: 1.5,
     borderColor: colors.surfaceContainerHighest,
     backgroundColor: colors.surfaceContainerLow,
-    paddingVertical: 16,
-    paddingHorizontal: 12,
+    paddingVertical: spacing.s4,
+    paddingHorizontal: spacing.s3,
     alignItems: "center",
-    gap: 8,
+    gap: spacing.s2,
   },
   roleCardActive: {
     borderColor: colors.primary,
-    backgroundColor: "#FFF5F5",
+    backgroundColor: colors.primaryTint,
   },
-  roleIcon: { fontSize: 22 },
+  roleIcon: {
+    fontSize: 22,
+  },
   roleLabel: {
     fontSize: 11,
     fontFamily: fontFamilies.technicalBold,
@@ -80,35 +98,46 @@ export const styles = StyleSheet.create({
   },
 
   // ── Formulário ──────────────────────────────────────────────────────────────
-  form: { flex: 1 },
-  inputGroup: { marginBottom: 20 },
-  row: { flexDirection: "row", gap: 12 },
-  rowItem: { flex: 1 },
+
+  form: {
+    flex: 1,
+  },
+  inputGroup: {
+    marginBottom: spacing.s5,
+  },
+  row: {
+    flexDirection: "row",
+    gap: spacing.s3,
+    marginBottom: spacing.s5,
+  },
+  rowItem: {
+    flex: 1,
+  },
   label: {
     fontSize: 10,
     fontFamily: fontFamilies.technicalBold,
-    color: "#6A6A6A",
-    marginBottom: 8,
+    color: colors.gray400,
+    marginBottom: spacing.s2,
     letterSpacing: 1,
   },
   input: {
-    backgroundColor: "#EAE9E4",
+    backgroundColor: colors.surfaceContainerHigh,
     borderRadius: radius.md,
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.s4,
     paddingVertical: 14,
     fontSize: 16,
     fontFamily: fontFamilies.body,
     color: colors.onSurface,
   },
   inputFocused: {
-    backgroundColor: "#E0DED8",
+    backgroundColor: colors.surfaceContainerHighest,
     borderWidth: 1.5,
     borderColor: colors.primary,
   },
   selectInput: {
-    backgroundColor: "#EAE9E4",
+    backgroundColor: colors.surfaceContainerHigh,
     borderRadius: radius.md,
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.s4,
     paddingVertical: 14,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -120,30 +149,31 @@ export const styles = StyleSheet.create({
     fontFamily: fontFamilies.body,
   },
   selectPlaceholder: {
-    color: colors.onSurfaceVariant,
+    color: colors.gray400,
   },
   selectIcon: {
     fontSize: 14,
-    color: "#6A6A6A",
+    color: colors.gray400,
     fontFamily: fontFamilies.technicalBold,
   },
 
   // ── Dropdown ────────────────────────────────────────────────────────────────
+
   dropdownContainer: {
     backgroundColor: colors.white,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.surfaceContainerHighest,
-    marginTop: 4,
+    marginTop: spacing.s1,
     overflow: "hidden",
-    shadowColor: "#000",
+    shadowColor: colors.black,
     shadowOpacity: 0.08,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
     elevation: 4,
   },
   dropdownItem: {
-    paddingHorizontal: 16,
+    paddingHorizontal: spacing.s4,
     paddingVertical: 13,
     borderBottomWidth: 1,
     borderBottomColor: colors.surfaceContainerHighest,
@@ -161,19 +191,20 @@ export const styles = StyleSheet.create({
     fontFamily: fontFamilies.bodyBold,
   },
 
-  // ── Seção de permissões ─────────────────────────────────────────────────────
+  // ── Permissões ──────────────────────────────────────────────────────────────
+
   permissionsCard: {
-    backgroundColor: "#F4F3EF",
+    backgroundColor: colors.surfaceContainerLow,
     borderRadius: radius.lg,
-    padding: 20,
-    marginBottom: 28,
+    padding: spacing.s5,
+    marginBottom: spacing.s8,
   },
   permissionsTitle: {
     fontSize: 11,
     fontFamily: fontFamilies.technicalBold,
     color: colors.onSurface,
     letterSpacing: 1,
-    marginBottom: 16,
+    marginBottom: spacing.s4,
   },
   permissionRow: {
     flexDirection: "row",
@@ -184,37 +215,53 @@ export const styles = StyleSheet.create({
   permissionRowLast: {
     marginBottom: 0,
   },
-  permissionLeft: { flexDirection: "row", alignItems: "center", flex: 1 },
-  permissionIcon: { fontSize: 16, marginRight: 10 },
+  permissionLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  permissionIcon: {
+    fontSize: 16,
+    marginRight: spacing.s3,
+  },
   permissionLabel: {
     fontSize: 13,
     fontFamily: fontFamilies.body,
-    color: "#4A4A4A",
+    color: colors.onSurfaceVariant,
     flex: 1,
   },
   permissionBadge: {
-    paddingHorizontal: 8,
+    paddingHorizontal: spacing.s2,
     paddingVertical: 3,
     borderRadius: radius.xs,
   },
-  permissionBadgeOn: { backgroundColor: "#E8F5E9" },
-  permissionBadgeOff: { backgroundColor: "#EEEEEE" },
+  permissionBadgeOn: {
+    backgroundColor: "#E8F5E9",
+  },
+  permissionBadgeOff: {
+    backgroundColor: colors.surfaceContainerHighest,
+  },
   permissionBadgeText: {
     fontSize: 10,
     fontFamily: fontFamilies.technicalBold,
     letterSpacing: 0.5,
   },
-  permissionBadgeTextOn: { color: colors.success },
-  permissionBadgeTextOff: { color: colors.gray400 },
+  permissionBadgeTextOn: {
+    color: colors.success,
+  },
+  permissionBadgeTextOff: {
+    color: colors.gray400,
+  },
 
   // ── Botão primário ──────────────────────────────────────────────────────────
+
   btnPrimary: {
     backgroundColor: colors.primary,
     borderRadius: radius.lg,
     paddingVertical: 18,
     alignItems: "center",
-    marginTop: 4,
-    marginBottom: 16,
+    marginTop: spacing.s1,
+    marginBottom: spacing.s4,
   },
   btnPrimaryText: {
     color: colors.white,
@@ -224,19 +271,21 @@ export const styles = StyleSheet.create({
   },
 
   // ── Rodapé ──────────────────────────────────────────────────────────────────
+
   footerText: {
     textAlign: "center",
     fontSize: 10,
-    color: "#8A8A8A",
+    color: colors.gray400,
     fontFamily: fontFamilies.technicalBold,
     lineHeight: 16,
     letterSpacing: 0.5,
   },
 
   // ── Divider ─────────────────────────────────────────────────────────────────
+
   divider: {
     height: 1,
     backgroundColor: colors.surfaceContainerHighest,
-    marginVertical: 24,
+    marginVertical: spacing.s6,
   },
 });

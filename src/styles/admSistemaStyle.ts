@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-import { colors, spacing, radius, fontFamilies } from "@/constants/theme";
+import { StyleSheet } from "react-native";
+import { colors, fontFamilies, radius, spacing } from "../constants/theme";
 
 export const styles = StyleSheet.create({
 
@@ -11,11 +11,7 @@ export const styles = StyleSheet.create({
   },
   layout: {
     flex: 1,
-    flexDirection: 'row',
-  },
-  conteudo: {
-    flex: 1,
-    flexDirection: 'column',
+    flexDirection: "row",
   },
   scroll: {
     flex: 1,
@@ -26,43 +22,40 @@ export const styles = StyleSheet.create({
   // ─── Sidebar ─────────────────────────────────────────────────────────────────
 
   sidebar: {
-    width: 160,
+    width: 140,
     backgroundColor: colors.surfaceContainerLow,
-    paddingTop: spacing.s5,
+    paddingTop: spacing.s6,
     paddingBottom: spacing.s4,
     borderRightWidth: 1,
     borderRightColor: colors.outlineVariant,
-    justifyContent: 'space-between',
   },
   sidebarLogo: {
     paddingHorizontal: spacing.s4,
-    marginBottom: spacing.s6,
+    marginBottom: spacing.s8,
   },
   sidebarLogoTop: {
-    fontFamily: fontFamilies.headlineBold,
-    fontSize: 14,
-    color: colors.primary,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    fontStyle: 'italic',
-  },
-  sidebarLogoSub: {
     fontFamily: fontFamilies.technical,
-    fontSize: 9,
+    fontSize: 11,
+    letterSpacing: 2,
     color: colors.gray400,
-    letterSpacing: 0.2,
-    marginTop: 2,
+    textTransform: "uppercase",
+  },
+  sidebarLogoBottom: {
+    fontFamily: fontFamilies.headlineBold,
+    fontSize: 15,
+    color: colors.onSurface,
+    letterSpacing: 1,
+    textTransform: "uppercase",
   },
   sidebarNav: {
-    flex: 1,
     gap: spacing.s1,
     paddingHorizontal: spacing.s2,
   },
   navItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: spacing.s2,
-    paddingVertical: spacing.s2,
+    paddingVertical: spacing.s3,
     paddingHorizontal: spacing.s3,
     borderRadius: radius.md,
   },
@@ -70,111 +63,59 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.primary,
   },
   navIcon: {
-    fontSize: 14,
+    fontSize: 15,
   },
   navLabel: {
-    fontFamily: fontFamilies.technical,
-    fontSize: 12,
-    color: colors.onSurfaceVariant,
-    lineHeight: 16,
-    flex: 1,
-  },
+  fontFamily: fontFamilies.technicalBold,
+  fontSize: 12,
+  color: colors.onSurfaceVariant,
+  letterSpacing: 0.2,
+},
   navLabelActive: {
     color: colors.white,
-    fontFamily: fontFamilies.technicalBold,
   },
 
-  // ─── Rodapé da sidebar ────────────────────────────────────────────────────────
+  // ─── Header ──────────────────────────────────────────────────────────────────
 
-  sidebarFooter: {
-    paddingHorizontal: spacing.s3,
-    paddingTop: spacing.s4,
-    borderTopWidth: 1,
-    borderTopColor: colors.outlineVariant,
-    gap: spacing.s2,
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: spacing.s4,
+    marginBottom: spacing.s2,
   },
-  btnRegistrar: {
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.s3,
-    paddingHorizontal: spacing.s3,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    marginBottom: spacing.s1,
-  },
-  btnRegistrarText: {
-    fontFamily: fontFamilies.technicalBold,
-    fontSize: 11,
-    color: colors.white,
-    letterSpacing: 0.3,
-  },
-  footerItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.s2,
-    paddingVertical: spacing.s1,
-    paddingHorizontal: spacing.s2,
-  },
-  footerIcon: {
+  headerBreadcrumb: {
+    fontFamily: fontFamilies.body,
     fontSize: 14,
-  },
-  footerLabel: {
-    fontFamily: fontFamilies.technical,
-    fontSize: 12,
     color: colors.onSurfaceVariant,
   },
-
-  // ─── TopBar ───────────────────────────────────────────────────────────────────
-
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.s4,
-    paddingVertical: spacing.s3,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.outlineVariant,
-    flexWrap: 'wrap',
-    gap: spacing.s2,
-  },
-  topBarLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.s4,
-    flexWrap: 'wrap',
-  },
-  topBarPainelAtivo: {
-    fontFamily: fontFamilies.headlineItalic,
-    fontSize: 15,
-    color: colors.onSurface,
-  },
-  topBarItem: {
-    fontFamily: fontFamilies.technicalBold,
-    fontSize: 10,
-    letterSpacing: 0.6,
+  headerSep: {
     color: colors.gray400,
-    textTransform: 'uppercase',
   },
-  topBarItemDestaque: {
-    color: colors.onSurface,
+  headerSecao: {
+    fontFamily: fontFamilies.bodyBold,
+    fontSize: 14,
+    color: colors.primary,
   },
-  topBarBtnProtocolo: {
-    backgroundColor: colors.primary,
+  syncBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: spacing.s3,
     paddingVertical: spacing.s2,
-    paddingHorizontal: spacing.s4,
     borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+    backgroundColor: colors.white,
   },
-  topBarBtnText: {
-    fontFamily: fontFamilies.technicalBold,
-    fontSize: 11,
-    color: colors.white,
-    letterSpacing: 0.5,
+  syncText: {
+    fontFamily: fontFamilies.technical,
+    fontSize: 13,
+    color: colors.onSurfaceVariant,
   },
 
   // ─── Título da seção ─────────────────────────────────────────────────────────
 
   secaoTitulo: {
-    paddingTop: spacing.s5,
     paddingBottom: spacing.s4,
   },
   tituloPrincipal: {
@@ -209,23 +150,22 @@ export const styles = StyleSheet.create({
     fontSize: 10,
     letterSpacing: 1,
     color: colors.gray400,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     marginBottom: spacing.s1,
   },
   cardTitulo: {
     fontFamily: fontFamilies.headlineBold,
-    fontSize: 20,
+    fontSize: 18,
     color: colors.onSurface,
-    lineHeight: 26,
     marginBottom: spacing.s3,
   },
 
   // ─── Linha principal: Tabela + Matriz ────────────────────────────────────────
 
   linhaMain: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: spacing.s4,
-    flexWrap: 'wrap',
+    flexWrap: "wrap",
     marginBottom: spacing.s2,
   },
   cardTabela: {
@@ -233,11 +173,11 @@ export const styles = StyleSheet.create({
     minWidth: 280,
   },
   cardTabelaHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
     marginBottom: spacing.s4,
-    flexWrap: 'wrap',
+    flexWrap: "wrap",
     gap: spacing.s2,
   },
   linkGerenciar: {
@@ -247,11 +187,11 @@ export const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 
-  // ─── Tabela de profissionais ─────────────────────────────────────────────────
+  // ─── Tabela de profissionais ──────────────────────────────────────────────────
 
   tableHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingBottom: spacing.s2,
     borderBottomWidth: 1,
     borderBottomColor: colors.surfaceContainerHigh,
@@ -262,7 +202,7 @@ export const styles = StyleSheet.create({
     fontSize: 9,
     letterSpacing: 0.6,
     color: colors.gray400,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     lineHeight: 13,
   },
   colProfissional: { flex: 2.2 },
@@ -273,8 +213,8 @@ export const styles = StyleSheet.create({
   // ─── Linha de profissional ────────────────────────────────────────────────────
 
   profRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: spacing.s3,
     gap: spacing.s2,
   },
@@ -287,8 +227,8 @@ export const styles = StyleSheet.create({
     height: 34,
     borderRadius: 17,
     backgroundColor: colors.surfaceContainerHighest,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: spacing.s2,
   },
   profAvatarIcon: {
@@ -317,7 +257,7 @@ export const styles = StyleSheet.create({
   },
   acaoBtn: {
     width: 36,
-    alignItems: 'center',
+    alignItems: "center",
   },
   acaoIcon: {
     fontSize: 14,
@@ -329,15 +269,15 @@ export const styles = StyleSheet.create({
     paddingHorizontal: spacing.s2,
     paddingVertical: spacing.s1,
     borderRadius: radius.xs,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
   badgeCargoText: {
     fontFamily: fontFamilies.technicalBold,
     fontSize: 9,
     letterSpacing: 0.4,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     lineHeight: 13,
-    textAlign: 'center',
+    textAlign: "center",
   },
   badgeMedico:          { backgroundColor: colors.primaryTint },
   badgeMedicoText:      { color: colors.primary },
@@ -362,14 +302,14 @@ export const styles = StyleSheet.create({
   },
   equipeList: {
     borderRadius: radius.md,
-    overflow: 'hidden',
+    overflow: "hidden",
     marginBottom: spacing.s4,
     backgroundColor: colors.white,
   },
   equipeItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingVertical: spacing.s3,
     paddingHorizontal: spacing.s3,
   },
@@ -389,7 +329,7 @@ export const styles = StyleSheet.create({
     color: colors.white,
   },
   equipeRight: {
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
   },
   equipeAtletas: {
     fontFamily: fontFamilies.technical,
@@ -413,7 +353,7 @@ export const styles = StyleSheet.create({
     borderColor: colors.onSurface,
     borderRadius: radius.md,
     paddingVertical: spacing.s3,
-    alignItems: 'center',
+    alignItems: "center",
   },
   btnCriarEquipeText: {
     fontFamily: fontFamilies.technicalBold,
@@ -425,9 +365,9 @@ export const styles = StyleSheet.create({
   // ─── Cards de configuração (linha inferior) ───────────────────────────────────
 
   linhaCards: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: spacing.s4,
-    flexWrap: 'wrap',
+    flexWrap: "wrap",
     marginBottom: spacing.s2,
   },
   cardConfigItem: {
@@ -453,9 +393,9 @@ export const styles = StyleSheet.create({
     marginBottom: spacing.s4,
   },
   cardConfigRodape: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingTop: spacing.s3,
     borderTopWidth: 1,
     borderTopColor: colors.surfaceContainerHigh,
@@ -465,7 +405,7 @@ export const styles = StyleSheet.create({
     fontSize: 10,
     color: colors.gray400,
     letterSpacing: 0.3,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
   cardConfigValor: {
     fontFamily: fontFamilies.technicalBold,
@@ -480,9 +420,9 @@ export const styles = StyleSheet.create({
   // ─── Rodapé conformidade ─────────────────────────────────────────────────────
 
   rodapeConformidade: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
     paddingVertical: spacing.s4,
     marginBottom: spacing.s4,
     borderTopWidth: 1,
@@ -494,6 +434,6 @@ export const styles = StyleSheet.create({
     fontSize: 9,
     color: colors.gray400,
     letterSpacing: 0.5,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
   },
 });

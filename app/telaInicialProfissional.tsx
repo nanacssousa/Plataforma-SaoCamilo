@@ -3,14 +3,14 @@ import StaffFeaturesSection from "@/components/StaffFeaturesSection";
 import StaffHeroSection from "@/components/StaffHeroSection";
 import { styles } from "@/styles/landingStaffStyle";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    Text,
-    TouchableOpacity,
-    View,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
