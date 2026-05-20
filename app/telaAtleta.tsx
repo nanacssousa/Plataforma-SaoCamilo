@@ -1,13 +1,20 @@
 // src/app/TelaAtleta.tsx
 import React from "react";
-import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  SafeAreaView,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { styles } from "../src/styles/atletaStyle";
 
 export default function TelaAtleta() {
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Header — padrão pós-sessão, sem engrenagem */}
+      {/* Header */}
       <View style={styles.header}>
+        <View style={{ width: 36 }} />
         <Text style={styles.headerTitle}>ATLETA</Text>
         <TouchableOpacity style={styles.headerAvatar}>
           <Text style={styles.headerAvatarText}>GM</Text>
@@ -19,7 +26,8 @@ export default function TelaAtleta() {
         <View style={styles.alertCard}>
           <Text style={styles.alertTitle}>⚠️ DADOS DESATUALIZADOS</Text>
           <Text style={styles.alertText}>
-            Sua última medição foi há 48 horas. Registre novos dados para manter a precisão do seu perfil fisiológico.
+            Sua última medição foi há 48 horas. Registre novos dados para manter
+            a precisão do seu perfil fisiológico.
           </Text>
         </View>
 
@@ -28,7 +36,8 @@ export default function TelaAtleta() {
           <Text style={styles.heroSub}>PRONTO PARA TREINAR?</Text>
           <Text style={styles.heroTitle}>Iniciar Nova Sessão</Text>
           <Text style={styles.heroText}>
-            Inicie o monitoramento em tempo real para calcular sua taxa de sudorese hoje.
+            Inicie o monitoramento em tempo real para calcular sua taxa de
+            sudorese hoje.
           </Text>
           <TouchableOpacity style={styles.heroBtn}>
             <Text style={styles.heroBtnText}>COMEÇAR MONITORAMENTO</Text>
@@ -70,7 +79,9 @@ export default function TelaAtleta() {
         <View style={styles.metricCard}>
           <Text style={styles.metricLabel}>PRÓXIMA HIDRATAÇÃO</Text>
           <Text style={styles.metricValue}>🕒 15 min</Text>
-          <Text style={[styles.metricLabel, { marginTop: 12 }]}>VOLUME ALVO</Text>
+          <Text style={[styles.metricLabel, { marginTop: 12 }]}>
+            VOLUME ALVO
+          </Text>
           <Text style={styles.metricTarget}>350ml</Text>
         </View>
       </ScrollView>

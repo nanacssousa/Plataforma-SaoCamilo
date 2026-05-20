@@ -11,18 +11,19 @@ export const styles = StyleSheet.create({
   // ─── Header ────────────────────────────────────────────────────────────────
   header: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 14,
     backgroundColor: colors.surface,
   },
   headerTitle: {
-    fontFamily: fontFamilies.headlineBold,
-    fontSize: 20,
-    color: colors.onSurface,
-    textAlign: "center",
     flex: 1,
+    textAlign: "center",
+    fontFamily: fontFamilies.technicalBold,
+    fontSize: 14,
+    letterSpacing: 2,
+    textTransform: "uppercase",
+    color: colors.onSurface,
   },
   headerAvatar: {
     width: 36,
