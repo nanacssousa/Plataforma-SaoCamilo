@@ -37,6 +37,7 @@ export const styles = StyleSheet.create({
     textTransform: "uppercase",
     color: colors.onSurface,
     textAlign: "center",
+    textDecorationLine: "none", // <- Garante que não haja sublinhado no texto
   },
   headerAvatar: {
     width: 36,
@@ -55,6 +56,7 @@ export const styles = StyleSheet.create({
 
   // Progress Steps
   progressContainer: {
+    display: "none", // <- Oculta a barra de progresso (a linha vermelha)
     flexDirection: "row",
     paddingHorizontal: 20,
     gap: 6,

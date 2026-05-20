@@ -278,9 +278,6 @@ export default function AdmSistema() {
               <Text style={styles.headerSep}> / </Text>
               <Text style={styles.headerSecao}>Adm. do Sistema</Text>
             </Text>
-            <TouchableOpacity style={styles.syncBtn} activeOpacity={0.7}>
-              <Text style={styles.syncText}>↻ Sincronizar</Text>
-            </TouchableOpacity>
           </View>
 
           {/* Título da seção */}

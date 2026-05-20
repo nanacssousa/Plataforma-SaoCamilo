@@ -64,14 +64,15 @@ export const styles = StyleSheet.create({
     color: colors.onSurface,
     marginBottom: 16,
     lineHeight: 36,
-    textAlign: "center",
+    textAlign: "left", // <- Alterado para alinhar à esquerda
   },
   subtitle: {
     fontSize: 16,
     fontFamily: fontFamilies.body,
     color: colors.onSurfaceVariant,
     lineHeight: 24,
-    textAlign: "center",
+    textAlign: "left", // <- Alterado para alinhar à esquerda
+    marginBottom: 24,
   },
 
   // ─── Info Card ─────────────────────────────────────────────────────────────

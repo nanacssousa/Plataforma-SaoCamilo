@@ -51,7 +51,8 @@ export default function TelaDuranteTreino() {
             <Text style={styles.quickLogDescDark}>COPO MÉDIO</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.quickLogBtnDark}>
-            <Text style={styles.quickLogIcon}>🍼</Text>
+            {/* O emoji de mamadeira (🍼) foi substituído por gota de água (💧) */}
+            <Text style={styles.quickLogIcon}>💧</Text>
             <Text style={styles.quickLogValueLight}>+500ml</Text>
             <Text style={styles.quickLogDescLight}>GARRAFA PADRÃO</Text>
           </TouchableOpacity>

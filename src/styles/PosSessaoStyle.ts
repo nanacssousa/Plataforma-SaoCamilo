@@ -16,7 +16,10 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 14,
     backgroundColor: colors.surface,
+    borderBottomWidth: 0,
+    borderBottomColor: "transparent",
   },
+
   headerSettings: {
     fontSize: 20,
     color: colors.onSurface,
@@ -27,6 +30,9 @@ export const styles = StyleSheet.create({
     letterSpacing: 2,
     textTransform: "uppercase",
     color: colors.onSurface,
+    borderBottomWidth: 0,
+    borderBottomColor: "transparent",
+    textDecorationLine: "none", // <- Adicionado para garantir que não haja sublinhado
   },
   headerAvatar: {
     width: 36,
@@ -45,6 +51,7 @@ export const styles = StyleSheet.create({
 
   // Progress Steps
   progressContainer: {
+    display: "none", // <- Adicionado para esconder a barra de progresso (a provável linha vermelha)
     flexDirection: "row",
     paddingHorizontal: 20,
     gap: 6,

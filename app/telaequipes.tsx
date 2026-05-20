@@ -1,14 +1,14 @@
+import { styles } from "@/styles/TelaEquipesStyle";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
   SafeAreaView,
+  ScrollView,
   StatusBar,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { styles } from "@/styles/TelaEquipesStyle";
 
 // ─── Sidebar (compartilhada) ──────────────────────────────────────────────────
 
@@ -306,9 +306,6 @@ export default function TelaEquipes() {
               <Text style={styles.headerSep}> / </Text>
               <Text style={styles.headerEquipe}>Alta Performance A</Text>
             </Text>
-            <TouchableOpacity style={styles.syncBtn} activeOpacity={0.7}>
-              <Text style={styles.syncText}>↻ Sincronizar</Text>
-            </TouchableOpacity>
           </View>
 
           {/* ── Linha superior: Gráfico + KPIs ── */}

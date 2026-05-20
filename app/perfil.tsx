@@ -282,7 +282,7 @@ export default function ProfileScreen() {
 
           <View style={styles.settingRowSeparator} />
 
-          {/* Meta Diária — Slider funcional */}
+          {/* Meta Diária */}
           <HydrationSlider
             value={metaDiaria}
             onChange={setMetaDiaria}

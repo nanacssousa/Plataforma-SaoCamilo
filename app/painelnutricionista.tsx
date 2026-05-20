@@ -1,14 +1,14 @@
+import { styles } from "@/styles/PainelNutricionistaStyle";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
   SafeAreaView,
+  ScrollView,
   StatusBar,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { styles } from "@/styles/PainelNutricionistaStyle";
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
@@ -275,9 +275,6 @@ export default function PainelNutricionista() {
                 <Text style={styles.headerEquipe}>Alta Performance A</Text>
               </Text>
             </View>
-            <TouchableOpacity style={styles.syncBtn} activeOpacity={0.7}>
-              <Text style={styles.syncText}>↻ Sincronizar</Text>
-            </TouchableOpacity>
           </View>
 
           {/* ── Card de monitoramento ── */}
