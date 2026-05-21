@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { colors, spacing, radius, fontFamilies } from "@/constants/theme";
+import { colors, fontFamilies, radius, spacing } from "../constants/theme";
 
 export const styles = StyleSheet.create({
   // ─── Layout base ─────────────────────────────────────────────────────────────
@@ -12,10 +12,6 @@ export const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
   },
-  conteudo: {
-    flex: 1,
-    flexDirection: "column",
-  },
   scroll: {
     flex: 1,
     backgroundColor: colors.surface,
@@ -25,36 +21,32 @@ export const styles = StyleSheet.create({
   // ─── Sidebar ─────────────────────────────────────────────────────────────────
 
   sidebar: {
-    width: 160,
+    width: 140,
     backgroundColor: colors.surfaceContainerLow,
-    paddingTop: spacing.s5,
+    paddingTop: spacing.s6,
     paddingBottom: spacing.s4,
     borderRightWidth: 1,
     borderRightColor: colors.outlineVariant,
-    justifyContent: "space-between",
   },
   sidebarLogo: {
     paddingHorizontal: spacing.s4,
-    marginBottom: spacing.s6,
+    marginBottom: spacing.s8,
   },
   sidebarLogoTop: {
+    fontFamily: fontFamilies.technical,
+    fontSize: 11,
+    letterSpacing: 2,
+    color: colors.gray400,
+    textTransform: "uppercase",
+  },
+  sidebarLogoBottom: {
     fontFamily: fontFamilies.headlineBold,
-    fontSize: 14,
-    color: colors.primary,
+    fontSize: 15,
+    color: colors.onSurface,
     letterSpacing: 1,
     textTransform: "uppercase",
-    fontStyle: "italic",
-  },
-  sidebarLogoSub: {
-    fontFamily: fontFamilies.technical,
-    fontSize: 8,
-    color: colors.gray400,
-    letterSpacing: 0.5,
-    textTransform: "uppercase",
-    marginTop: 2,
   },
   sidebarNav: {
-    flex: 1,
     gap: spacing.s1,
     paddingHorizontal: spacing.s2,
   },
@@ -62,129 +54,60 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.s2,
-    paddingVertical: spacing.s2,
+    paddingVertical: spacing.s3,
     paddingHorizontal: spacing.s3,
     borderRadius: radius.md,
   },
   navItemActive: {
     backgroundColor: colors.primary,
-    borderRightWidth: 3,
-    borderRightColor: colors.primaryDark,
   },
-  navIcon: { fontSize: 14 },
+  navIcon: { fontSize: 15 },
   navLabel: {
-    fontFamily: fontFamilies.technical,
+    fontFamily: fontFamilies.technicalBold,
     fontSize: 12,
     color: colors.onSurfaceVariant,
-    lineHeight: 16,
-    flex: 1,
+    letterSpacing: 0.2,
   },
   navLabelActive: {
     color: colors.white,
-    fontFamily: fontFamilies.technicalBold,
   },
 
-  // ─── Rodapé da sidebar ────────────────────────────────────────────────────────
+  // ─── Header ──────────────────────────────────────────────────────────────────
 
-  sidebarFooter: {
-    paddingHorizontal: spacing.s3,
-    paddingTop: spacing.s3,
-    borderTopWidth: 1,
-    borderTopColor: colors.outlineVariant,
-    gap: spacing.s2,
-  },
-  btnRegistrar: {
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.s3,
-    borderRadius: radius.md,
-    alignItems: "center",
-    marginBottom: spacing.s1,
-  },
-  btnRegistrarText: {
-    fontFamily: fontFamilies.technicalBold,
-    fontSize: 10,
-    color: colors.white,
-    letterSpacing: 0.5,
-  },
-  footerItem: {
+  header: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.s2,
-    paddingVertical: spacing.s1,
-    paddingHorizontal: spacing.s2,
-  },
-  footerIcon: { fontSize: 13 },
-  footerLabel: {
-    fontFamily: fontFamilies.technicalBold,
-    fontSize: 10,
-    color: colors.onSurfaceVariant,
-    letterSpacing: 0.5,
-  },
-
-  // ─── TopBar ───────────────────────────────────────────────────────────────────
-
-  topBar: {
-    flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: spacing.s4,
-    paddingVertical: spacing.s3,
-    backgroundColor: colors.white,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.outlineVariant,
-    flexWrap: "wrap",
-    gap: spacing.s2,
-  },
-  topBarLeft: {
-    flexDirection: "row",
     alignItems: "center",
-    gap: spacing.s4,
-    flexWrap: "wrap",
+    paddingVertical: spacing.s4,
+    marginBottom: spacing.s2,
   },
-  topBarRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.s3,
+  headerBreadcrumb: {
+    fontFamily: fontFamilies.body,
+    fontSize: 14,
+    color: colors.onSurfaceVariant,
   },
-  topBarPainelLabel: {
-    fontFamily: fontFamilies.headlineItalic,
-    fontSize: 15,
-    color: colors.onSurface,
-    letterSpacing: 0,
-    textTransform: "none",
-  },
-  topBarItem: {
-    fontFamily: fontFamilies.technicalBold,
-    fontSize: 10,
-    letterSpacing: 0.6,
+  headerSep: {
     color: colors.gray400,
-    textTransform: "uppercase",
   },
-  topBarItemAtivo: {
-    color: colors.onSurface,
-    borderBottomWidth: 2,
-    borderBottomColor: colors.primary,
-    paddingBottom: 2,
+  headerDestaque: {
+    fontFamily: fontFamilies.bodyBold,
+    fontSize: 14,
+    color: colors.primary,
   },
-  topBarExportar: {
-    fontFamily: fontFamilies.technicalBold,
-    fontSize: 10,
-    letterSpacing: 0.6,
-    color: colors.onSurface,
-    textTransform: "uppercase",
-  },
-  topBarIcone: { fontSize: 16 },
-  topBarBtnProtocolo: {
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.s2,
+  syncBtn: {
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: spacing.s3,
+    paddingVertical: spacing.s2,
     borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+    backgroundColor: colors.white,
   },
-  topBarBtnText: {
-    fontFamily: fontFamilies.technicalBold,
-    fontSize: 10,
-    color: colors.white,
-    letterSpacing: 0.5,
+  syncText: {
+    fontFamily: fontFamilies.technical,
+    fontSize: 13,
+    color: colors.onSurfaceVariant,
   },
 
   // ─── Card genérico ────────────────────────────────────────────────────────────
@@ -207,76 +130,7 @@ export const styles = StyleSheet.create({
     marginBottom: spacing.s2,
   },
 
-  // ─── Cabeçalho da tela ────────────────────────────────────────────────────────
-
-  secaoHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    paddingTop: spacing.s5,
-    paddingBottom: spacing.s4,
-    gap: spacing.s4,
-    flexWrap: "wrap",
-  },
-  secaoHeaderLeft: {
-    flex: 1,
-    minWidth: 220,
-  },
-  tituloPrincipal: {
-    fontFamily: fontFamilies.headlineBold,
-    fontSize: 34,
-    color: colors.onSurface,
-    lineHeight: 40,
-    marginBottom: spacing.s2,
-  },
-  sessionId: {
-    fontFamily: fontFamilies.technical,
-    fontSize: 10,
-    color: colors.gray400,
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
-  },
-
-  // ─── KPI Risco Crítico ────────────────────────────────────────────────────────
-
-  kpiRisco: {
-    backgroundColor: colors.primaryDark,
-    borderRadius: radius.lg,
-    padding: spacing.s4,
-    minWidth: 160,
-    alignItems: "flex-start",
-    justifyContent: "center",
-  },
-  kpiRiscoAlerta: {
-    fontSize: 18,
-    color: "#F4A400",
-    marginBottom: spacing.s1,
-  },
-  kpiRiscoLabel: {
-    fontFamily: fontFamilies.technicalBold,
-    fontSize: 10,
-    color: "rgba(255,255,255,0.65)",
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
-    marginBottom: spacing.s1,
-    alignSelf: "flex-end",
-  },
-  kpiRiscoValor: {
-    fontFamily: fontFamilies.headlineBold,
-    fontSize: 40,
-    color: colors.white,
-    lineHeight: 44,
-    marginBottom: 4,
-  },
-  kpiRiscoSub: {
-    fontFamily: fontFamilies.technical,
-    fontSize: 10,
-    color: "rgba(255,255,255,0.55)",
-    letterSpacing: 0.4,
-    textTransform: "uppercase",
-  },
-
-  // ─── Linha gráfico + balanço ─────────────────────────────────────────────────
+  // ─── Linha gráfico + balanço ──────────────────────────────────────────────────
 
   linhaGrafico: {
     flexDirection: "row",
@@ -310,9 +164,7 @@ export const styles = StyleSheet.create({
 
   // ─── Gráfico sparkline ────────────────────────────────────────────────────────
 
-  graficoArea: {
-    flex: 1,
-  },
+  graficoArea: { flex: 1 },
   graficoRefLinha: {
     height: 1,
     backgroundColor: colors.surfaceContainerHigh,
@@ -365,9 +217,7 @@ export const styles = StyleSheet.create({
     marginTop: spacing.s3,
     gap: spacing.s2,
   },
-  metricaItem: {
-    flex: 1,
-  },
+  metricaItem: { flex: 1 },
   metricaLabel: {
     fontFamily: fontFamilies.technicalBold,
     fontSize: 9,
@@ -381,12 +231,8 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     color: colors.onSurface,
   },
-  metricaValorAlerta: {
-    color: colors.error,
-  },
-  metricaValorInfo: {
-    color: colors.secondary,
-  },
+  metricaValorAlerta: { color: colors.error },
+  metricaValorInfo: { color: colors.secondary },
 
   // ─── Card balanço eletrolítico ────────────────────────────────────────────────
 
@@ -402,9 +248,7 @@ export const styles = StyleSheet.create({
     marginBottom: spacing.s4,
     lineHeight: 22,
   },
-  balancoBloco: {
-    marginBottom: spacing.s3,
-  },
+  balancoBloco: { marginBottom: spacing.s3 },
   balancoLabel: {
     fontFamily: fontFamilies.technicalBold,
     fontSize: 9,
@@ -461,9 +305,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  balancoImagemTexto: {
-    fontSize: 36,
-  },
+  balancoImagemTexto: { fontSize: 36 },
 
   // ─── Tabela laboratorial ──────────────────────────────────────────────────────
 
@@ -544,24 +386,17 @@ export const styles = StyleSheet.create({
     color: colors.onSurface,
     flex: 1.4,
   },
-  marcadorLeituraAlerta: {
-    color: colors.error,
-  },
+  marcadorLeituraAlerta: { color: colors.error },
   marcadorRef: {
     fontFamily: fontFamilies.technical,
     fontSize: 11,
     color: colors.gray400,
     flex: 1.6,
   },
-  marcadorStatusCol: {
-    flex: 1.2,
-  },
-  marcadorTendenciaCol: {
-    flex: 0.8,
-    alignItems: "flex-end",
-  },
+  marcadorStatusCol: { flex: 1.2 },
+  marcadorTendenciaCol: { flex: 0.8, alignItems: "flex-end" },
 
-  // ─── Badges status clínico ────────────────────────────────────────────────────
+  // ─── Badges ───────────────────────────────────────────────────────────────────
 
   badge: {
     paddingHorizontal: spacing.s2,
@@ -600,9 +435,6 @@ export const styles = StyleSheet.create({
     flexWrap: "wrap",
     marginBottom: spacing.s2,
   },
-
-  // ─── Card protocolo ───────────────────────────────────────────────────────────
-
   cardProtocolo: {
     flex: 1,
     minWidth: 200,
@@ -630,9 +462,7 @@ export const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: spacing.s3,
   },
-  protocoloPassos: {
-    gap: spacing.s2,
-  },
+  protocoloPassos: { gap: spacing.s2 },
   protocoloPasso: {
     flexDirection: "row",
     alignItems: "flex-start",
@@ -672,9 +502,6 @@ export const styles = StyleSheet.create({
     color: colors.onSurface,
     letterSpacing: 0.5,
   },
-
-  // ─── Card quote ───────────────────────────────────────────────────────────────
-
   cardQuote: {
     flex: 1,
     minWidth: 180,
@@ -727,22 +554,6 @@ export const styles = StyleSheet.create({
     color: colors.gray400,
   },
 
-  // ─── Imagem placeholder ───────────────────────────────────────────────────────
-
-  imagemPlaceholder: {
-    flex: 1,
-    minWidth: 140,
-    minHeight: 180,
-    backgroundColor: colors.surfaceContainerHighest,
-    borderRadius: radius.lg,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: spacing.s4,
-  },
-  imagemPlaceholderIcone: {
-    fontSize: 48,
-  },
-
   // ─── Rodapé de status ─────────────────────────────────────────────────────────
 
   rodapeStatus: {
@@ -756,9 +567,7 @@ export const styles = StyleSheet.create({
     borderTopColor: colors.surfaceContainerHigh,
     gap: spacing.s4,
   },
-  rodapeStatusItem: {
-    gap: spacing.s1,
-  },
+  rodapeStatusItem: { gap: spacing.s1 },
   rodapeStatusLabel: {
     fontFamily: fontFamilies.technicalBold,
     fontSize: 8,
@@ -789,5 +598,22 @@ export const styles = StyleSheet.create({
     color: colors.gray400,
     letterSpacing: 0.4,
     alignSelf: "flex-end",
+  },
+  secaoTitulo: {
+    paddingBottom: spacing.s4,
+  },
+  tituloPrincipal: {
+    fontFamily: fontFamilies.headlineBold,
+    fontSize: 34,
+    color: colors.onSurface,
+    lineHeight: 40,
+    marginBottom: spacing.s2,
+  },
+  sessionId: {
+    fontFamily: fontFamilies.technical,
+    fontSize: 10,
+    color: colors.gray400,
+    letterSpacing: 1.5,
+    textTransform: "uppercase",
   },
 });

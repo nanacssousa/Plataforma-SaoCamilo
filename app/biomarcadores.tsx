@@ -1,31 +1,23 @@
+import { styles } from "@/styles/biomarcadoresStyle";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
   SafeAreaView,
+  ScrollView,
   StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { styles } from "@/styles/biomarcadoresStyle";
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
-type NavItem =
-  | "central"
-  | "hidratacao"
-  | "atletas"
-  | "protocolos"
-  | "laboratorio"
-  | "adm";
+type NavItem = "equipes" | "atletas" | "relatorios" | "configuracoes";
 
 const NAV_ITEMS: { id: NavItem; label: string; icon: string }[] = [
-  { id: "central", label: "Central de\nPerformance", icon: "📋" },
-  { id: "hidratacao", label: "Logs de\nHidratação", icon: "💧" },
-  { id: "atletas", label: "Elenco de\nAtletas", icon: "👤" },
-  { id: "protocolos", label: "Protocolos\nMédicos", icon: "🩺" },
-  { id: "laboratorio", label: "Análise de\nLab", icon: "🔬" },
-  { id: "adm", label: "Admin do\nSistema", icon: "⚙️" },
+  { id: "equipes", label: "Equipes", icon: "👥" },
+  { id: "atletas", label: "Atletas", icon: "🏃" },
+  { id: "relatorios", label: "Relatórios", icon: "📊" },
+  { id: "configuracoes", label: "Configurações", icon: "⚙️" },
 ];
 
 const Sidebar = ({
@@ -36,13 +28,10 @@ const Sidebar = ({
   onNavChange: (id: NavItem) => void;
 }) => (
   <View style={styles.sidebar}>
-    {/* Logo */}
     <View style={styles.sidebarLogo}>
-      <Text style={styles.sidebarLogoTop}>ATHLETE LAB</Text>
-      <Text style={styles.sidebarLogoSub}>UNIDADE DE ALTA PERFORMANCE</Text>
+      <Text style={styles.sidebarLogoTop}>CLINICAL</Text>
+      <Text style={styles.sidebarLogoBottom}>ATHLETE</Text>
     </View>
-
-    {/* Nav */}
     <View style={styles.sidebarNav}>
       {NAV_ITEMS.map((item) => {
         const isActive = item.id === activeNav;
@@ -60,69 +49,6 @@ const Sidebar = ({
           </TouchableOpacity>
         );
       })}
-    </View>
-
-    {/* Rodapé sidebar */}
-    <View style={styles.sidebarFooter}>
-      <TouchableOpacity style={styles.btnRegistrar} activeOpacity={0.8}>
-        <Text style={styles.btnRegistrarText}>REGISTRAR AVALIAÇÃO</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.footerItem} activeOpacity={0.7}>
-        <Text style={styles.footerIcon}>❓</Text>
-        <Text style={styles.footerLabel}>SUPORTE</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.footerItem} activeOpacity={0.7}>
-        <Text style={styles.footerIcon}>🔔</Text>
-        <Text style={styles.footerLabel}>NOTIFICAÇÕES</Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-);
-
-// ─── TopBar ───────────────────────────────────────────────────────────────────
-
-const TOPBAR_TABS = ["Painel Clínico", "RELATÓRIOS", "TEMPO REAL", "ARQUIVO"];
-
-const TopBar = ({
-  abaAtiva,
-  onAbaChange,
-}: {
-  abaAtiva: string;
-  onAbaChange: (aba: string) => void;
-}) => (
-  <View style={styles.topBar}>
-    <View style={styles.topBarLeft}>
-      {TOPBAR_TABS.map((tab) => (
-        <TouchableOpacity
-          key={tab}
-          onPress={() => onAbaChange(tab)}
-          activeOpacity={0.7}
-        >
-          <Text
-            style={[
-              styles.topBarItem,
-              tab === abaAtiva && styles.topBarItemAtivo,
-              tab === "Painel Clínico" && styles.topBarPainelLabel,
-            ]}
-          >
-            {tab}
-          </Text>
-        </TouchableOpacity>
-      ))}
-      <TouchableOpacity activeOpacity={0.7}>
-        <Text style={styles.topBarExportar}>EXPORTAR DADOS</Text>
-      </TouchableOpacity>
-    </View>
-    <View style={styles.topBarRight}>
-      <TouchableOpacity activeOpacity={0.7}>
-        <Text style={styles.topBarIcone}>👤</Text>
-      </TouchableOpacity>
-      <TouchableOpacity activeOpacity={0.7}>
-        <Text style={styles.topBarIcone}>⚙️</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.topBarBtnProtocolo} activeOpacity={0.8}>
-        <Text style={styles.topBarBtnText}>IMPLEMENTAR PROTOCOLO</Text>
-      </TouchableOpacity>
     </View>
   </View>
 );
@@ -195,17 +121,11 @@ const PASSOS_PROTOCOLO: PassoProtocolo[] = [
 
 // ─── Sub-componentes ──────────────────────────────────────────────────────────
 
-/** Gráfico de linha USG (sparkline com Views) */
 const GraficoUSG = () => {
   const ALTURA = 160;
-  const LARGURA_BARRA = 6;
-
   return (
     <View style={styles.graficoArea}>
-      {/* Linha de referência horizontal */}
       <View style={styles.graficoRefLinha} />
-
-      {/* Barras do gráfico */}
       <View style={styles.graficoBarrasRow}>
         {PONTOS_GRAFICO.map((ponto, i) => (
           <View key={ponto.hora} style={styles.graficoColuna}>
@@ -214,7 +134,7 @@ const GraficoUSG = () => {
                 style={[
                   styles.graficoBarraSpark,
                   { height: ALTURA * ponto.valor },
-                  i === 2 && styles.graficoBarraDestaque, // pico 12:00
+                  i === 2 && styles.graficoBarraDestaque,
                 ]}
               />
             </View>
@@ -229,8 +149,6 @@ const GraficoUSG = () => {
           </View>
         ))}
       </View>
-
-      {/* Métricas inferiores */}
       <View style={styles.graficoMetricas}>
         <View style={styles.metricaItem}>
           <Text style={styles.metricaLabel}>BASE</Text>
@@ -253,7 +171,6 @@ const GraficoUSG = () => {
   );
 };
 
-/** Badge de status laboratorial */
 const BadgeStatus = ({ status }: { status: MarcadorLab["status"] }) => {
   const cfg: Record<
     MarcadorLab["status"],
@@ -283,7 +200,6 @@ const BadgeStatus = ({ status }: { status: MarcadorLab["status"] }) => {
   );
 };
 
-/** Ícone de tendência */
 const IconeTendencia = ({
   tendencia,
 }: {
@@ -304,7 +220,6 @@ const IconeTendencia = ({
   );
 };
 
-/** Linha da tabela laboratorial */
 const MarcadorRow = ({
   marcador,
   isLast,
@@ -335,8 +250,7 @@ const MarcadorRow = ({
 // ─── Tela principal ───────────────────────────────────────────────────────────
 
 export default function Biomarcadores() {
-  const [activeNav, setActiveNav] = useState<NavItem>("central");
-  const [abaAtiva, setAbaAtiva] = useState("RELATÓRIOS");
+  const [activeNav, setActiveNav] = useState<NavItem>("relatorios");
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -345,237 +259,178 @@ export default function Biomarcadores() {
         {/* ── Sidebar ── */}
         <Sidebar activeNav={activeNav} onNavChange={setActiveNav} />
 
-        {/* ── Conteúdo principal ── */}
-        <View style={styles.conteudo}>
-          <TopBar abaAtiva={abaAtiva} onAbaChange={setAbaAtiva} />
+        {/* ── Conteúdo ── */}
+        <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+          {/* Header breadcrumb */}
+          <View style={styles.header}>
+            <Text style={styles.headerBreadcrumb}>
+              Biomarcadores
+              <Text style={styles.headerSep}> / </Text>
+              <Text style={styles.headerDestaque}>Atleta</Text>
+            </Text>
+          </View>
 
-          <ScrollView
-            style={styles.scroll}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* ── Cabeçalho da tela ── */}
-            <View style={styles.secaoHeader}>
-              <View style={styles.secaoHeaderLeft}>
-                <Text style={styles.tituloPrincipal}>
-                  Biomarcadores do{"\n"}Atleta
+          {/* Título da seção */}
+          <View style={styles.secaoTitulo}>
+            <Text style={styles.tituloPrincipal}>
+              Biomarcadores do{"\n"}Atleta
+            </Text>
+          </View>
+
+          {/* ── Linha 1: Gráfico USG + Balanço Eletrolítico ── */}
+          <View style={styles.linhaGrafico}>
+            <View style={[styles.card, styles.cardGrafico]}>
+              <View style={styles.graficoCardHeader}>
+                <Text style={styles.graficoTitulo}>
+                  Densidade da Urina (USG)
                 </Text>
-                <Text style={styles.sessionId}>
-                  ID DA SESSÃO: #ELITE-9942-PHYSIO
+                <Text style={styles.graficoSubtitulo}>
+                  DADOS LONGITUDINAIS 24H
                 </Text>
               </View>
-
-              {/* KPI — Risco Crítico */}
-              <View style={styles.kpiRisco}>
-                <Text style={styles.kpiRiscoAlerta}>▲</Text>
-                <Text style={styles.kpiRiscoLabel}>RISCO CRÍTICO</Text>
-                <Text style={styles.kpiRiscoValor}>1.031</Text>
-                <Text style={styles.kpiRiscoSub}>DENSIDADE MÁXIMA</Text>
-              </View>
+              <GraficoUSG />
             </View>
 
-            {/* ── Linha 1: Gráfico USG + Balanço Eletrolítico ── */}
-            <View style={styles.linhaGrafico}>
-              {/* Card gráfico */}
-              <View style={[styles.card, styles.cardGrafico]}>
-                <View style={styles.graficoCardHeader}>
-                  <Text style={styles.graficoTitulo}>
-                    Densidade da Urina (USG)
-                  </Text>
-                  <Text style={styles.graficoSubtitulo}>
-                    DADOS LONGITUDINAIS 24H
-                  </Text>
-                </View>
-                <GraficoUSG />
-              </View>
-
-              {/* Card balanço eletrolítico */}
-              <View style={[styles.card, styles.cardBalanco]}>
-                <Text style={styles.balancoTitulo}>
-                  Balanço Eletrolítico de Sódio
-                </Text>
-
-                {/* Sódio perdido */}
-                <View style={styles.balancoBloco}>
-                  <Text style={styles.balancoLabel}>PERDA TOTAL DE SÓDIO</Text>
-                  <View style={styles.balancoValorRow}>
-                    <Text style={styles.balancoValorGrande}>1,420</Text>
-                    <Text style={styles.balancoUnidade}> mg/L</Text>
-                    <View style={styles.badgeDeplecao}>
-                      <Text style={styles.badgeDeplecaoText}>
-                        DEPLEÇÃO MODERADA
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-
-                {/* Divider */}
-                <View style={styles.balancoDivider} />
-
-                {/* Taxa de sudorese */}
-                <View style={styles.balancoBloco}>
-                  <Text style={styles.balancoLabel}>
-                    ESTIMATIVA DA TAXA DE SUDORESE
-                  </Text>
-                  <View style={styles.balancoValorRow}>
-                    <Text style={styles.balancoValorGrande}>1.8</Text>
-                    <Text style={styles.balancoUnidade}> L/hr</Text>
-                    <Text style={styles.balancoTendIcone}>↗</Text>
-                  </View>
-                </View>
-
-                {/* Imagem ilustrativa (placeholder visual) */}
-                <View style={styles.balancoImagem}>
-                  <Text style={styles.balancoImagemTexto}>🧂</Text>
-                </View>
-              </View>
-            </View>
-
-            {/* ── Tabela de Resultados Laboratoriais ── */}
-            <View style={styles.card}>
-              <View style={styles.tabelaHeader}>
-                <View>
-                  <Text style={styles.cardTitulo}>
-                    Resultados de Análises Laboratoriais
-                  </Text>
-                  <Text style={styles.tabelaData}>
-                    ÚLTIMAS ATUALIZAÇÕES: 12 OUT 2023 | 14:30 GMT
-                  </Text>
-                </View>
-                <View style={styles.tabelaAcoes}>
-                  <TouchableOpacity
-                    style={styles.tabelaAcaoBtn}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.tabelaAcaoIcon}>⚡</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.tabelaAcaoBtn}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.tabelaAcaoIcon}>⬇</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              {/* Cabeçalho */}
-              <View style={styles.tableHeaderRow}>
-                <Text style={[styles.tableHeaderText, styles.colNome]}>
-                  NOME DO MARCADOR
-                </Text>
-                <Text style={[styles.tableHeaderText, styles.colLeitura]}>
-                  LEITURA
-                </Text>
-                <Text style={[styles.tableHeaderText, styles.colRef]}>
-                  INTERVALO DE REF.
-                </Text>
-                <Text style={[styles.tableHeaderText, styles.colStatus]}>
-                  STATUS CLÍNICO
-                </Text>
-                <Text style={[styles.tableHeaderText, styles.colTendencia]}>
-                  TENDÊNCIA
-                </Text>
-              </View>
-
-              {/* Linhas */}
-              {MARCADORES.map((m, i) => (
-                <MarcadorRow
-                  key={m.id}
-                  marcador={m}
-                  isLast={i === MARCADORES.length - 1}
-                />
-              ))}
-            </View>
-
-            {/* ── Linha inferior: Protocolo + Quote + Imagem ── */}
-            <View style={styles.linhaInferior}>
-              {/* Card protocolo ativo */}
-              <View style={[styles.card, styles.cardProtocolo]}>
-                <Text style={styles.cardTitulo}>Protocolo Ativo</Text>
-                <View style={styles.protocoloCard}>
-                  <Text style={styles.protocoloTag}>HIDRATAÇÃO_ALPHA_04</Text>
-                  <Text style={styles.protocoloNome}>
-                    Carga Salina Pós-{"\n"}Esforço
-                  </Text>
-                  <View style={styles.protocoloPassos}>
-                    {PASSOS_PROTOCOLO.map((passo) => (
-                      <View key={passo.numero} style={styles.protocoloPasso}>
-                        <View style={styles.protocoloNumeroBox}>
-                          <Text style={styles.protocoloNumero}>
-                            {passo.numero}
-                          </Text>
-                        </View>
-                        <Text style={styles.protocoloPassoDesc}>
-                          {passo.descricao}
-                        </Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-                <TouchableOpacity
-                  style={styles.btnHistorico}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.btnHistoricoText}>
-                    VER HISTÓRICO DE CONFORMIDADE
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Card quote */}
-              <View style={[styles.card, styles.cardQuote]}>
-                <Text style={styles.quoteTexto}>
-                  <Text style={styles.quoteItalico}>
-                    Performance de{"\n"}Elite Exige{"\n"}Precisão{"\n"}
-                    Fisiológica.
-                  </Text>
-                </Text>
-                <Text style={styles.quoteDesc}>
-                  Fluxos de dados são analisados em tempo real contra as bases
-                  individuais do atleta para mitigar a síndrome de
-                  sobretreinamento e o estresse renal.
-                </Text>
-                <View style={styles.quoteAutor}>
-                  <View style={styles.quoteAvatarBox}>
-                    <Text style={styles.quoteAvatarText}>HT</Text>
-                  </View>
-                  <View>
-                    <Text style={styles.quoteAutorNome}>DRA. ELENA THORNE</Text>
-                    <Text style={styles.quoteAutorCargo}>
-                      Fisiologista Chefe
+            <View style={[styles.card, styles.cardBalanco]}>
+              <Text style={styles.balancoTitulo}>
+                Balanço Eletrolítico de Sódio
+              </Text>
+              <View style={styles.balancoBloco}>
+                <Text style={styles.balancoLabel}>PERDA TOTAL DE SÓDIO</Text>
+                <View style={styles.balancoValorRow}>
+                  <Text style={styles.balancoValorGrande}>1,420</Text>
+                  <Text style={styles.balancoUnidade}> mg/L</Text>
+                  <View style={styles.badgeDeplecao}>
+                    <Text style={styles.badgeDeplecaoText}>
+                      DEPLEÇÃO MODERADA
                     </Text>
                   </View>
                 </View>
               </View>
-
-              {/* Bloco de imagem placeholder */}
-              <View style={styles.imagemPlaceholder}>
-                <Text style={styles.imagemPlaceholderIcone}>🔬</Text>
-              </View>
-            </View>
-
-            {/* ── Rodapé de status ── */}
-            <View style={styles.rodapeStatus}>
-              <View style={styles.rodapeStatusItem}>
-                <Text style={styles.rodapeStatusLabel}>STATUS DO SERVIDOR</Text>
-                <View style={styles.rodapeStatusValorRow}>
-                  <View style={styles.rodapeStatusDot} />
-                  <Text style={styles.rodapeStatusValor}>
-                    OPERACIONAL / CRIPTOGRAFADO
-                  </Text>
+              <View style={styles.balancoDivider} />
+              <View style={styles.balancoBloco}>
+                <Text style={styles.balancoLabel}>
+                  ESTIMATIVA DA TAXA DE SUDORESE
+                </Text>
+                <View style={styles.balancoValorRow}>
+                  <Text style={styles.balancoValorGrande}>1.8</Text>
+                  <Text style={styles.balancoUnidade}> L/hr</Text>
+                  <Text style={styles.balancoTendIcone}>↗</Text>
                 </View>
               </View>
-              <View style={styles.rodapeStatusItem}>
-                <Text style={styles.rodapeStatusLabel}>
-                  SINCRONIZAÇÃO DE DADOS
-                </Text>
-                <Text style={styles.rodapeStatusValor}>12:04:33 MS</Text>
+              <View style={styles.balancoImagem}>
+                <Text style={styles.balancoImagemTexto}>🧂</Text>
               </View>
-              <Text style={styles.rodapeCopyright}>
-                © 2023 UNIDADE DE PESQUISA CLÍNICA // ATHLETE LAB V4.2.3
+            </View>
+          </View>
+
+          {/* ── Tabela de Resultados Laboratoriais ── */}
+          <View style={styles.card}>
+            <View style={styles.tabelaHeader}>
+              <View>
+                <Text style={styles.cardTitulo}>
+                  Resultados de Análises Laboratoriais
+                </Text>
+                <Text style={styles.tabelaData}>
+                  ÚLTIMAS ATUALIZAÇÕES: 12 OUT 2023 | 14:30 GMT
+                </Text>
+              </View>
+              <View style={styles.tabelaAcoes}>
+                <TouchableOpacity
+                  style={styles.tabelaAcaoBtn}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.tabelaAcaoIcon}>⚡</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.tabelaAcaoBtn}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.tabelaAcaoIcon}>⬇</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles.tableHeaderRow}>
+              <Text style={[styles.tableHeaderText, styles.colNome]}>
+                NOME DO MARCADOR
+              </Text>
+              <Text style={[styles.tableHeaderText, styles.colLeitura]}>
+                LEITURA
+              </Text>
+              <Text style={[styles.tableHeaderText, styles.colRef]}>
+                INTERVALO DE REF.
+              </Text>
+              <Text style={[styles.tableHeaderText, styles.colStatus]}>
+                STATUS CLÍNICO
+              </Text>
+              <Text style={[styles.tableHeaderText, styles.colTendencia]}>
+                TENDÊNCIA
               </Text>
             </View>
-          </ScrollView>
-        </View>
+            {MARCADORES.map((m, i) => (
+              <MarcadorRow
+                key={m.id}
+                marcador={m}
+                isLast={i === MARCADORES.length - 1}
+              />
+            ))}
+          </View>
+
+          {/* ── Linha inferior: Protocolo + Quote ── */}
+          <View style={styles.linhaInferior}>
+            <View style={[styles.card, styles.cardProtocolo]}>
+              <Text style={styles.cardTitulo}>Protocolo Ativo</Text>
+              <View style={styles.protocoloCard}>
+                <Text style={styles.protocoloTag}>HIDRATAÇÃO_ALPHA_04</Text>
+                <Text style={styles.protocoloNome}>
+                  Carga Salina Pós-{"\n"}Esforço
+                </Text>
+                <View style={styles.protocoloPassos}>
+                  {PASSOS_PROTOCOLO.map((passo) => (
+                    <View key={passo.numero} style={styles.protocoloPasso}>
+                      <View style={styles.protocoloNumeroBox}>
+                        <Text style={styles.protocoloNumero}>
+                          {passo.numero}
+                        </Text>
+                      </View>
+                      <Text style={styles.protocoloPassoDesc}>
+                        {passo.descricao}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+              <TouchableOpacity style={styles.btnHistorico} activeOpacity={0.8}>
+                <Text style={styles.btnHistoricoText}>
+                  VER HISTÓRICO DE CONFORMIDADE
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={[styles.card, styles.cardQuote]}>
+              <Text style={styles.quoteTexto}>
+                <Text style={styles.quoteItalico}>
+                  Performance de{"\n"}Elite Exige{"\n"}Precisão{"\n"}
+                  Fisiológica.
+                </Text>
+              </Text>
+              <Text style={styles.quoteDesc}>
+                Fluxos de dados são analisados em tempo real contra as bases
+                individuais do atleta para mitigar a síndrome de
+                sobretreinamento e o estresse renal.
+              </Text>
+              <View style={styles.quoteAutor}>
+                <View style={styles.quoteAvatarBox}>
+                  <Text style={styles.quoteAvatarText}>HT</Text>
+                </View>
+                <View>
+                  <Text style={styles.quoteAutorNome}>DRA. ELENA THORNE</Text>
+                  <Text style={styles.quoteAutorCargo}>Fisiologista Chefe</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
       </View>
     </SafeAreaView>
   );
