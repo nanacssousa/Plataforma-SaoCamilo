@@ -52,7 +52,7 @@
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^25.7.0",
+    "@types/node": "^25.9.1",
     "@types/react": "~19.1.0",
     "babel-plugin-module-resolver": "^5.0.3",
     "eslint": "^9.25.0",
