@@ -1,23 +1,124 @@
-// src/app/TelaCadastroAtleta.tsx
-import React from "react";
+// app/telaCadastro.tsx
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
+  Alert,
   SafeAreaView,
   ScrollView,
   StatusBar,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import {
+  BotaoPrimario,
+  CampoTexto,
+  DropdownModalidade,
+} from "../src/components/CadastroAtletaComponents";
 import { colors } from "../src/constants/theme";
 import { styles } from "../src/styles/cadastroAtletaStyle";
 
+// ─── Validações ───────────────────────────────────────────────────────────────
+function validar(campos: {
+  nome: string;
+  idade: string;
+  altura: string;
+  peso: string;
+  modalidade: string;
+}) {
+  const erros: Record<string, string> = {};
+
+  if (!campos.nome.trim())
+    erros.nome = "Nome obrigatório";
+  else if (campos.nome.trim().length < 3)
+    erros.nome = "Mínimo 3 caracteres";
+
+  const idade = Number(campos.idade);
+  if (!campos.idade)
+    erros.idade = "Idade obrigatória";
+  else if (isNaN(idade) || idade < 10 || idade > 80)
+    erros.idade = "Entre 10 e 80 anos";
+
+  const altura = Number(campos.altura);
+  if (!campos.altura)
+    erros.altura = "Altura obrigatória";
+  else if (isNaN(altura) || altura < 100 || altura > 250)
+    erros.altura = "Entre 100 e 250 cm";
+
+  const peso = Number(campos.peso.replace(",", "."));
+  if (!campos.peso)
+    erros.peso = "Peso obrigatório";
+  else if (isNaN(peso) || peso < 30 || peso > 200)
+    erros.peso = "Entre 30 e 200 kg";
+
+  if (!campos.modalidade)
+    erros.modalidade = "Selecione uma modalidade";
+
+  return erros;
+}
+
+// ─── Tela principal ───────────────────────────────────────────────────────────
 export default function TelaCadastroAtleta() {
+  const router = useRouter();
+
+  const [nome, setNome] = useState("");
+  const [idade, setIdade] = useState("");
+  const [altura, setAltura] = useState("");
+  const [peso, setPeso] = useState("");
+  const [modalidade, setModalidade] = useState("");
+
+  const [erros, setErros] = useState<Record<string, string>>({});
+  const [tentouEnviar, setTentouEnviar] = useState(false);
+
+  const formularioCompleto =
+    nome.trim().length >= 3 &&
+    Number(idade) >= 10 &&
+    Number(altura) >= 100 &&
+    Number(peso.replace(",", ".")) >= 30 &&
+    modalidade !== "";
+
+  const handleCampo = (
+    campo: string,
+    valor: string,
+    setter: (v: string) => void
+  ) => {
+    setter(valor);
+    // Revalida em tempo real só se já tentou enviar
+    if (tentouEnviar) {
+      const novos = validar({
+        nome: campo === "nome" ? valor : nome,
+        idade: campo === "idade" ? valor : idade,
+        altura: campo === "altura" ? valor : altura,
+        peso: campo === "peso" ? valor : peso,
+        modalidade: campo === "modalidade" ? valor : modalidade,
+      });
+      setErros(novos);
+    }
+  };
+
+  const handleSubmit = () => {
+    setTentouEnviar(true);
+    const novosErros = validar({ nome, idade, altura, peso, modalidade });
+    setErros(novosErros);
+
+    if (Object.keys(novosErros).length > 0) {
+      Alert.alert(
+        "Campos incompletos",
+        "Preencha todos os campos obrigatórios corretamente.",
+        [{ text: "OK" }]
+      );
+      return;
+    }
+
+    // Aqui chamaria a API — por ora avança
+    router.push("/telaAtleta");
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
 
-      {/* Header — padrão pós-sessão */}
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>ATLETA</Text>
         <TouchableOpacity style={styles.headerAvatar}>
@@ -28,6 +129,7 @@ export default function TelaCadastroAtleta() {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Tag / Title / Subtitle */}
         <Text style={styles.tag}>PROTOCOLO DE REGISTRO</Text>
@@ -44,7 +146,7 @@ export default function TelaCadastroAtleta() {
             <View style={styles.infoTextContainer}>
               <Text style={styles.infoTitle}>PRECISÃO LAB</Text>
               <Text style={styles.infoDesc}>
-                Dados utilizados para cálculo de VO2 Max e Taxa Metabólica.
+                Dados utilizados para cálculo de taxa metabólica e sudorese.
               </Text>
             </View>
           </View>
@@ -62,60 +164,65 @@ export default function TelaCadastroAtleta() {
 
         {/* Form */}
         <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>NOME COMPLETO</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Ex: Julian Arredondo"
-              placeholderTextColor={colors.onSurfaceVariant}
-            />
-          </View>
+          <CampoTexto
+            label="Nome Completo"
+            placeholder="Ex: Julian Arredondo"
+            value={nome}
+            onChangeText={(v) => handleCampo("nome", v, setNome)}
+            erro={erros.nome}
+          />
 
           <View style={styles.row}>
-            <View style={[styles.inputGroup, { flex: 1, marginRight: 10 }]}>
-              <Text style={styles.label}>IDADE</Text>
-              <TextInput
-                style={styles.input}
+            <View style={{ flex: 1 }}>
+              <CampoTexto
+                label="Idade"
                 placeholder="00"
+                value={idade}
+                onChangeText={(v) => handleCampo("idade", v, setIdade)}
                 keyboardType="numeric"
-                placeholderTextColor={colors.onSurfaceVariant}
+                erro={erros.idade}
               />
             </View>
-            <View style={[styles.inputGroup, { flex: 1, marginLeft: 10 }]}>
-              <Text style={styles.label}>ALTURA (CM)</Text>
-              <TextInput
-                style={styles.input}
+            <View style={{ flex: 1 }}>
+              <CampoTexto
+                label="Altura"
                 placeholder="180"
+                value={altura}
+                onChangeText={(v) => handleCampo("altura", v, setAltura)}
                 keyboardType="numeric"
-                placeholderTextColor={colors.onSurfaceVariant}
+                erro={erros.altura}
+                suffix="CM"
               />
             </View>
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>PESO BASE (REFERÊNCIA)</Text>
-            <View style={styles.inputWithSuffix}>
-              <TextInput
-                style={styles.inputNoBg}
-                placeholder="72.5"
-                keyboardType="numeric"
-                placeholderTextColor={colors.onSurfaceVariant}
-              />
-              <Text style={styles.suffix}>KG</Text>
-            </View>
-          </View>
+          <CampoTexto
+            label="Peso Base"
+            placeholder="72,5"
+            value={peso}
+            onChangeText={(v) => handleCampo("peso", v, setPeso)}
+            keyboardType="decimal-pad"
+            erro={erros.peso}
+            suffix="KG"
+          />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>ESPORTE / CATEGORIA</Text>
-            <TouchableOpacity style={styles.selectInput}>
-              <Text style={styles.selectText}>Selecione a modalidade</Text>
-              <Text style={styles.selectIcon}>⌄</Text>
-            </TouchableOpacity>
-          </View>
+          <DropdownModalidade
+            value={modalidade}
+            onChange={(v) => {
+              setModalidade(v);
+              if (tentouEnviar) {
+                const novos = validar({ nome, idade, altura, peso, modalidade: v });
+                setErros(novos);
+              }
+            }}
+            erro={erros.modalidade}
+          />
 
-          <TouchableOpacity style={styles.btnPrimary}>
-            <Text style={styles.btnPrimaryText}>FINALIZAR REGISTRO →</Text>
-          </TouchableOpacity>
+          <BotaoPrimario
+            label={formularioCompleto ? "FINALIZAR REGISTRO →" : "PREENCHA OS CAMPOS"}
+            onPress={handleSubmit}
+            disabled={tentouEnviar && !formularioCompleto}
+          />
 
           <Text style={styles.footerText}>
             AO PROSSEGUIR, VOCÊ CONCORDA COM NOSSOS{"\n"}PROTOCOLOS DE DADOS.

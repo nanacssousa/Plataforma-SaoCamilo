@@ -1,6 +1,6 @@
 // src/styles/atletaStyle.ts
+import { colors, fontFamilies } from "@/constants/theme";
 import { StyleSheet } from "react-native";
-import { colors, fontFamilies } from "../constants/theme";
 
 export const styles = StyleSheet.create({
   safeArea: {
