@@ -1,5 +1,5 @@
+import { colors, fontFamilies, radius, spacing } from "@/constants/theme";
 import { StyleSheet } from "react-native";
-import { colors, spacing, radius, fontFamilies } from "@/constants/theme";
 
 export const styles = StyleSheet.create({
   // ─── Layout base ────────────────────────────────────────────────────────────
@@ -94,7 +94,7 @@ export const styles = StyleSheet.create({
   headerEquipe: {
     fontFamily: fontFamilies.bodyBold,
     fontSize: 14,
-    color: colors.onSurface,
+    color: colors.primary,
   },
   syncBtn: {
     flexDirection: "row",
