@@ -1,5 +1,5 @@
-import { colors, fontFamilies, radius, spacing } from "@/constants/theme";
 import { StyleSheet } from "react-native";
+import { colors, spacing, radius, fontFamilies } from "@/constants/theme";
 
 export const styles = StyleSheet.create({
   // ─── Layout base ────────────────────────────────────────────────────────────
@@ -194,6 +194,11 @@ export const styles = StyleSheet.create({
 
   // ─── Linha de atleta ─────────────────────────────────────────────────────────
 
+  atletaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: spacing.s3,
+  },
   atletaRowBorder: {
     borderBottomWidth: 1,
     borderBottomColor: colors.surfaceContainerLow,

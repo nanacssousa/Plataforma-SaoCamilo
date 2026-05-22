@@ -168,7 +168,7 @@ export default function PosSessaoScreen() {
 
       {/* CTA Button */}
       <TouchableOpacity style={styles.ctaButton} activeOpacity={0.85}>
-        <Text style={styles.ctaButtonText}>PRÓXIMA SESSÃO</Text>
+        <Text style={styles.ctaButtonText}>FINALIZAR SESSÃO</Text>
         <Text style={styles.ctaArrow}>→</Text>
       </TouchableOpacity>
     </SafeAreaView>
