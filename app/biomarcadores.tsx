@@ -318,9 +318,6 @@ export default function Biomarcadores() {
                   <Text style={styles.balancoTendIcone}>↗</Text>
                 </View>
               </View>
-              <View style={styles.balancoImagem}>
-                <Text style={styles.balancoImagemTexto}>🧂</Text>
-              </View>
             </View>
           </View>
 
