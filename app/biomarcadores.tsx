@@ -400,11 +400,6 @@ export default function Biomarcadores() {
                   ))}
                 </View>
               </View>
-              <TouchableOpacity style={styles.btnHistorico} activeOpacity={0.8}>
-                <Text style={styles.btnHistoricoText}>
-                  VER HISTÓRICO DE CONFORMIDADE
-                </Text>
-              </TouchableOpacity>
             </View>
 
             <View style={[styles.card, styles.cardQuote]}>

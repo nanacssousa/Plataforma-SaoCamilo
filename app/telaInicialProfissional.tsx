@@ -15,7 +15,9 @@ import {
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
 function Navbar() {
-  const [active, setActive] = useState<"nutrição" | "performance" | "ciência">("performance");
+  const [active, setActive] = useState<"nutrição" | "performance" | "ciência">(
+    "performance",
+  );
   const links = ["nutrição", "performance", "ciência"] as const;
 
   return (
@@ -32,7 +34,9 @@ function Navbar() {
       <View style={styles.navLinksRow}>
         {links.map((l) => (
           <TouchableOpacity key={l} onPress={() => setActive(l)}>
-            <Text style={[styles.navLink, active === l && styles.navLinkActive]}>
+            <Text
+              style={[styles.navLink, active === l && styles.navLinkActive]}
+            >
               {l.toUpperCase()}
             </Text>
           </TouchableOpacity>
@@ -67,7 +71,7 @@ function CtaSection() {
         onPress={() => router.push("/telaCadastroStaff")}
         activeOpacity={0.85}
       >
-        <Text style={styles.ctaBtnText}>SOLICITAR DEMONSTRAÇÃO GRATUITA →</Text>
+        <Text style={styles.ctaBtnText}>FAÇA SEU CADASTRO →</Text>
       </TouchableOpacity>
     </View>
   );
@@ -81,11 +85,15 @@ function Footer() {
         <Text style={styles.footerBrand}>CLÍNICA ATLETA</Text>
         <View style={styles.footerLinksRow}>
           {["Privacidade", "Termos", "Suporte"].map((l) => (
-            <Text key={l} style={styles.footerLink}>{l}</Text>
+            <Text key={l} style={styles.footerLink}>
+              {l}
+            </Text>
           ))}
         </View>
       </View>
-      <Text style={styles.footerCopy}>© 2024 CLÍNICA ATLETA PERFORMANCE LAB</Text>
+      <Text style={styles.footerCopy}>
+        © 2024 CLÍNICA ATLETA PERFORMANCE LAB
+      </Text>
     </View>
   );
 }

@@ -345,25 +345,7 @@ export default function AdmSistema() {
                   />
                 ))}
               </View>
-              <TouchableOpacity
-                style={styles.btnCriarEquipe}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.btnCriarEquipeText}>
-                  + CRIAR NOVA EQUIPE
-                </Text>
-              </TouchableOpacity>
             </View>
-          </View>
-
-          {/* ── Rodapé de conformidade ── */}
-          <View style={styles.rodapeConformidade}>
-            <Text style={styles.rodapeText}>
-              CONFORMIDADE DE NÍVEL INSTITUCIONAL • CERTIFICAÇÃO GDPR-S
-            </Text>
-            <Text style={styles.rodapeText}>
-              LOG DO SISTEMA V4.2.1-CLINICAL
-            </Text>
           </View>
         </ScrollView>
       </View>

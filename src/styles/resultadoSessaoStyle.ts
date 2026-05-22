@@ -132,7 +132,7 @@ export const styles = StyleSheet.create({
   },
   zoneText: {
     fontFamily: fontFamilies.technicalBold,
-    fontSize: 8,
+    fontSize: 11,
     color: colors.onSurface,
   },
   zoneColors: {
