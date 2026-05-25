@@ -12,24 +12,24 @@ const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction) => 
         const authHeader = req.headers.authorization
 
         if (!authHeader) {
-            return res.status(401).json({ error: "Token não fornecido" })
+            return res.status(401).json({ error: "Token nao fornecido" })
         }
 
         // formato: Bearer TOKEN
         const [, token] = authHeader.split(" ")
 
         if (!token) {
-            return res.status(401).json({ error: "Token inválido" })
+            return res.status(401).json({ error: "Token invalido" })
         }
 
         const decoded = jwt.verify(token, JWT_SECRET)
 
-        // salvar dados do usuário na request
+        // salvar dados do usuario na request
         req.user = decoded
 
         return next()
     } catch (err) {
-        return res.status(401).json({ error: "Token inválido ou expirado" })
+        return res.status(401).json({ error: "Token invalido ou expirado" })
     }
 }
 
