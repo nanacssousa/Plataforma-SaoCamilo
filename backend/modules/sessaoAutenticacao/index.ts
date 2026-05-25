@@ -1,0 +1,5 @@
+export { sessaoAutenticacaoController } from "./sessaoAutenticacaoController"
+export { sessaoAutenticacaoRepository } from "./sessaoAutenticacaoRepository"
+export { sessaoAutenticacaoService } from "./sessaoAutenticacaoService"
+export { default as sessaoAutenticacaoRoutes } from "./sessaoAutenticacaoRoutes"
+export type { CreateSessaoAutenticacaoDTO, SessaoAutenticacao, UpdateSessaoAutenticacaoDTO } from "./sessaoAutenticacaoTypes"

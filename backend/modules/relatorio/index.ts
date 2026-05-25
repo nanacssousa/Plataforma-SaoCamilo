@@ -1,0 +1,5 @@
+export { relatorioController } from "./relatorioController"
+export { relatorioRepository } from "./relatorioRepository"
+export { relatorioService } from "./relatorioService"
+export { default as relatorioRoutes } from "./relatorioRoutes"
+export type { CreateRelatorioDTO, Relatorio, UpdateRelatorioDTO } from "./relatorioTypes"

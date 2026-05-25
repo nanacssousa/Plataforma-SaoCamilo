@@ -1,0 +1,5 @@
+export { biomarcadorMedicaoController } from "./biomarcadorMedicaoController"
+export { biomarcadorMedicaoRepository } from "./biomarcadorMedicaoRepository"
+export { biomarcadorMedicaoService } from "./biomarcadorMedicaoService"
+export { default as biomarcadorMedicaoRoutes } from "./biomarcadorMedicaoRoutes"
+export type { BiomarcadorMedicao, CreateBiomarcadorMedicaoDTO, UpdateBiomarcadorMedicaoDTO } from "./biomarcadorMedicaoTypes"
