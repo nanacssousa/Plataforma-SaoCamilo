@@ -9,6 +9,8 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```bash
    npm install expo
 
+   npm install express
+
    npm install -D tsx
 
    npm install mysql2

@@ -19,36 +19,31 @@ import { triagemRoutes } from "../modules/triagem"
 import { usuariosRoutes } from "../modules/usuarios"
 import { vinculoProfissionalAtletaRoutes } from "../modules/vinculoProfissionalAtleta"
 import { volumeUrinarioRoutes } from "../modules/volumeUrinario"
-import { authMiddleware, pool } from "../shared"
 
-export const apiRoutes = {
-  alertas: alertaRoutes,
-  biomarcadores: biomarcadorRoutes,
-  biomarcadorMedicoes: biomarcadorMedicaoRoutes,
-  calculosHidratacao: calculoHidratacaoRoutes,
-  equipes: equipeRoutes,
-  equipeMembros: equipeMembroRoutes,
-  estrategiasHidratacao: estrategiaHidratacaoRoutes,
-  ingestaoFluido: ingestaoFluidoRoutes,
-  logsAuditoria: logAuditoriaRoutes,
-  perfis: perfilRoutes,
-  perfilAtletico: perfilAtleticoRoutes,
-  pesagens: pesagemRoutes,
-  registroCorUrina: registroCorUrinaRoutes,
-  relatorios: relatorioRoutes,
-  sessoesAutenticacao: sessaoAutenticacaoRoutes,
-  sessoesTreino: sessaoTreinoRoutes,
-  tipoExercicio: tipoExercicioRoutes,
-  triagens: triagemRoutes,
-  usuarios: usuariosRoutes,
-  vinculoProfissionalAtleta: vinculoProfissionalAtletaRoutes,
-  volumeUrinario: volumeUrinarioRoutes,
-} as const
+import { Router } from "express"
 
-export const sharedResources = {
-  authMiddleware,
-  pool,
-} as const
+const apiRoutes = Router()
 
-export type ApiRouteKey = keyof typeof apiRoutes
-export type SharedResourceKey = keyof typeof sharedResources
+apiRoutes.use("/alertas", alertaRoutes)
+apiRoutes.use("/biomarcadores", biomarcadorRoutes)
+apiRoutes.use("/biomarcador-medicoes", biomarcadorMedicaoRoutes)
+apiRoutes.use("/calculos-hidratacao", calculoHidratacaoRoutes)
+apiRoutes.use("/equipes", equipeRoutes)
+apiRoutes.use("/equipe-membros", equipeMembroRoutes)
+apiRoutes.use("/estrategias-hidratacao", estrategiaHidratacaoRoutes)
+apiRoutes.use("/ingestao-fluido", ingestaoFluidoRoutes)
+apiRoutes.use("/logs-auditoria", logAuditoriaRoutes)
+apiRoutes.use("/perfis", perfilRoutes)
+apiRoutes.use("/perfil-atletico", perfilAtleticoRoutes)
+apiRoutes.use("/pesagens", pesagemRoutes)
+apiRoutes.use("/registro-cor-urina", registroCorUrinaRoutes)
+apiRoutes.use("/relatorios", relatorioRoutes)
+apiRoutes.use("/sessoes-autenticacao", sessaoAutenticacaoRoutes)
+apiRoutes.use("/sessoes-treino", sessaoTreinoRoutes)
+apiRoutes.use("/tipos-exercicio", tipoExercicioRoutes)
+apiRoutes.use("/triagens", triagemRoutes)
+apiRoutes.use("/usuarios", usuariosRoutes)
+apiRoutes.use("/vinculo-profissional-atleta", vinculoProfissionalAtletaRoutes)
+apiRoutes.use("/volume-urinario", volumeUrinarioRoutes)
+
+export { apiRoutes }
