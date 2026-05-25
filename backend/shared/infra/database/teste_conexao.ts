@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import pool from './conexaoDB';
+import pool from './conexaoDB.js';
 
 async function testConnection() {
   try {

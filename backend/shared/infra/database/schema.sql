@@ -526,3 +526,182 @@ END$$
 DELIMITER ;
 
 SELECT 'schema_align_v1 carregado com sucesso.' AS status;
+
+-- ============================================
+-- AJUSTES DE COMPATIBILIDADE MYSQL 8+
+-- ============================================
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+-- ============================================
+-- UNIQUE KEYS NECESSÁRIAS
+-- ============================================
+
+-- PERFIS
+ALTER TABLE perfis
+ADD CONSTRAINT uq_perfis_nome UNIQUE (nome);
+
+-- TIPOS EXERCICIO
+ALTER TABLE tipos_exercicio
+ADD CONSTRAINT uq_tipos_exercicio_nome UNIQUE (nome);
+
+-- BIOMARCADORES
+ALTER TABLE biomarcadores
+ADD CONSTRAINT uq_biomarcadores_nome UNIQUE (nome);
+
+-- USUARIOS
+ALTER TABLE usuarios
+ADD CONSTRAINT uq_usuarios_email UNIQUE (email);
+
+-- EQUIPES
+ALTER TABLE equipes
+ADD CONSTRAINT uq_equipes_nome UNIQUE (nome);
+
+-- ============================================
+-- ÍNDICES IMPORTANTES (PERFORMANCE)
+-- ============================================
+
+CREATE INDEX idx_usuarios_perfil
+ON usuarios(id_perfil);
+
+CREATE INDEX idx_sessoes_usuario
+ON sessoes_treino(id_usuario);
+
+CREATE INDEX idx_sessoes_data
+ON sessoes_treino(data_treino);
+
+CREATE INDEX idx_pesagens_sessao
+ON pesagens(id_sessao);
+
+CREATE INDEX idx_ingestao_sessao
+ON ingestao_fluidos(id_sessao);
+
+CREATE INDEX idx_alertas_usuario
+ON alertas(id_usuario);
+
+CREATE INDEX idx_biomarcador_usuario
+ON biomarcador_medicoes(id_usuario);
+
+CREATE INDEX idx_relatorios_atleta
+ON relatorios(id_atleta);
+
+CREATE INDEX idx_logs_usuario
+ON logs_auditoria(id_usuario);
+
+-- ============================================
+-- AJUSTES DE AUTO_INCREMENT
+-- (garante consistência)
+-- ============================================
+
+ALTER TABLE perfis
+MODIFY id_perfil BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE usuarios
+MODIFY id_usuario BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE equipes
+MODIFY id_equipe BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE perfis_atleticos
+MODIFY id_perfil_atletico BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE vinculos_profissional_atleta
+MODIFY id_vinculo BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE tipos_exercicio
+MODIFY id_tipo_exercicio BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE sessoes_treino
+MODIFY id_sessao BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE pesagens
+MODIFY id_pesagem BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE ingestao_fluidos
+MODIFY id_ingestao BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE volumes_urinarios
+MODIFY id_volume_urinario BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE registros_cor_urina
+MODIFY id_registro_urina BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE triagens
+MODIFY id_triagem BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE calculos_hidratacao
+MODIFY id_calculo BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE alertas
+MODIFY id_alerta BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE biomarcadores
+MODIFY id_biomarcador BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE biomarcador_medicoes
+MODIFY id_medicao BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE estrategias_hidratacao
+MODIFY id_estrategia BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE relatorios
+MODIFY id_relatorio BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE sessoes_autenticacao
+MODIFY id_sessao_auth BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+ALTER TABLE logs_auditoria
+MODIFY id_log BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
+-- ============================================
+-- AJUSTES DE INTEGRIDADE
+-- ============================================
+
+ALTER TABLE usuarios
+MODIFY email VARCHAR(255) NOT NULL;
+
+ALTER TABLE usuarios
+MODIFY senha_hash VARCHAR(255) NOT NULL;
+
+ALTER TABLE usuarios
+MODIFY nome_completo VARCHAR(255) NOT NULL;
+
+ALTER TABLE usuarios
+MODIFY genero ENUM(
+  'MASCULINO',
+  'FEMININO',
+  'PREFIRO_NAO_INFORMAR',
+) NOT NULL;
+
+ALTER TABLE sessoes_treino
+MODIFY intensidade ENUM(
+  'LEVE',
+  'MODERADA',
+  'INTENSA'
+) NOT NULL;
+
+ALTER TABLE pesagens
+MODIFY momento ENUM(
+  'PRE',
+  'POS'
+) NOT NULL;
+
+ALTER TABLE ingestao_fluidos
+MODIFY momento ENUM(
+  'PRE',
+  'DURANTE',
+  'POS'
+) NOT NULL;
+
+ALTER TABLE registros_cor_urina
+MODIFY momento ENUM(
+  'PRE',
+  'POS'
+) NOT NULL;
+
+ALTER TABLE usuarios
+MODIFY atualizado_em TIMESTAMP
+DEFAULT CURRENT_TIMESTAMP
+ON UPDATE CURRENT_TIMESTAMP;
+
+SET FOREIGN_KEY_CHECKS = 1;
