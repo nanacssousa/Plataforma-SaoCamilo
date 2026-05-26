@@ -1,98 +1,163 @@
+import { useRouter } from "expo-router";
 import React from "react";
 import {
   SafeAreaView,
   ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { styles } from "../src/styles/duranteTreinoStyle";
+
+import { ConfirmSessionModal } from "../src/components/duranteTreino/ConfirmSessionModal";
+import { CustomWaterModal } from "../src/components/duranteTreino/CustomWaterModal";
+import { HydrationCards } from "../src/components/duranteTreino/HydrationCards";
+import { QuickAddButtons } from "../src/components/duranteTreino/QuickAddButtons";
+import { SessionLog } from "../src/components/duranteTreino/SessionLog";
+import { SessionTimer } from "../src/components/duranteTreino/SessionTimer";
+import { colors, fontFamilies, radius, spacing } from "../src/constants/theme";
+import { useDuranteTreino } from "../src/hooks/useDuranteTreino";
 
 export default function TelaDuranteTreino() {
+  const router = useRouter();
+  const {
+    seconds,
+    total,
+    log,
+    goalReached,
+    flash,
+    showCustom,
+    showConfirm,
+    setShowCustom,
+    setShowConfirm,
+    handleQuickAdd,
+    handleCustomAdd,
+    handleNewSession,
+  } = useDuranteTreino();
+
+  function handleProximaSessao() {
+    // Salva e redireciona para a tela de resultado/pós-sessão
+    router.push("/possessao");
+  }
+
   return (
-    <SafeAreaView style={styles.safeArea}>
-      {/* Top Bar */}
-      <View style={styles.topBar}>
-        <View style={{ width: 36 }} />
-        <Text style={styles.topTitle}>ATLETA</Text>
-        <View style={styles.avatarMini}>
-          <Text style={styles.avatarMiniText}>GM</Text>
+    <SafeAreaView style={styles.safe}>
+      {/* Flash feedback */}
+      {flash && (
+        <View style={styles.flashBanner} pointerEvents="none">
+          <Text style={styles.flashText}>💧 Água adicionada!</Text>
         </View>
-      </View>
+      )}
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Timer Card */}
-        <View style={styles.timerCard}>
-          <Text style={styles.timerLabel}>DURAÇÃO TOTAL</Text>
-          <Text style={styles.timerValue}>01:42:15</Text>
-          <Text style={styles.statusActive}>⚡ ATIVO</Text>
-        </View>
-
-        <View style={styles.statsRow}>
-          <View style={styles.statBox}>
-            <Text style={styles.statLabel}>INGESTÃO TOTAL</Text>
-            <Text style={styles.statValue}>
-              1,2<Text style={styles.statUnit}> L</Text>
-            </Text>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.headerEyebrow}>TREINO ATIVO</Text>
+            <Text style={styles.headerTitle}>Hidratação</Text>
           </View>
-          <View style={styles.statBox}>
-            <Text style={styles.statLabel}>META RESTANTE</Text>
-            <Text style={styles.statValue}>
-              800<Text style={styles.statUnit}> ML</Text>
-            </Text>
-          </View>
-        </View>
-
-        <Text style={styles.sectionTitle}>REGISTRO RÁPIDO DE ÁGUA</Text>
-        <View style={styles.quickLogGrid}>
-          <TouchableOpacity style={styles.quickLogBtnLight}>
-            <Text style={styles.quickLogIcon}>🥛</Text>
-            <Text style={styles.quickLogValueDark}>+200ml</Text>
-            <Text style={styles.quickLogDescDark}>COPO MÉDIO</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.quickLogBtnDark}>
-            {/* O emoji de mamadeira (🍼) foi substituído por gota de água (💧) */}
-            <Text style={styles.quickLogIcon}>💧</Text>
-            <Text style={styles.quickLogValueLight}>+500ml</Text>
-            <Text style={styles.quickLogDescLight}>GARRAFA PADRÃO</Text>
+          <TouchableOpacity
+            style={styles.btnNextSession}
+            onPress={() => setShowConfirm(true)}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.btnNextSessionText}>PRÓXIMA SESSÃO →</Text>
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.customLogBtn}>
-          <Text style={styles.customLogText}>⊕ VALOR PERSONALIZADO</Text>
-        </TouchableOpacity>
-
-        <View style={styles.logHeader}>
-          <Text style={styles.sectionTitle}>LOG DA SESSÃO</Text>
-          <Text style={styles.logCount}>3 ENTRADAS</Text>
-        </View>
-
-        <View style={styles.logItem}>
-          <View style={styles.logIconWrapperRed}>
-            <Text>💧</Text>
-          </View>
-          <View style={styles.logTextWrapper}>
-            <Text style={styles.logItemTitle}>500ml Ingeridos</Text>
-            <Text style={styles.logItemSub}>11:45 • HIDRATAÇÃO PADRÃO</Text>
-          </View>
-          <Text style={styles.logOptions}>⋮</Text>
-        </View>
-
-        <View style={styles.logItem}>
-          <View style={styles.logIconWrapperRed}>
-            <Text>💧</Text>
-          </View>
-          <View style={styles.logTextWrapper}>
-            <Text style={styles.logItemTitle}>200ml Ingeridos</Text>
-            <Text style={styles.logItemSub}>11:20 • INGESTÃO RÁPIDA</Text>
-          </View>
-          <Text style={styles.logOptions}>⋮</Text>
-        </View>
-
-        <TouchableOpacity style={styles.endSessionBtn}>
-          <Text style={styles.endSessionText}>PRÓXIMA SESSÃO →</Text>
-        </TouchableOpacity>
+        <SessionTimer seconds={seconds} />
+        <HydrationCards total={total} goalReached={goalReached} />
+        <QuickAddButtons
+          onAdd={handleQuickAdd}
+          onCustom={() => setShowCustom(true)}
+        />
+        <SessionLog log={log} />
       </ScrollView>
+
+      <CustomWaterModal
+        visible={showCustom}
+        onClose={() => setShowCustom(false)}
+        onConfirm={handleCustomAdd}
+      />
+
+      <ConfirmSessionModal
+        visible={showConfirm}
+        onClose={() => setShowConfirm(false)}
+        onConfirm={() => {
+          handleNewSession();
+          handleProximaSessao();
+        }}
+      />
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: "#fdf5f5",
+  },
+  scroll: {
+    flex: 1,
+  },
+  content: {
+    padding: spacing.s5,
+    paddingBottom: spacing.s8,
+  },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacing.s5,
+  },
+  headerEyebrow: {
+    fontFamily: fontFamilies.technicalBold,
+    fontSize: 11,
+    letterSpacing: 2,
+    color: "#c09090",
+    textTransform: "uppercase",
+    marginBottom: 2,
+  },
+  headerTitle: {
+    fontFamily: fontFamilies.headlineBold,
+    fontSize: 22,
+    color: "#2c1a1a",
+    lineHeight: 26,
+  },
+  btnNextSession: {
+    backgroundColor: colors.primary,
+    borderRadius: radius.md,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  btnNextSessionText: {
+    color: colors.white,
+    fontFamily: fontFamilies.technicalBold,
+    fontSize: 12,
+    letterSpacing: 0.5,
+  },
+  flashBanner: {
+    position: "absolute",
+    top: 16,
+    alignSelf: "center",
+    zIndex: 90,
+    backgroundColor: "#a40000",
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 24,
+    shadowColor: "#a40000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 8,
+  },
+  flashText: {
+    color: colors.white,
+    fontFamily: fontFamilies.technicalBold,
+    fontSize: 13,
+  },
+});

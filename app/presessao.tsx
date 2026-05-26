@@ -1,4 +1,5 @@
-// src/app/pre-sessao.tsx
+// app/presessao.tsx
+import { useRouter } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
   PanResponder,
@@ -109,6 +110,8 @@ const ThirstSlider = ({
 
 // ─── Tela principal ───────────────────────────────────────────────────────────
 export default function PreSessaoScreen() {
+  const router = useRouter();
+
   const [peso, setPeso] = useState("");
   const [tipoTreino, setTipoTreino] = useState<TipoTreino>("alta");
   const [urineSelecionada, setUrineSelecionada] = useState(2);
@@ -272,8 +275,12 @@ export default function PreSessaoScreen() {
         </View>
       </ScrollView>
 
-      {/* CTA Button */}
-      <TouchableOpacity style={styles.ctaButton} activeOpacity={0.85}>
+      {/* CTA Button — redireciona para telaDuranteTreino */}
+      <TouchableOpacity
+        style={styles.ctaButton}
+        activeOpacity={0.85}
+        onPress={() => router.push("/telaDuranteTreino")}
+      >
         <Text style={styles.ctaButtonText}>PRÓXIMA SESSÃO</Text>
         <Text style={styles.ctaArrow}>→</Text>
       </TouchableOpacity>
