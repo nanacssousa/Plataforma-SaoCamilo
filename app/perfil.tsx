@@ -1,4 +1,7 @@
 // app/perfil.tsx
+import { colors } from "@/constants/theme";
+import { styles } from "@/styles/ProfileStyle";
+import { router } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
   PanResponder,
@@ -10,9 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-import { colors } from "@/constants/theme";
-import { styles } from "@/styles/ProfileStyle";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 const Divider = () => <View style={styles.divider} />;
@@ -210,9 +210,14 @@ export default function ProfileScreen() {
       <View style={styles.header}>
         <View style={{ width: 36 }} />
         <Text style={styles.headerTitle}>ATLETA</Text>
-        <View style={styles.headerAvatar}>
+
+        <TouchableOpacity
+          style={styles.headerAvatar}
+          activeOpacity={0.7}
+          onPress={() => router.push("/perfil")}
+        >
           <Text style={styles.headerAvatarText}>GM</Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       <ScrollView

@@ -1,6 +1,8 @@
 import { styles } from "@/styles/PainelNutricionistaStyle";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
+  Alert,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -9,8 +11,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-// ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 type NavItem = "equipes" | "atletas" | "relatorios" | "configuracoes";
 
@@ -29,13 +29,10 @@ const Sidebar = ({
   onNavChange: (id: NavItem) => void;
 }) => (
   <View style={styles.sidebar}>
-    {/* Logo */}
     <View style={styles.sidebarLogo}>
       <Text style={styles.sidebarLogoTop}>CLINICAL</Text>
       <Text style={styles.sidebarLogoBottom}>ATHLETE</Text>
     </View>
-
-    {/* Itens de navegação */}
     <View style={styles.sidebarNav}>
       {NAV_ITEMS.map((item) => {
         const isActive = item.id === activeNav;
@@ -57,8 +54,6 @@ const Sidebar = ({
   </View>
 );
 
-// ─── Tipos ────────────────────────────────────────────────────────────────────
-
 type StatusHidrico = "desidratado" | "hidratado" | "alerta_leve";
 
 interface Atleta {
@@ -67,7 +62,7 @@ interface Atleta {
   posicao: string;
   categoria: string;
   massaAtual: number;
-  deltaMassa: number; // percentual
+  deltaMassa: number;
   usg: number;
   statusHidrico: StatusHidrico;
 }
@@ -78,8 +73,6 @@ interface Sugestao {
   titulo: string;
   descricao: string;
 }
-
-// ─── Dados mockados ───────────────────────────────────────────────────────────
 
 const ATLETAS: Atleta[] = [
   {
@@ -130,49 +123,49 @@ const SUGESTOES: Sugestao[] = [
   },
 ];
 
-// ─── Sub-componentes ──────────────────────────────────────────────────────────
+const ID_SOLICITANTE_ATUAL = 1;
+const BASE_URL = "http://localhost:3000";
 
 const BadgeStatus = ({ status }: { status: StatusHidrico }) => {
-  const config: Record<
-    StatusHidrico,
-    { label: string; style: object; textStyle: object; dotStyle: object }
-  > = {
-    desidratado: {
-      label: "DESIDRATADO",
-      style: styles.badgeDesidratado,
-      textStyle: styles.badgeTextDesidratado,
-      dotStyle: styles.dotDesidratado,
-    },
-    hidratado: {
-      label: "HIDRATADO",
-      style: styles.badgeHidratado,
-      textStyle: styles.badgeTextHidratado,
-      dotStyle: styles.dotHidratado,
-    },
-    alerta_leve: {
-      label: "ALERTA LEVE",
-      style: styles.badgeAlerta,
-      textStyle: styles.badgeTextAlerta,
-      dotStyle: styles.dotAlerta,
-    },
-  };
-
-  const c = config[status];
+  if (status === "desidratado") {
+    return (
+      <View style={[styles.badge, styles.badgeDesidratado]}>
+        <View style={[styles.dot, styles.dotDesidratado]} />
+        <Text style={[styles.badgeText, styles.badgeTextDesidratado]}>
+          DESIDRATADO
+        </Text>
+      </View>
+    );
+  }
+  if (status === "hidratado") {
+    return (
+      <View style={[styles.badge, styles.badgeHidratado]}>
+        <View style={[styles.dot, styles.dotHidratado]} />
+        <Text style={[styles.badgeText, styles.badgeTextHidratado]}>
+          HIDRATADO
+        </Text>
+      </View>
+    );
+  }
   return (
-    <View style={[styles.badge, c.style]}>
-      <View style={[styles.dot, c.dotStyle]} />
-      <Text style={[styles.badgeText, c.textStyle]}>{c.label}</Text>
+    <View style={[styles.badge, styles.badgeAlerta]}>
+      <View style={[styles.dot, styles.dotAlerta]} />
+      <Text style={[styles.badgeText, styles.badgeTextAlerta]}>
+        ALERTA LEVE
+      </Text>
     </View>
   );
 };
 
 const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
   const deltaPositivo = atleta.deltaMassa >= 0;
-
   return (
     <View style={[styles.atletaRow, !isLast && styles.atletaRowBorder]}>
-      {/* Avatar */}
-      <View style={styles.avatar}>
+      <TouchableOpacity
+        style={styles.avatar}
+        activeOpacity={0.7}
+        onPress={() => router.push("/perfil")}
+      >
         <Text style={styles.avatarText}>
           {atleta.nome
             .split(" ")
@@ -180,27 +173,19 @@ const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
             .slice(0, 2)
             .join("")}
         </Text>
-      </View>
-
-      {/* Nome + posição */}
+      </TouchableOpacity>
       <View style={styles.atletaInfo}>
         <Text style={styles.atletaNome}>{atleta.nome}</Text>
         <Text style={styles.atletaDetalhe}>
           {atleta.posicao.toUpperCase()} • {atleta.categoria.toUpperCase()}
         </Text>
       </View>
-
-      {/* Status */}
       <View style={styles.colStatus}>
         <BadgeStatus status={atleta.statusHidrico} />
       </View>
-
-      {/* Massa */}
       <View style={styles.colMassa}>
         <Text style={styles.colValue}>{atleta.massaAtual.toFixed(1)} kg</Text>
       </View>
-
-      {/* Delta */}
       <View style={styles.colDelta}>
         <Text
           style={[
@@ -212,13 +197,9 @@ const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
           {atleta.deltaMassa.toFixed(1)}%
         </Text>
       </View>
-
-      {/* USG */}
       <View style={styles.colUsg}>
         <Text style={styles.colValue}>{atleta.usg.toFixed(3)}</Text>
       </View>
-
-      {/* Ações */}
       <TouchableOpacity style={styles.acaoBtn} activeOpacity={0.6}>
         <Text style={styles.acaoDots}>⋮</Text>
       </TouchableOpacity>
@@ -247,26 +228,68 @@ const SugestaoCard = ({ sugestao }: { sugestao: Sugestao }) => (
   </View>
 );
 
-// ─── Tela principal ───────────────────────────────────────────────────────────
-
 export default function PainelNutricionista() {
   const [filtro, setFiltro] = useState("");
   const [activeNav, setActiveNav] = useState<NavItem>("atletas");
+  const [gerandoRelatorio, setGerandoRelatorio] = useState(false);
 
   const atletasFiltrados = ATLETAS.filter((a) =>
     a.nome.toLowerCase().includes(filtro.toLowerCase()),
   );
 
+  const handleGerarRelatorio = async () => {
+    if (gerandoRelatorio) return;
+    setGerandoRelatorio(true);
+    try {
+      const hoje = new Date();
+      const seteDiasAtras = new Date(hoje);
+      seteDiasAtras.setDate(hoje.getDate() - 7);
+      const periodoInicio = seteDiasAtras.toISOString().split("T")[0];
+      const periodoFim = hoje.toISOString().split("T")[0];
+
+      const promessas = ATLETAS.map((atleta) =>
+        fetch(`${BASE_URL}/relatorios`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_solicitante: ID_SOLICITANTE_ATUAL,
+            id_atleta: Number(atleta.id),
+            tipo_relatorio: "NUTRICIONAL",
+            formato: "PDF",
+            periodo_inicio: periodoInicio,
+            periodo_fim: periodoFim,
+            status: "PENDENTE",
+          }),
+        }).then((r) => {
+          if (!r.ok)
+            throw new Error(`Erro ao criar relatório para ${atleta.nome}`);
+          return r.json();
+        }),
+      );
+
+      await Promise.all(promessas);
+      Alert.alert(
+        "Relatório Solicitado",
+        `Relatório nutricional gerado para o período ${periodoInicio} a ${periodoFim}.`,
+        [{ text: "OK" }],
+      );
+    } catch (error: any) {
+      Alert.alert(
+        "Erro",
+        error.message ?? "Não foi possível gerar o relatório.",
+        [{ text: "OK" }],
+      );
+    } finally {
+      setGerandoRelatorio(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor="#fcf9f5" />
       <View style={styles.layout}>
-        {/* ── Sidebar ── */}
         <Sidebar activeNav={activeNav} onNavChange={setActiveNav} />
-
-        {/* ── Conteúdo principal ── */}
         <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-          {/* ── Header ── */}
           <View style={styles.header}>
             <View>
               <Text style={styles.headerBreadcrumb}>
@@ -277,7 +300,6 @@ export default function PainelNutricionista() {
             </View>
           </View>
 
-          {/* ── Card de monitoramento ── */}
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <Text style={styles.cardTitulo}>Monitoramento de Atletas</Text>
@@ -293,7 +315,6 @@ export default function PainelNutricionista() {
               </View>
             </View>
 
-            {/* Cabeçalho da tabela */}
             <View style={styles.tableHeader}>
               <Text style={[styles.tableHeaderText, styles.colAtleta]}>
                 ATLETA
@@ -315,7 +336,6 @@ export default function PainelNutricionista() {
               </Text>
             </View>
 
-            {/* Linhas */}
             {atletasFiltrados.map((atleta, index) => (
               <AtletaRow
                 key={atleta.id}
@@ -325,9 +345,7 @@ export default function PainelNutricionista() {
             ))}
           </View>
 
-          {/* ── Rodapé: Sugestões + Relatório ── */}
           <View style={styles.rodape}>
-            {/* Sugestões de Recomposição */}
             <View style={[styles.card, styles.cardSugestoes]}>
               <Text style={styles.cardTitulo}>Sugestões de Recomposição</Text>
               <View style={styles.sugestaoLista}>
@@ -337,7 +355,6 @@ export default function PainelNutricionista() {
               </View>
             </View>
 
-            {/* Relatório Consolidado */}
             <View style={[styles.card, styles.cardRelatorio]}>
               <Text style={styles.relatorioIcone}>📋</Text>
               <Text style={styles.cardTitulo}>Relatório Consolidado</Text>
@@ -345,14 +362,24 @@ export default function PainelNutricionista() {
                 O sumário da semana 42 está pronto para análise. O desempenho
                 hídrico subiu 5% em relação ao anterior.
               </Text>
-              <TouchableOpacity style={styles.pdfBtn} activeOpacity={0.8}>
-                <Text style={styles.pdfBtnText}>GERAR PDF COMPLETO</Text>
+              <TouchableOpacity
+                style={[styles.pdfBtn, gerandoRelatorio && { opacity: 0.6 }]}
+                activeOpacity={0.8}
+                onPress={handleGerarRelatorio}
+                disabled={gerandoRelatorio}
+              >
+                <Text style={styles.pdfBtnText}>
+                  {gerandoRelatorio ? "GERANDO..." : "GERAR PDF COMPLETO"}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* ── Rodapé nutricionista ── */}
-          <View style={styles.nutricionistaBadge}>
+          <TouchableOpacity
+            style={styles.nutricionistaBadge}
+            activeOpacity={0.7}
+            onPress={() => router.push("/perfil")}
+          >
             <View style={styles.nutAvatar}>
               <Text style={styles.nutAvatarText}>MS</Text>
             </View>
@@ -360,7 +387,7 @@ export default function PainelNutricionista() {
               <Text style={styles.nutLabel}>NUTRICIONISTA</Text>
               <Text style={styles.nutNome}>Dr. Marcos Silva</Text>
             </View>
-          </View>
+          </TouchableOpacity>
         </ScrollView>
       </View>
     </SafeAreaView>

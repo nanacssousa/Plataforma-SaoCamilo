@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   SafeAreaView,
@@ -12,10 +13,8 @@ import {
 import { colors } from "@/constants/theme";
 import { styles } from "@/styles/PosSessaoStyle";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 type Sintoma = "caibras" | "tontura" | "fadiga";
 
-// ─── Urine Colors ─────────────────────────────────────────────────────────────
 const URINE_COLORS = [
   "#FFFFFF",
   "#FFF9C4",
@@ -25,14 +24,12 @@ const URINE_COLORS = [
   "#FB8C00",
 ];
 
-// ─── Symptoms ─────────────────────────────────────────────────────────────────
 const SYMPTOMS = [
   { key: "caibras" as Sintoma, icon: "⚡", label: "Câibras" },
   { key: "tontura" as Sintoma, icon: "🧍", label: "Tontura" },
   { key: "fadiga" as Sintoma, icon: "🔋", label: "Fadiga" },
 ];
 
-// ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function PosSessaoScreen() {
   const [peso, setPeso] = useState("");
   const [urineSelecionada, setUrineSelecionada] = useState(2);
@@ -45,12 +42,9 @@ export default function PosSessaoScreen() {
   };
 
   const handlePesoChange = (text: string) => {
-    // permite apenas números e vírgula/ponto
     const cleaned = text.replace(/[^0-9.,]/g, "");
-    // bloqueia mais de um separador decimal
     const separadores = (cleaned.match(/[.,]/g) || []).length;
     if (separadores > 1) return;
-    // bloqueia mais de 2 casas decimais
     const parts = cleaned.split(/[.,]/);
     if (parts.length > 1 && parts[1].length > 2) return;
     setPeso(cleaned);
@@ -60,18 +54,21 @@ export default function PosSessaoScreen() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
 
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity>
           <Text style={styles.headerSettings}></Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>ATLETA</Text>
-        <View style={styles.headerAvatar}>
+        {/* Avatar → navega para perfil */}
+        <TouchableOpacity
+          style={styles.headerAvatar}
+          activeOpacity={0.7}
+          onPress={() => router.push("/perfil")}
+        >
           <Text style={styles.headerAvatarText}>GM</Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
-      {/* Progress Steps — segundo passo ativo */}
       <View style={styles.progressContainer}>
         {[0, 1, 2, 3].map((i) => (
           <View
@@ -86,13 +83,11 @@ export default function PosSessaoScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Title */}
         <Text style={styles.sectionTitle}>Pós - Sessão</Text>
         <Text style={styles.sectionSubtitle}>
           Configure seus biomarcadores iniciais para precisão técnica.
         </Text>
 
-        {/* Peso Final */}
         <Text style={styles.sectionLabel}>PESO FINAL</Text>
         <View style={styles.weightInputContainer}>
           <TextInput
@@ -109,7 +104,6 @@ export default function PosSessaoScreen() {
           Pesar-se com o mínimo de roupa e bexiga vazia.
         </Text>
 
-        {/* Coloração da Urina */}
         <Text style={styles.sectionLabel}>COLORAÇÃO DA URINA</Text>
         <View style={styles.urineContainer}>
           <View style={styles.urineRow}>
@@ -136,7 +130,6 @@ export default function PosSessaoScreen() {
           </View>
         </View>
 
-        {/* Escala de Sintomas */}
         <View style={styles.symptomsHeader}>
           <Text style={styles.symptomsTitle}>ESCALA DE SINTOMAS</Text>
           <Text style={styles.symptomsBadge}>MÚLTIPLA ESCOLHA</Text>
@@ -166,7 +159,6 @@ export default function PosSessaoScreen() {
         </View>
       </ScrollView>
 
-      {/* CTA Button */}
       <TouchableOpacity style={styles.ctaButton} activeOpacity={0.85}>
         <Text style={styles.ctaButtonText}>FINALIZAR SESSÃO</Text>
         <Text style={styles.ctaArrow}>→</Text>

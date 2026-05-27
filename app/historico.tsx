@@ -1,4 +1,5 @@
 // src/app/historico.tsx
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   SafeAreaView,
@@ -10,8 +11,8 @@ import {
   View,
 } from "react-native";
 
-import { styles } from "@/styles/HistoricoStyle";
 import { colors } from "@/constants/theme";
+import { styles } from "@/styles/HistoricoStyle";
 
 type Intensidade = "ALTA INTENSIDADE" | "RESISTÊNCIA" | "MODERADO";
 
@@ -79,8 +80,8 @@ const SessionCard = ({ sessao }: { sessao: Sessao }) => {
     sessao.intensidade === "ALTA INTENSIDADE"
       ? styles.cardBadgeHigh
       : sessao.intensidade === "RESISTÊNCIA"
-      ? styles.cardBadgeResist
-      : {};
+        ? styles.cardBadgeResist
+        : {};
 
   return (
     <View style={styles.sessionCard}>
@@ -106,7 +107,6 @@ const SessionCard = ({ sessao }: { sessao: Sessao }) => {
               <Text style={styles.statText}>{sessao.duracao}</Text>
             </View>
           </View>
-
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>TAXA DE SUDOSE</Text>
             <View style={styles.statValue}>
@@ -114,7 +114,6 @@ const SessionCard = ({ sessao }: { sessao: Sessao }) => {
               <Text style={styles.statText}>{sessao.taxaSudose}</Text>
             </View>
           </View>
-
           <View style={styles.statItem}>
             <Text style={styles.statLabel}>DESIDRATAÇÃO</Text>
             <View style={styles.statValue}>
@@ -134,7 +133,6 @@ const SessionCard = ({ sessao }: { sessao: Sessao }) => {
             </View>
           </View>
         </View>
-
         <TouchableOpacity style={styles.arrowButton}>
           <Text style={styles.arrowText}>→</Text>
         </TouchableOpacity>
@@ -184,12 +182,16 @@ export default function HistoricoScreen() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
 
-      {/* Header ajustado */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>ATLETA</Text>
-        <View style={styles.headerAvatar}>
+        {/* Avatar → navega para perfil */}
+        <TouchableOpacity
+          style={styles.headerAvatar}
+          activeOpacity={0.7}
+          onPress={() => router.push("/perfil")}
+        >
           <Text style={styles.headerAvatarText}>GM</Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.searchContainer}>

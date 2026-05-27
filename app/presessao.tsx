@@ -40,7 +40,6 @@ const SYMPTOMS = [
   { key: "fadiga" as Sintoma, icon: "🔋", label: "Fadiga" },
 ];
 
-// ─── Slider funcional ─────────────────────────────────────────────────────────
 const ThirstSlider = ({
   value,
   onChange,
@@ -108,7 +107,6 @@ const ThirstSlider = ({
   );
 };
 
-// ─── Tela principal ───────────────────────────────────────────────────────────
 export default function PreSessaoScreen() {
   const router = useRouter();
 
@@ -138,16 +136,19 @@ export default function PreSessaoScreen() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
 
-      {/* Header */}
       <View style={styles.header}>
         <View style={{ width: 36 }} />
         <Text style={styles.headerTitle}>ATLETA</Text>
-        <View style={styles.headerAvatar}>
+        {/* Avatar → navega para perfil */}
+        <TouchableOpacity
+          style={styles.headerAvatar}
+          activeOpacity={0.7}
+          onPress={() => router.push("/perfil")}
+        >
           <Text style={styles.headerAvatarText}>GM</Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
-      {/* Progress Steps */}
       <View style={styles.progressContainer}>
         {[0, 1, 2, 3].map((i) => (
           <View
@@ -168,7 +169,6 @@ export default function PreSessaoScreen() {
           Configure seus biomarcadores iniciais para precisão técnica.
         </Text>
 
-        {/* Peso Inicial */}
         <Text style={styles.sectionLabel}>PESO INICIAL</Text>
         <View style={styles.weightInputContainer}>
           <TextInput
@@ -185,7 +185,6 @@ export default function PreSessaoScreen() {
           Pesar-se com o mínimo de roupa e bexiga vazia.
         </Text>
 
-        {/* Tipo de Treino */}
         <Text style={styles.sectionLabel}>TIPO DE TREINO</Text>
         <View style={styles.trainingGrid}>
           {TRAINING_TYPES.map((t) => (
@@ -211,7 +210,6 @@ export default function PreSessaoScreen() {
           ))}
         </View>
 
-        {/* Coloração da Urina */}
         <Text style={styles.sectionLabel}>COLORAÇÃO DA URINA</Text>
         <View style={styles.urineContainer}>
           <View style={styles.urineRow}>
@@ -238,14 +236,12 @@ export default function PreSessaoScreen() {
           </View>
         </View>
 
-        {/* Nível de Sede — Slider funcional */}
         <ThirstSlider
           value={nivelSede}
           onChange={setNivelSede}
           onDragging={(dragging) => setScrollEnabled(!dragging)}
         />
 
-        {/* Escala de Sintomas */}
         <View style={styles.symptomsHeader}>
           <Text style={styles.symptomsTitle}>ESCALA DE SINTOMAS</Text>
           <Text style={styles.symptomsBadge}>MÚLTIPLA ESCOLHA</Text>
@@ -275,7 +271,6 @@ export default function PreSessaoScreen() {
         </View>
       </ScrollView>
 
-      {/* CTA Button — redireciona para telaDuranteTreino */}
       <TouchableOpacity
         style={styles.ctaButton}
         activeOpacity={0.85}
