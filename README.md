@@ -18,12 +18,18 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install typescript ts-node-dev @types/node @types/express -D
 
    npm install @types/jsonwebtoken @types/bcrypt -D
+
+   npm install cors
+
+   npm install -D @types/cors
    ```
 
 2. Start the app
 
    ```bash
-   npx expo start
+   npx expo start #para o frontend
+
+   npx tsx server.ts #para o backend
    ```
 
 In the output, you'll find options to open the app in a

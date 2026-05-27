@@ -87,7 +87,7 @@ export default function TelaLogin() {
     setCarregando(true);
 
     try {
-      const response = await fetch(`${API_URL}/api/usuarios/login`, {
+      const response = await fetch(`${API_URL}/usuarios/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim().toLowerCase(), senha }),
