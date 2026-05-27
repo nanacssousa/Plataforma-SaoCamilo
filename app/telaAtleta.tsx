@@ -1,4 +1,5 @@
 // app/telaAtleta.tsx
+import { router } from "expo-router";
 import React from "react";
 import {
   SafeAreaView,
@@ -23,7 +24,10 @@ export default function TelaAtleta() {
       <View style={styles.header}>
         <View style={{ width: 36 }} />
         <Text style={styles.headerTitle}>ATLETA</Text>
-        <TouchableOpacity style={styles.headerAvatar}>
+        <TouchableOpacity
+          style={styles.headerAvatar}
+          onPress={() => router.push("/perfil")}
+        >
           <Text style={styles.headerAvatarText}>GM</Text>
         </TouchableOpacity>
       </View>
@@ -36,11 +40,7 @@ export default function TelaAtleta() {
 
         <HeroIniciarSessao />
 
-        <StatusGrid
-          hidratacao={84}
-          sudorese="1,2"
-          ultimaSessao="12 Out"
-        />
+        <StatusGrid hidratacao={84} sudorese="1,2" ultimaSessao="12 Out" />
 
         <HighlightSudorese
           titulo="Sessão de Alta Intensidade"

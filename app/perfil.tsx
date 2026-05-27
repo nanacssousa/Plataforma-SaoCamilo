@@ -175,12 +175,24 @@ const TABS: { key: TabKey; label: string; icon: string }[] = [
   { key: "perfil", label: "PERFIL", icon: "👤" },
 ];
 
+const TAB_ROUTES: Record<TabKey, string> = {
+  sessao: "/telaAtleta",
+  historico: "/historico",
+  perfil: "/perfil",
+};
+
 const BottomTabBar = ({ active }: { active: TabKey }) => (
   <View style={styles.tabBar}>
     {TABS.map((tab) => {
       const isActive = tab.key === active;
       return (
-        <TouchableOpacity key={tab.key} style={styles.tabItem}>
+        <TouchableOpacity
+          key={tab.key}
+          style={styles.tabItem}
+          onPress={() => {
+            if (!isActive) router.push(TAB_ROUTES[tab.key] as any);
+          }}
+        >
           <View
             style={[styles.tabIconContainer, isActive && styles.tabIconActive]}
           >
@@ -323,7 +335,10 @@ export default function ProfileScreen() {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.btnSecondary}>
+        <TouchableOpacity
+          style={styles.btnSecondary}
+          onPress={() => router.push("/telaLogin")}
+        >
           <Text style={styles.btnSecondaryText}>↩ ENCERRAR SESSÃO</Text>
         </TouchableOpacity>
 
