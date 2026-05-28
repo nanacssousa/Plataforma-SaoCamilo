@@ -1,12 +1,13 @@
 // app/perfilProfissional.tsx
+import { router } from "expo-router";
 import React from "react";
 import {
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    Text,
-    TouchableOpacity,
-    View,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 import { colors } from "@/constants/theme";
@@ -96,12 +97,24 @@ const TABS: { key: TabKey; label: string; icon: string }[] = [
   { key: "perfil", label: "PERFIL", icon: "👤" },
 ];
 
+const TAB_ROUTES: Record<TabKey, string> = {
+  atletas: "/painelnutricionista",
+  sessoes: "/presessao",
+  perfil: "/perfilProfissional",
+};
+
 const BottomTabBar = ({ active }: { active: TabKey }) => (
   <View style={styles.tabBar}>
     {TABS.map((tab) => {
       const isActive = tab.key === active;
       return (
-        <TouchableOpacity key={tab.key} style={styles.tabItem}>
+        <TouchableOpacity
+          key={tab.key}
+          style={styles.tabItem}
+          onPress={() => {
+            if (!isActive) router.push(TAB_ROUTES[tab.key] as any);
+          }}
+        >
           <View
             style={[styles.tabIconContainer, isActive && styles.tabIconActive]}
           >
@@ -126,9 +139,12 @@ export default function PerfilProfissionalScreen() {
       <View style={styles.header}>
         <View style={{ width: 36 }} />
         <Text style={styles.headerTitle}>PROFISSIONAL</Text>
-        <View style={styles.headerAvatar}>
+        <TouchableOpacity
+          style={styles.headerAvatar}
+          onPress={() => router.push("/perfilProfissional")}
+        >
           <Text style={styles.headerAvatarText}>AL</Text>
-        </View>
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -225,12 +241,7 @@ export default function PerfilProfissionalScreen() {
           value="128"
           unit="sessões"
         />
-        <StatCard
-          icon="📈"
-          label="TAXA DE ADESÃO"
-          value="91"
-          unit="%"
-        />
+        <StatCard icon="📈" label="TAXA DE ADESÃO" value="91" unit="%" />
         <StatCard
           icon="⏱"
           label="TEMPO MÉDIO ATENDIMENTO"

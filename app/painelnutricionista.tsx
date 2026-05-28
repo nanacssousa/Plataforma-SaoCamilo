@@ -167,7 +167,7 @@ const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
       <TouchableOpacity
         style={styles.avatar}
         activeOpacity={0.7}
-        onPress={() => router.push("/perfil")}
+        onPress={() => router.push("/perfilProfissional")}
       >
         <Text style={styles.avatarText}>
           {atleta.nome
@@ -381,7 +381,7 @@ export default function PainelNutricionista() {
           <TouchableOpacity
             style={styles.nutricionistaBadge}
             activeOpacity={0.7}
-            onPress={() => router.push("/perfil")}
+            onPress={() => router.push("/perfilProfissional")}
           >
             <View style={styles.nutAvatar}>
               <Text style={styles.nutAvatarText}>MS</Text>
