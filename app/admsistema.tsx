@@ -1,5 +1,6 @@
 import { styles } from "@/styles/admSistemaStyle";
-import React, { useState } from "react";
+import { router } from "expo-router";
+import React from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -11,22 +12,23 @@ import {
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
-type NavItem = "equipes" | "atletas" | "relatorios" | "configuracoes";
+type NavItem = "equipes" | "atletas" | "relatorios" | "perfil";
+
+const NAV_ROUTES: Record<NavItem, string> = {
+  equipes: "/telaequipes",
+  atletas: "/painelnutricionista",
+  relatorios: "/biomarcadores",
+  perfil: "/perfilProfissional",
+};
 
 const NAV_ITEMS: { id: NavItem; label: string; icon: string }[] = [
   { id: "equipes", label: "Equipes", icon: "👥" },
   { id: "atletas", label: "Atletas", icon: "🏃" },
   { id: "relatorios", label: "Relatórios", icon: "📊" },
-  { id: "configuracoes", label: "Configurações", icon: "⚙️" },
+  { id: "perfil", label: "Perfil", icon: "⚙️" },
 ];
 
-const Sidebar = ({
-  activeNav,
-  onNavChange,
-}: {
-  activeNav: NavItem;
-  onNavChange: (id: NavItem) => void;
-}) => (
+const Sidebar = ({ activeNav }: { activeNav: NavItem }) => (
   <View style={styles.sidebar}>
     <View style={styles.sidebarLogo}>
       <Text style={styles.sidebarLogoTop}>CLINICAL</Text>
@@ -39,7 +41,9 @@ const Sidebar = ({
           <TouchableOpacity
             key={item.id}
             style={[styles.navItem, isActive && styles.navItemActive]}
-            onPress={() => onNavChange(item.id)}
+            onPress={() => {
+              if (!isActive) router.push(NAV_ROUTES[item.id] as any);
+            }}
             activeOpacity={0.7}
           >
             <Text style={styles.navIcon}>{item.icon}</Text>
@@ -260,14 +264,14 @@ const CardConfigItem = ({ card }: { card: CardConfigData }) => (
 // ─── Tela principal ───────────────────────────────────────────────────────────
 
 export default function AdmSistema() {
-  const [activeNav, setActiveNav] = useState<NavItem>("equipes");
+  const activeNav: NavItem = "equipes";
 
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor="#fcf9f5" />
       <View style={styles.layout}>
         {/* ── Sidebar ── */}
-        <Sidebar activeNav={activeNav} onNavChange={setActiveNav} />
+        <Sidebar activeNav={activeNav} />
 
         {/* ── Conteúdo ── */}
         <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
