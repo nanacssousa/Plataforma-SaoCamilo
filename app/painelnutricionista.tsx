@@ -12,22 +12,23 @@ import {
   View,
 } from "react-native";
 
-type NavItem = "equipes" | "atletas" | "relatorios" | "configuracoes";
+type NavItem = "equipes" | "atletas" | "relatorios" | "perfil";
+
+const NAV_ROUTES: Record<NavItem, string> = {
+  equipes: "/telaequipes",
+  atletas: "/painelnutricionista",
+  relatorios: "/biomarcadores",
+  perfil: "/perfilProfissional",
+};
 
 const NAV_ITEMS: { id: NavItem; label: string; icon: string }[] = [
   { id: "equipes", label: "Equipes", icon: "👥" },
   { id: "atletas", label: "Atletas", icon: "🏃" },
   { id: "relatorios", label: "Relatórios", icon: "📊" },
-  { id: "configuracoes", label: "Configurações", icon: "⚙️" },
+  { id: "perfil", label: "Perfil", icon: "⚙️" },
 ];
 
-const Sidebar = ({
-  activeNav,
-  onNavChange,
-}: {
-  activeNav: NavItem;
-  onNavChange: (id: NavItem) => void;
-}) => (
+const Sidebar = ({ activeNav }: { activeNav: NavItem }) => (
   <View style={styles.sidebar}>
     <View style={styles.sidebarLogo}>
       <Text style={styles.sidebarLogoTop}>CLINICAL</Text>
@@ -40,7 +41,9 @@ const Sidebar = ({
           <TouchableOpacity
             key={item.id}
             style={[styles.navItem, isActive && styles.navItemActive]}
-            onPress={() => onNavChange(item.id)}
+            onPress={() => {
+              if (!isActive) router.push(NAV_ROUTES[item.id] as any);
+            }}
             activeOpacity={0.7}
           >
             <Text style={styles.navIcon}>{item.icon}</Text>
@@ -164,7 +167,7 @@ const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
       <TouchableOpacity
         style={styles.avatar}
         activeOpacity={0.7}
-        onPress={() => router.push("/perfil")}
+        onPress={() => router.push("/perfilProfissional")}
       >
         <Text style={styles.avatarText}>
           {atleta.nome
@@ -230,7 +233,7 @@ const SugestaoCard = ({ sugestao }: { sugestao: Sugestao }) => (
 
 export default function PainelNutricionista() {
   const [filtro, setFiltro] = useState("");
-  const [activeNav, setActiveNav] = useState<NavItem>("atletas");
+  const activeNav: NavItem = "atletas";
   const [gerandoRelatorio, setGerandoRelatorio] = useState(false);
 
   const atletasFiltrados = ATLETAS.filter((a) =>
@@ -288,7 +291,7 @@ export default function PainelNutricionista() {
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor="#fcf9f5" />
       <View style={styles.layout}>
-        <Sidebar activeNav={activeNav} onNavChange={setActiveNav} />
+        <Sidebar activeNav={activeNav} />
         <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
           <View style={styles.header}>
             <View>
@@ -378,7 +381,7 @@ export default function PainelNutricionista() {
           <TouchableOpacity
             style={styles.nutricionistaBadge}
             activeOpacity={0.7}
-            onPress={() => router.push("/perfil")}
+            onPress={() => router.push("/perfilProfissional")}
           >
             <View style={styles.nutAvatar}>
               <Text style={styles.nutAvatarText}>MS</Text>
