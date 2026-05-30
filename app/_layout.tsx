@@ -1,3 +1,4 @@
+// app/_layout.tsx
 import {
   Inter_400Regular,
   Inter_600SemiBold,
@@ -18,6 +19,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { AppProvider } from '../src/store/useAppStore';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -43,9 +45,9 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <>
+    <AppProvider>
       <StatusBar style="auto" />
       <Stack screenOptions={{ headerShown: false }} />
-    </>
+    </AppProvider>
   );
 }

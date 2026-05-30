@@ -17,9 +17,11 @@ import { SessionLog } from "../src/components/duranteTreino/SessionLog";
 import { SessionTimer } from "../src/components/duranteTreino/SessionTimer";
 import { colors, fontFamilies, radius, spacing } from "../src/constants/theme";
 import { useDuranteTreino } from "../src/hooks/useDuranteTreino";
+import { useAppStore } from "../src/store/useAppStore";
 
 export default function TelaDuranteTreino() {
   const router = useRouter();
+  const { adicionarFluido, state } = useAppStore();
   const {
     seconds,
     total,
@@ -30,13 +32,24 @@ export default function TelaDuranteTreino() {
     showConfirm,
     setShowCustom,
     setShowConfirm,
-    handleQuickAdd,
-    handleCustomAdd,
+    handleQuickAdd: _handleQuickAdd,
+    handleCustomAdd: _handleCustomAdd,
     handleNewSession,
   } = useDuranteTreino();
 
+  // Sincroniza com store global
+  function handleQuickAdd(ml: number) {
+    const tipos: Record<number, string> = { 200: "INGESTÃO RÁPIDA", 500: "HIDRATAÇÃO PADRÃO" };
+    adicionarFluido(ml, tipos[ml] ?? "HIDRATAÇÃO");
+    _handleQuickAdd(ml);
+  }
+
+  function handleCustomAdd(ml: number) {
+    adicionarFluido(ml, "VALOR PERSONALIZADO");
+    _handleCustomAdd(ml);
+  }
+
   function handleProximaSessao() {
-    // Salva e redireciona para a tela de resultado/pós-sessão
     router.push("/possessao");
   }
 
@@ -58,7 +71,7 @@ export default function TelaDuranteTreino() {
         <View style={styles.header}>
           <View>
             <Text style={styles.headerEyebrow}>TREINO ATIVO</Text>
-            <Text style={styles.headerTitle}>Hidratação</Text>
+            <Text style={styles.headerTitle}>{state.sessaoAtiva?.tipoTreino ?? "Hidratação"}</Text>
           </View>
           <TouchableOpacity
             style={styles.btnNextSession}

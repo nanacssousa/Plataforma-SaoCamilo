@@ -14,6 +14,9 @@ import {
 
 import { colors } from "@/constants/theme";
 import { styles } from "@/styles/PreSessaoStyle";
+import { AtletaAvatarMini } from "../src/components/shared/AtletaAvatar";
+import { useAppStore } from "../src/store/useAppStore";
+import { Alert } from "react-native";
 
 type TipoTreino = "alta" | "resistencia" | "forca" | "recuperacao";
 type Sintoma = "caibras" | "tontura" | "fadiga";
@@ -109,6 +112,7 @@ const ThirstSlider = ({
 
 export default function PreSessaoScreen() {
   const router = useRouter();
+  const { iniciarSessao, showToast } = useAppStore();
 
   const [peso, setPeso] = useState("");
   const [tipoTreino, setTipoTreino] = useState<TipoTreino>("alta");
@@ -132,6 +136,31 @@ export default function PreSessaoScreen() {
     setPeso(cleaned);
   };
 
+  const INTENSIDADE_MAP: Record<TipoTreino, string> = {
+    alta: "ALTA INTENSIDADE",
+    resistencia: "RESISTÊNCIA",
+    forca: "FORÇA",
+    recuperacao: "MODERADO",
+  };
+
+  const handleIniciar = () => {
+    const pesoNum = parseFloat(peso.replace(",", "."));
+    if (!peso || isNaN(pesoNum) || pesoNum <= 0) {
+      Alert.alert("Peso obrigatório", "Informe seu peso antes de iniciar a sessão.");
+      return;
+    }
+    iniciarSessao({
+      tipoTreino: tipoTreino === "alta" ? "Corrida" : tipoTreino === "resistencia" ? "Atletismo" : tipoTreino === "forca" ? "Musculação" : "Recuperação",
+      intensidade: INTENSIDADE_MAP[tipoTreino],
+      pesoPre: pesoNum,
+      corUrinaPre: urineSelecionada,
+      sintomasPre: sintomas,
+      sede: nivelSede,
+    });
+    showToast("Sessão iniciada! Boa treino 💪");
+    router.push("/telaDuranteTreino");
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
@@ -145,7 +174,7 @@ export default function PreSessaoScreen() {
           activeOpacity={0.7}
           onPress={() => router.push("/perfil")}
         >
-          <Text style={styles.headerAvatarText}>GM</Text>
+          <AtletaAvatarMini size={36} />
         </TouchableOpacity>
       </View>
 
@@ -274,9 +303,9 @@ export default function PreSessaoScreen() {
       <TouchableOpacity
         style={styles.ctaButton}
         activeOpacity={0.85}
-        onPress={() => router.push("/telaDuranteTreino")}
+        onPress={handleIniciar}
       >
-        <Text style={styles.ctaButtonText}>PRÓXIMA SESSÃO</Text>
+        <Text style={styles.ctaButtonText}>INICIAR SESSÃO</Text>
         <Text style={styles.ctaArrow}>→</Text>
       </TouchableOpacity>
     </SafeAreaView>

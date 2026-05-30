@@ -16,11 +16,32 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#FAFAF8"
-      }
+      },
+      "permissions": [
+        "READ_MEDIA_IMAGES",
+        "READ_EXTERNAL_STORAGE",
+        "CAMERA"
+      ]
     },
     "web": {
       "favicon": "./src/assets/icon.png"
     },
-    "plugins": ["expo-router"]
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permitir acesso às fotos para definir sua foto de perfil.",
+          "cameraPermission": "Permitir acesso à câmera para tirar sua foto de perfil."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./src/assets/icon.png",
+          "color": "#8f000a"
+        }
+      ]
+    ]
   }
 }
