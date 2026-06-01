@@ -240,52 +240,45 @@ export default function PainelNutricionista() {
     a.nome.toLowerCase().includes(filtro.toLowerCase()),
   );
 
-  const handleGerarRelatorio = async () => {
-    if (gerandoRelatorio) return;
-    setGerandoRelatorio(true);
-    try {
-      const hoje = new Date();
-      const seteDiasAtras = new Date(hoje);
-      seteDiasAtras.setDate(hoje.getDate() - 7);
-      const periodoInicio = seteDiasAtras.toISOString().split("T")[0];
-      const periodoFim = hoje.toISOString().split("T")[0];
+   const handleGerarRelatorio = async () => {
+  if (gerandoRelatorio) return
+  setGerandoRelatorio(true)
 
-      const promessas = ATLETAS.map((atleta) =>
-        fetch(`${BASE_URL}/relatorios`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            id_solicitante: ID_SOLICITANTE_ATUAL,
-            id_atleta: Number(atleta.id),
-            tipo_relatorio: "NUTRICIONAL",
-            formato: "PDF",
-            periodo_inicio: periodoInicio,
-            periodo_fim: periodoFim,
-            status: "PENDENTE",
-          }),
-        }).then((r) => {
-          if (!r.ok)
-            throw new Error(`Erro ao criar relatório para ${atleta.nome}`);
-          return r.json();
-        }),
-      );
+  try {
+    const url = `${BASE_URL}/relatorios/painel/pdf`
+    console.log("Buscando PDF em:", url)
 
-      await Promise.all(promessas);
-      Alert.alert(
-        "Relatório Solicitado",
-        `Relatório nutricional gerado para o período ${periodoInicio} a ${periodoFim}.`,
-        [{ text: "OK" }],
-      );
-    } catch (error: any) {
-      Alert.alert(
-        "Erro",
-        error.message ?? "Não foi possível gerar o relatório.",
-        [{ text: "OK" }],
-      );
-    } finally {
-      setGerandoRelatorio(false);
+    const response = await fetch(url, {
+      headers: { Accept: "application/pdf" },
+    })
+
+    console.log("Status:", response.status)
+
+    if (!response.ok) {
+      const texto = await response.text()
+      console.error("Erro do servidor:", texto)
+      throw new Error(`Erro ao gerar relatório: ${response.status} — ${texto}`)
     }
-  };
+
+    const blob = await response.blob()
+    const objectUrl = URL.createObjectURL(blob)
+
+    const link = document.createElement("a")
+    link.href = objectUrl
+    link.download = "painel_nutricional.pdf"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(objectUrl)
+
+  } catch (error: any) {
+    console.error("Erro completo:", error)
+    Alert.alert("Erro", error.message ?? "Não foi possível gerar o relatório.")
+  } finally {
+    setGerandoRelatorio(false)
+  }
+}
+
 
   return (
     <SafeAreaView style={styles.safe}>

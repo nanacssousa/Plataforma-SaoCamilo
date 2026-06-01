@@ -5,6 +5,7 @@ const router = Router();
 
 router.post("/", relatorioController.create);
 router.get("/", relatorioController.getAll);
+router.get("/painel/pdf", relatorioController.gerarPdfPainel);
 router.get("/atleta/:id_atleta", relatorioController.getByAtleta);
 router.get(
   "/solicitante/:id_solicitante",
