@@ -19,7 +19,8 @@ import { triagemRoutes } from "../modules/triagem"
 import { usuariosRoutes } from "../modules/usuarios"
 import { vinculoProfissionalAtletaRoutes } from "../modules/vinculoProfissionalAtleta"
 import { volumeUrinarioRoutes } from "../modules/volumeUrinario"
-
+import { ambienteClimaRoutes } from "../modules/ambienteClima"
+import { agenteIARoutes } from "../modules/agenteIA"
 import { Router } from "express"
 
 const apiRoutes = Router()
@@ -45,5 +46,7 @@ apiRoutes.use("/triagens", triagemRoutes)
 apiRoutes.use("/usuarios", usuariosRoutes)
 apiRoutes.use("/vinculo-profissional-atleta", vinculoProfissionalAtletaRoutes)
 apiRoutes.use("/volume-urinario", volumeUrinarioRoutes)
+apiRoutes.use("/ambiente-clima", ambienteClimaRoutes)
+apiRoutes.use("/agente-ia", agenteIARoutes)
 
 export { apiRoutes }
