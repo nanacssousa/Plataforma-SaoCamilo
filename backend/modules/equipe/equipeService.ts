@@ -1,5 +1,6 @@
+import { gerarPdfEquipe } from "./equipePDF"
 import { equipeRepository } from "./equipeRepository"
-import { CreateEquipeDTO, Equipe, UpdateEquipeDTO } from "./equipeTypes"
+import { CreateEquipeDTO, Equipe, EquipeAtleta, UpdateEquipeDTO } from "./equipeTypes"
 
 export const equipeService = {
   async create(data: CreateEquipeDTO): Promise<Equipe> {
@@ -20,6 +21,11 @@ export const equipeService = {
     return equipe
   },
 
+  async getAtletasByEquipe(id: number): Promise<EquipeAtleta[]> {
+    await this.getById(id)
+    return equipeRepository.findAtletasByEquipe(id)
+  },
+
   async getAll(): Promise<Equipe[]> {
     return equipeRepository.findAll()
   },
@@ -32,5 +38,25 @@ export const equipeService = {
   async delete(id: number): Promise<void> {
     await this.getById(id)
     return equipeRepository.delete(id)
-  }
+  },
+
+ async gerarPdf(id: number, periodoInicio: string, periodoFim: string): Promise<Buffer> {
+  const equipe = await this.getById(id)
+  const atletasRaw = await equipeRepository.findAtletasByEquipe(id)
+
+  const atletas: EquipeAtleta[] = atletasRaw.map((a: any) => ({
+    id: Number(a.id),
+    nome: a.nome,
+    posicao: a.posicao ?? "Atleta",
+    categoria: a.categoria ?? "PRINCIPAL",
+    massaAtual: Number(a.massaAtual ?? a.massa_atual ?? 0),
+    deltaMassa: Number(a.deltaMassa ?? a.delta_massa ?? 0),
+    usg: a.usg !== undefined && a.usg !== null ? Number(a.usg) : NaN,
+    statusHidrico: (a.statusHidrico as any) ?? "hidratado",
+  }))
+
+  return gerarPdfEquipe(equipe, atletas, periodoInicio, periodoFim)
+},
+
+
 }
