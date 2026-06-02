@@ -1,3 +1,4 @@
+//Comentario
 export interface ContextoAnalise {
   atleta: { nome: string; idade: number; peso_kg: number; altura_cm: number; modalidade: string; nivel: string; condicao_medica?: string | null; historico_desidratacao_pct?: number | null; }
   sessao: { intensidade: string; duracao_minutos: number | null; tempo_decorrido_min: number; tipo_exercicio: string; local_treino: string | null; agua_ingerida_ml: number; }

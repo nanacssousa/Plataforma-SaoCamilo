@@ -1,3 +1,4 @@
+//Comentario
 import { Request, Response } from 'express'
 import pool from '../../shared/infra/database/conexaoDB'
 import { AmbienteClimaService } from '../ambienteClima/ambienteClimaService'

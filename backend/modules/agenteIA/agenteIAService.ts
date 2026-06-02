@@ -1,3 +1,4 @@
+//Comentario
 import Anthropic from '@anthropic-ai/sdk'
 import pool from '../../shared/infra/database/conexaoDB'
 import { AgenteIAContrato, AnaliseIAResponse, ContextoAnalise } from './agenteIATypes'
