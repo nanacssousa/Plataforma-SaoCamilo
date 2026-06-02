@@ -1,7 +1,12 @@
+// app/admsistema.tsx
+// Painel do administrador — busca profissionais e equipes do backend
 import { styles } from "@/styles/admSistemaStyle";
 import { router } from "expo-router";
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -9,23 +14,21 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-// ─── Sidebar ──────────────────────────────────────────────────────────────────
+import { apiFetch } from "../src/services/apiService";
+import { useAppStore } from "../src/store/useAppStore";
 
 type NavItem = "equipes" | "atletas" | "relatorios" | "perfil";
-
 const NAV_ROUTES: Record<NavItem, string> = {
   equipes: "/telaequipes",
   atletas: "/painelnutricionista",
   relatorios: "/biomarcadores",
   perfil: "/perfilProfissional",
 };
-
-const NAV_ITEMS: { id: NavItem; label: string; icon: string }[] = [
-  { id: "equipes", label: "Equipes", icon: "👥" },
-  { id: "atletas", label: "Atletas", icon: "🏃" },
-  { id: "relatorios", label: "Relatórios", icon: "📊" },
-  { id: "perfil", label: "Perfil", icon: "⚙️" },
+const NAV_ITEMS = [
+  { id: "equipes" as NavItem, label: "Equipes", icon: "👥" },
+  { id: "atletas" as NavItem, label: "Atletas", icon: "🏃" },
+  { id: "relatorios" as NavItem, label: "Relatórios", icon: "📊" },
+  { id: "perfil" as NavItem, label: "Perfil", icon: "⚙️" },
 ];
 
 const Sidebar = ({ activeNav }: { activeNav: NavItem }) => (
@@ -57,14 +60,20 @@ const Sidebar = ({ activeNav }: { activeNav: NavItem }) => (
   </View>
 );
 
-// ─── Tipos ────────────────────────────────────────────────────────────────────
+type CargoTipo =
+  | "medico"
+  | "bioanalista"
+  | "esp_recuperacao"
+  | "nutricionista"
+  | "treinador"
+  | "administrador";
 
 interface Profissional {
   id: string;
   nome: string;
   email: string;
   cargo: string;
-  cargoTipo: "medico" | "bioanalista" | "esp_recuperacao";
+  cargoTipo: CargoTipo;
   acesso: string;
 }
 
@@ -76,106 +85,30 @@ interface Equipe {
   tag?: string;
 }
 
-interface CardConfigData {
-  id: string;
-  icone: string;
-  titulo: string;
-  descricao: string;
-  labelChave: string;
-  labelValor: string;
-  corValor?: "primaria" | "normal";
-}
+const PERFIL_LABEL: Record<number, { label: string; tipo: CargoTipo }> = {
+  1: { label: "ATLETA", tipo: "bioanalista" },
+  2: { label: "NUTRICIONISTA", tipo: "nutricionista" },
+  3: { label: "TREINADOR", tipo: "treinador" },
+  4: { label: "MÉDICO", tipo: "medico" },
+  5: { label: "ADMIN", tipo: "administrador" },
+};
 
-// ─── Dados mockados ───────────────────────────────────────────────────────────
-
-const PROFISSIONAIS: Profissional[] = [
-  {
-    id: "1",
-    nome: "Dra. Helena Thorne",
-    email: "helena.t@athletelab.com",
-    cargo: "MÉDICO\nCHEFE",
-    cargoTipo: "medico",
-    acesso: "Resistência A, Sprint Elite",
-  },
-  {
-    id: "2",
-    nome: "Marcus Vance",
-    email: "m.vance@athletelab.com",
-    cargo: "BIOANALISTA",
-    cargoTipo: "bioanalista",
-    acesso: "Global do Laboratório",
-  },
-  {
-    id: "3",
-    nome: "Sarah J. Miller",
-    email: "s.miller@athletelab.com",
-    cargo: "ESP.\nRECUPERAÇÃO",
-    cargoTipo: "esp_recuperacao",
-    acesso: "Sprint Elite",
-  },
-];
-
-const EQUIPES: Equipe[] = [
-  { id: "1", nome: "Resistência Alpha", atletas: 12 },
-  { id: "2", nome: "Sprint Elite", atletas: 8 },
-  {
-    id: "3",
-    nome: "Hidratação Beta",
-    atletas: 0,
-    destaque: true,
-    tag: "Nova Unidade",
-  },
-];
-
-const CARDS_CONFIG: CardConfigData[] = [
-  {
-    id: "1",
-    icone: "🛡️",
-    titulo: "Criptografia de Protocolos",
-    descricao:
-      "Gerencie a criptografia de ponta a ponta para transmissão de dados biométricos e resultados laboratoriais.",
-    labelChave: "NÍVEL DE SEGURANÇA",
-    labelValor: "ENTERPRISE",
-    corValor: "primaria",
-  },
-  {
-    id: "2",
-    icone: "🗄️",
-    titulo: "Retenção de Dados",
-    descricao:
-      "Configure políticas de arquivamento para telemetria fisiológica e imagens de alta resolução.",
-    labelChave: "PERÍODO DE ARQUIVAMENTO",
-    labelValor: "5 ANOS",
-  },
-  {
-    id: "3",
-    icone: "🔗",
-    titulo: "Integração Externa",
-    descricao:
-      "Sincronize resultados com APIs de wearables e bancos de dados de pesquisa médica de terceiros.",
-    labelChave: "HUBS CONECTADOS",
-    labelValor: "04 ATIVOS",
-  },
-];
-
-// ─── Sub-componentes ──────────────────────────────────────────────────────────
-
-const BadgeCargo = ({
-  tipo,
-  label,
-}: {
-  tipo: Profissional["cargoTipo"];
-  label: string;
-}) => {
-  const estiloMap: Record<Profissional["cargoTipo"], object> = {
+const BadgeCargo = ({ tipo, label }: { tipo: CargoTipo; label: string }) => {
+  const estiloMap: Record<CargoTipo, object> = {
     medico: styles.badgeMedico,
     bioanalista: styles.badgeBioanalista,
     esp_recuperacao: styles.badgeEsp,
+    nutricionista: styles.badgeMedico,
+    treinador: styles.badgeBioanalista,
+    administrador: styles.badgeEsp,
   };
-  const textoMap: Record<Profissional["cargoTipo"], object> = {
+  const textoMap: Record<CargoTipo, object> = {
     medico: styles.badgeMedicoText,
     bioanalista: styles.badgeBioanalistaText,
     esp_recuperacao: styles.badgeEspText,
+    nutricionista: styles.badgeMedicoText,
+    treinador: styles.badgeBioanalistaText,
+    administrador: styles.badgeEspText,
   };
   return (
     <View style={[styles.badgeCargo, estiloMap[tipo]]}>
@@ -242,40 +175,83 @@ const EquipeItem = ({
   </View>
 );
 
-const CardConfigItem = ({ card }: { card: CardConfigData }) => (
-  <View style={[styles.card, styles.cardConfigItem]}>
-    <Text style={styles.cardConfigIcone}>{card.icone}</Text>
-    <Text style={styles.cardConfigTitulo}>{card.titulo}</Text>
-    <Text style={styles.cardConfigDesc}>{card.descricao}</Text>
-    <View style={styles.cardConfigRodape}>
-      <Text style={styles.cardConfigChave}>{card.labelChave}</Text>
-      <Text
-        style={[
-          styles.cardConfigValor,
-          card.corValor === "primaria" && styles.cardConfigValorPrimario,
-        ]}
-      >
-        {card.labelValor}
-      </Text>
-    </View>
-  </View>
-);
-
-// ─── Tela principal ───────────────────────────────────────────────────────────
-
 export default function AdmSistema() {
-  const activeNav: NavItem = "equipes";
+  const { state } = useAppStore();
+  const [profissionais, setProfissionais] = useState<Profissional[]>([]);
+  const [equipes, setEquipes] = useState<Equipe[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const carregar = useCallback(async (silencioso = false) => {
+    if (!silencioso) setLoading(true);
+    try {
+      // Busca todos os usuários não-atletas
+      const [usuarios, equipesRaw] = await Promise.all([
+        apiFetch<any[]>("/usuarios").catch(() => []),
+        apiFetch<any[]>("/equipes").catch(() => []),
+      ]);
+
+      if (Array.isArray(usuarios)) {
+        const profs: Profissional[] = usuarios
+          .filter((u: any) => u.id_perfil !== 1) // exclui atletas
+          .map((u: any) => {
+            const perfilInfo = PERFIL_LABEL[u.id_perfil] ?? {
+              label: "USUÁRIO",
+              tipo: "bioanalista" as CargoTipo,
+            };
+            return {
+              id: String(u.id_usuario),
+              nome: u.nome_completo ?? "Profissional",
+              email: u.email ?? "",
+              cargo: perfilInfo.label,
+              cargoTipo: perfilInfo.tipo,
+              acesso: u.equipe ?? "Global",
+            };
+          });
+        setProfissionais(profs);
+      }
+
+      if (Array.isArray(equipesRaw)) {
+        const equipesMapped: Equipe[] = equipesRaw.map((e: any) => ({
+          id: String(e.id_equipe ?? e.id),
+          nome: e.nome ?? "Equipe",
+          atletas: e.total_atletas ?? e.atletas ?? 0,
+        }));
+        setEquipes(equipesMapped);
+      }
+    } catch (err: any) {
+      Alert.alert("Erro", err.message ?? "Não foi possível carregar os dados.");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    carregar();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    carregar(true);
+  }, [carregar]);
 
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor="#fcf9f5" />
       <View style={styles.layout}>
-        {/* ── Sidebar ── */}
-        <Sidebar activeNav={activeNav} />
-
-        {/* ── Conteúdo ── */}
-        <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-          {/* Header */}
+        <Sidebar activeNav="equipes" />
+        <ScrollView
+          style={styles.scroll}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#8f000a"
+            />
+          }
+        >
           <View style={styles.header}>
             <Text style={styles.headerBreadcrumb}>
               Gestão do Sistema
@@ -284,27 +260,26 @@ export default function AdmSistema() {
             </Text>
           </View>
 
-          {/* Título da seção */}
           <View style={styles.secaoTitulo}>
             <Text style={styles.tituloPrincipal}>Gestão do Sistema</Text>
             <Text style={styles.tituloDesc}>
               Orquestre equipes clínicas, gerencie permissões granulares e
-              configure os{"\n"}parâmetros globais do laboratório a partir deste
-              nexo técnico central.
+              configure os{"\n"}parâmetros globais do laboratório.
             </Text>
           </View>
 
-          {/* ── Linha principal: Tabela + Matriz ── */}
           <View style={styles.linhaMain}>
-            {/* Card — Lista de Profissionais */}
             <View style={[styles.card, styles.cardTabela]}>
               <View style={styles.cardTabelaHeader}>
                 <View>
                   <Text style={styles.cardLabel}>STATUS OPERACIONAL</Text>
-                  <Text style={styles.cardTitulo}>Lista de Atletas Ativos</Text>
+                  <Text style={styles.cardTitulo}>Profissionais Ativos</Text>
                 </View>
-                <TouchableOpacity activeOpacity={0.7}>
-                  <Text style={styles.linkGerenciar}>GERENCIAR USUÁRIOS →</Text>
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={() => router.push("/telaCadastroStaff" as any)}
+                >
+                  <Text style={styles.linkGerenciar}>+ ADICIONAR →</Text>
                 </TouchableOpacity>
               </View>
 
@@ -323,32 +298,54 @@ export default function AdmSistema() {
                 </Text>
               </View>
 
-              {PROFISSIONAIS.map((prof, index) => (
-                <ProfissionalRow
-                  key={prof.id}
-                  prof={prof}
-                  isLast={index === PROFISSIONAIS.length - 1}
-                />
-              ))}
+              {loading ? (
+                <View style={{ padding: 32, alignItems: "center" }}>
+                  <ActivityIndicator size="large" color="#8f000a" />
+                  <Text style={{ marginTop: 12, color: "#5b403d" }}>
+                    Carregando...
+                  </Text>
+                </View>
+              ) : profissionais.length === 0 ? (
+                <View style={{ padding: 24, alignItems: "center" }}>
+                  <Text style={{ color: "#5b403d" }}>
+                    Nenhum profissional cadastrado.
+                  </Text>
+                </View>
+              ) : (
+                profissionais.map((prof, index) => (
+                  <ProfissionalRow
+                    key={prof.id}
+                    prof={prof}
+                    isLast={index === profissionais.length - 1}
+                  />
+                ))
+              )}
             </View>
 
-            {/* Card — Matriz de Equipes */}
             <View style={[styles.card, styles.cardMatriz]}>
               <Text style={styles.cardLabel}>ORGANIZAÇÃO</Text>
               <Text style={styles.cardTitulo}>{"Matriz de\nEquipes"}</Text>
               <Text style={styles.matrizDesc}>
                 Agrupe atletas e equipe clínica em unidades de performance
-                focadas para isolar variáveis.
+                focadas.
               </Text>
-              <View style={styles.equipeList}>
-                {EQUIPES.map((equipe, index) => (
-                  <EquipeItem
-                    key={equipe.id}
-                    equipe={equipe}
-                    isLast={index === EQUIPES.length - 1}
-                  />
-                ))}
-              </View>
+              {loading ? (
+                <ActivityIndicator color="#8f000a" style={{ marginTop: 16 }} />
+              ) : equipes.length === 0 ? (
+                <Text style={{ color: "#5b403d", marginTop: 12 }}>
+                  Nenhuma equipe cadastrada.
+                </Text>
+              ) : (
+                <View style={styles.equipeList}>
+                  {equipes.map((equipe, index) => (
+                    <EquipeItem
+                      key={equipe.id}
+                      equipe={equipe}
+                      isLast={index === equipes.length - 1}
+                    />
+                  ))}
+                </View>
+              )}
             </View>
           </View>
         </ScrollView>

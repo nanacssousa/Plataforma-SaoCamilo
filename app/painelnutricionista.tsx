@@ -1,8 +1,13 @@
+// app/painelnutricionista.tsx
+// Painel do nutricionista — busca atletas e seus dados hídricos do backend
+import { apiFetch } from "@/services/apiService";
 import { styles } from "@/styles/PainelNutricionistaStyle";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StatusBar,
@@ -11,16 +16,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useAppStore } from "../src/store/useAppStore";
 
 type NavItem = "equipes" | "atletas" | "relatorios" | "perfil";
-
 const NAV_ROUTES: Record<NavItem, string> = {
   equipes: "/telaequipes",
   atletas: "/painelnutricionista",
   relatorios: "/biomarcadores",
   perfil: "/perfilProfissional",
 };
-
 const NAV_ITEMS: { id: NavItem; label: string; icon: string }[] = [
   { id: "equipes", label: "Equipes", icon: "👥" },
   { id: "atletas", label: "Atletas", icon: "🏃" },
@@ -77,60 +81,8 @@ interface Sugestao {
   descricao: string;
 }
 
-const ATLETAS: Atleta[] = [
-  {
-    id: "1",
-    nome: "Gabriel Mendonça",
-    posicao: "Volante",
-    categoria: "Sub-20",
-    massaAtual: 78.4,
-    deltaMassa: -2.8,
-    usg: 1.026,
-    statusHidrico: "desidratado",
-  },
-  {
-    id: "2",
-    nome: "Julia Santos",
-    posicao: "Ala",
-    categoria: "Principal",
-    massaAtual: 64.2,
-    deltaMassa: 0.3,
-    usg: 1.012,
-    statusHidrico: "hidratado",
-  },
-  {
-    id: "3",
-    nome: "Ricardo Lima",
-    posicao: "Lateral",
-    categoria: "Sub-20",
-    massaAtual: 82.1,
-    deltaMassa: -1.1,
-    usg: 1.021,
-    statusHidrico: "alerta_leve",
-  },
-];
-
-const SUGESTOES: Sugestao[] = [
-  {
-    id: "1",
-    tipo: "emergencial",
-    titulo: "Protocolo Emergencial: Gabriel M.",
-    descricao: "Reposição de 1.200ml de solução isotônica (6% carb) em 90 min.",
-  },
-  {
-    id: "2",
-    tipo: "ajuste",
-    titulo: "Ajuste de Sódio: Equipe A",
-    descricao:
-      "Aumentar oferta de eletrólitos pré-treino devido à alta umidade prevista.",
-  },
-];
-
-const ID_SOLICITANTE_ATUAL = 1;
-const BASE_URL = "http://localhost:3000";
-
 const BadgeStatus = ({ status }: { status: StatusHidrico }) => {
-  if (status === "desidratado") {
+  if (status === "desidratado")
     return (
       <View style={[styles.badge, styles.badgeDesidratado]}>
         <View style={[styles.dot, styles.dotDesidratado]} />
@@ -139,8 +91,7 @@ const BadgeStatus = ({ status }: { status: StatusHidrico }) => {
         </Text>
       </View>
     );
-  }
-  if (status === "hidratado") {
+  if (status === "hidratado")
     return (
       <View style={[styles.badge, styles.badgeHidratado]}>
         <View style={[styles.dot, styles.dotHidratado]} />
@@ -149,7 +100,6 @@ const BadgeStatus = ({ status }: { status: StatusHidrico }) => {
         </Text>
       </View>
     );
-  }
   return (
     <View style={[styles.badge, styles.badgeAlerta]}>
       <View style={[styles.dot, styles.dotAlerta]} />
@@ -231,61 +181,168 @@ const SugestaoCard = ({ sugestao }: { sugestao: Sugestao }) => (
   </View>
 );
 
+function calcularStatusHidrico(deltaMassa: number, usg: number): StatusHidrico {
+  if (deltaMassa <= -2 || usg >= 1.025) return "desidratado";
+  if (deltaMassa <= -1 || usg >= 1.02) return "alerta_leve";
+  return "hidratado";
+}
+
+function gerarSugestoes(atletas: Atleta[]): Sugestao[] {
+  const sugestoes: Sugestao[] = [];
+  const desidratados = atletas.filter((a) => a.statusHidrico === "desidratado");
+  const alertas = atletas.filter((a) => a.statusHidrico === "alerta_leve");
+  if (desidratados.length > 0) {
+    sugestoes.push({
+      id: "1",
+      tipo: "emergencial",
+      titulo: `Protocolo Emergencial: ${desidratados[0].nome.split(" ")[0]}`,
+      descricao: `Reposição de 1.200ml de solução isotônica (6% carb) em 90 min. ${desidratados.length > 1 ? `+${desidratados.length - 1} atleta(s) em estado crítico.` : ""}`,
+    });
+  }
+  if (alertas.length > 0) {
+    sugestoes.push({
+      id: "2",
+      tipo: "ajuste",
+      titulo: `Ajuste Hídrico: ${alertas.length} atleta(s) em alerta`,
+      descricao:
+        "Aumentar oferta de eletrólitos pré-treino e monitorar USG nas próximas 2 horas.",
+    });
+  }
+  return sugestoes.length > 0
+    ? sugestoes
+    : [
+        {
+          id: "0",
+          tipo: "ajuste",
+          titulo: "Equipe em dia",
+          descricao:
+            "Todos os atletas estão dentro dos parâmetros ideais de hidratação.",
+        },
+      ];
+}
+
 export default function PainelNutricionista() {
+  const { state } = useAppStore();
   const [filtro, setFiltro] = useState("");
-  const activeNav: NavItem = "atletas";
+  const [atletas, setAtletas] = useState<Atleta[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [gerandoRelatorio, setGerandoRelatorio] = useState(false);
 
-  const atletasFiltrados = ATLETAS.filter((a) =>
+  const carregarAtletas = useCallback(async (silencioso = false) => {
+    if (!silencioso) setLoading(true);
+    try {
+      // Busca todos os atletas (perfil 1) com suas últimas métricas
+      const usuarios = await apiFetch<any[]>("/usuarios?id_perfil=1");
+
+      if (!Array.isArray(usuarios) || usuarios.length === 0) {
+        setAtletas([]);
+        return;
+      }
+
+      // Para cada atleta, busca a última pesagem e calcula status
+      const atletasComDados = await Promise.all(
+        usuarios.map(async (u: any) => {
+          let massaAtual = 0;
+          let deltaMassa = 0;
+          let usg = 1.015;
+
+          try {
+            const sessoes = await apiFetch<any[]>(
+              `/sessoes-treino?id_usuario=${u.id_usuario}&limit=2`,
+            );
+            if (Array.isArray(sessoes) && sessoes.length > 0) {
+              const ultima = sessoes[0];
+              massaAtual = ultima.massa_pos_kg ?? ultima.massa_pre_kg ?? 0;
+              if (sessoes.length > 1) {
+                const anterior = sessoes[1];
+                const massaAnterior =
+                  anterior.massa_pos_kg ?? anterior.massa_pre_kg ?? massaAtual;
+                deltaMassa =
+                  massaAnterior > 0
+                    ? parseFloat(
+                        (
+                          ((massaAtual - massaAnterior) / massaAnterior) *
+                          100
+                        ).toFixed(1),
+                      )
+                    : 0;
+              }
+              usg = ultima.usg ?? 1.015;
+            }
+          } catch {
+            /* mantém padrões */
+          }
+
+          return {
+            id: String(u.id_usuario),
+            nome: u.nome_completo ?? "Atleta",
+            posicao: u.posicao ?? "Atleta",
+            categoria: u.categoria ?? "PRINCIPAL",
+            massaAtual,
+            deltaMassa,
+            usg,
+            statusHidrico: calcularStatusHidrico(deltaMassa, usg),
+          } as Atleta;
+        }),
+      );
+
+      setAtletas(atletasComDados);
+    } catch (err: any) {
+      Alert.alert(
+        "Erro ao carregar atletas",
+        err.message ?? "Verifique a conexão com o servidor.",
+      );
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    carregarAtletas();
+  }, []);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    carregarAtletas(true);
+  }, [carregarAtletas]);
+
+  const atletasFiltrados = atletas.filter((a) =>
     a.nome.toLowerCase().includes(filtro.toLowerCase()),
   );
 
-   const handleGerarRelatorio = async () => {
-  if (gerandoRelatorio) return
-  setGerandoRelatorio(true)
+  const sugestoes = gerarSugestoes(atletas);
 
-  try {
-    const url = `${BASE_URL}/relatorios/painel/pdf`
-    console.log("Buscando PDF em:", url)
-
-    const response = await fetch(url, {
-      headers: { Accept: "application/pdf" },
-    })
-
-    console.log("Status:", response.status)
-
-    if (!response.ok) {
-      const texto = await response.text()
-      console.error("Erro do servidor:", texto)
-      throw new Error(`Erro ao gerar relatório: ${response.status} — ${texto}`)
+  const handleGerarRelatorio = async () => {
+    if (gerandoRelatorio) return;
+    setGerandoRelatorio(true);
+    try {
+      await apiFetch("/relatorios/painel/pdf");
+      Alert.alert("Relatório gerado", "O PDF foi gerado com sucesso.");
+    } catch (err: any) {
+      Alert.alert("Erro", err.message ?? "Não foi possível gerar o relatório.");
+    } finally {
+      setGerandoRelatorio(false);
     }
-
-    const blob = await response.blob()
-    const objectUrl = URL.createObjectURL(blob)
-
-    const link = document.createElement("a")
-    link.href = objectUrl
-    link.download = "painel_nutricional.pdf"
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(objectUrl)
-
-  } catch (error: any) {
-    console.error("Erro completo:", error)
-    Alert.alert("Erro", error.message ?? "Não foi possível gerar o relatório.")
-  } finally {
-    setGerandoRelatorio(false)
-  }
-}
-
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor="#fcf9f5" />
       <View style={styles.layout}>
-        <Sidebar activeNav={activeNav} />
-        <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+        <Sidebar activeNav="atletas" />
+        <ScrollView
+          style={styles.scroll}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#8f000a"
+            />
+          }
+        >
           <View style={styles.header}>
             <View>
               <Text style={styles.headerBreadcrumb}>
@@ -332,20 +389,41 @@ export default function PainelNutricionista() {
               </Text>
             </View>
 
-            {atletasFiltrados.map((atleta, index) => (
-              <AtletaRow
-                key={atleta.id}
-                atleta={atleta}
-                isLast={index === atletasFiltrados.length - 1}
-              />
-            ))}
+            {loading ? (
+              <View style={{ padding: 32, alignItems: "center" }}>
+                <ActivityIndicator size="large" color="#8f000a" />
+                <Text
+                  style={{
+                    marginTop: 12,
+                    color: "#5b403d",
+                    fontFamily: "SourceSans3_400Regular",
+                  }}
+                >
+                  Carregando atletas...
+                </Text>
+              </View>
+            ) : atletasFiltrados.length === 0 ? (
+              <View style={{ padding: 24, alignItems: "center" }}>
+                <Text style={{ color: "#5b403d" }}>
+                  Nenhum atleta encontrado.
+                </Text>
+              </View>
+            ) : (
+              atletasFiltrados.map((atleta, index) => (
+                <AtletaRow
+                  key={atleta.id}
+                  atleta={atleta}
+                  isLast={index === atletasFiltrados.length - 1}
+                />
+              ))
+            )}
           </View>
 
           <View style={styles.rodape}>
             <View style={[styles.card, styles.cardSugestoes]}>
               <Text style={styles.cardTitulo}>Sugestões de Recomposição</Text>
               <View style={styles.sugestaoLista}>
-                {SUGESTOES.map((s) => (
+                {sugestoes.map((s) => (
                   <SugestaoCard key={s.id} sugestao={s} />
                 ))}
               </View>
@@ -355,8 +433,12 @@ export default function PainelNutricionista() {
               <Text style={styles.relatorioIcone}>📋</Text>
               <Text style={styles.cardTitulo}>Relatório Consolidado</Text>
               <Text style={styles.relatorioDesc}>
-                O sumário da semana 42 está pronto para análise. O desempenho
-                hídrico subiu 5% em relação ao anterior.
+                {atletas.length} atletas monitorados.{" "}
+                {
+                  atletas.filter((a) => a.statusHidrico === "desidratado")
+                    .length
+                }{" "}
+                em estado crítico.
               </Text>
               <TouchableOpacity
                 style={[styles.pdfBtn, gerandoRelatorio && { opacity: 0.6 }]}
@@ -377,11 +459,15 @@ export default function PainelNutricionista() {
             onPress={() => router.push("/perfilProfissional")}
           >
             <View style={styles.nutAvatar}>
-              <Text style={styles.nutAvatarText}>MS</Text>
+              <Text style={styles.nutAvatarText}>
+                {state.perfil.iniciais || "NR"}
+              </Text>
             </View>
             <View>
               <Text style={styles.nutLabel}>NUTRICIONISTA</Text>
-              <Text style={styles.nutNome}>Dr. Marcos Silva</Text>
+              <Text style={styles.nutNome}>
+                {state.perfil.nome || "Profissional"}
+              </Text>
             </View>
           </TouchableOpacity>
         </ScrollView>
