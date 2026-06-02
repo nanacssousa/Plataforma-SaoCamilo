@@ -41,7 +41,8 @@
           "icon": "./src/assets/icon.png",
           "color": "#8f000a"
         }
-      ]
+      ],
+      "expo-font"
     ]
   }
 }

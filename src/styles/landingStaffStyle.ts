@@ -62,7 +62,7 @@ export const styles = StyleSheet.create({
   // ── Hero ──────────────────────────────────────────────────────────────────
   hero: {
     paddingHorizontal: spacing.s6,
-    paddingTop: spacing.s8,
+    paddingTop: spacing.s12,
     paddingBottom: spacing.s6,
     backgroundColor: colors.white,
   },

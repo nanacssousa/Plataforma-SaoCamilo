@@ -72,7 +72,6 @@ function calcIniciais(nome: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-// ─── State shape ──────────────────────────────────────────────────────────────
 interface State {
   // Auth — campos novos, não quebram nada que já existia
   token: string | null;
@@ -82,6 +81,9 @@ interface State {
 
   // Campos originais — sem alteração
   perfil: AtletaProfile;
+  idUsuarioBackend: number | null;
+  idPerfilBackend: number | null;
+  idSessaoBackend: number | null;
   settings: HydrationSettings;
   historico: HydrationEntry[];
   daily: DailyHydration;
@@ -91,7 +93,6 @@ interface State {
   toast: ToastMessage | null;
 }
 
-// ─── Actions ──────────────────────────────────────────────────────────────────
 type Action =
   | { type: "INIT"; payload: Partial<State> }
   | {
@@ -163,11 +164,10 @@ function reducer(state: State, action: Action): State {
 
     case "SET_PERFIL": {
       const nome = action.payload.nome ?? state.perfil.nome;
-      const iniciais = calcIniciais(nome);
       const updated: AtletaProfile = {
         ...state.perfil,
         ...action.payload,
-        iniciais,
+        iniciais: calcIniciais(nome),
         atualizadoEm: new Date().toISOString(),
       };
       perfilDB.save(updated);
@@ -262,7 +262,6 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-// ─── Context ──────────────────────────────────────────────────────────────────
 interface AppContextValue {
   state: State;
   dispatch: React.Dispatch<Action>;
@@ -296,7 +295,6 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null);
 
-// ─── Provider ─────────────────────────────────────────────────────────────────
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const initialState: State = {
     token: null,
@@ -336,6 +334,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         ]);
 
       const today = todayStr();
+      const metaDiariaL = settings?.metaDiariaL ?? DEFAULT_SETTINGS.metaDiariaL;
       let daily: DailyHydration;
       if (dailySaved && dailySaved.data === today) {
         daily = {
@@ -556,7 +555,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
 export function useAppStore() {
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error("useAppStore deve ser usado dentro de AppProvider");

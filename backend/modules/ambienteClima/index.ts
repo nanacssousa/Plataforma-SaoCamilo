@@ -1,0 +1,5 @@
+export * from './ambienteClimaTypes'
+export * from './ambienteClimaRepository'
+export * from './ambienteClimaService'
+export * from './ambienteClimaController'
+export { ambienteClimaRoutes } from './ambienteClimaRoutes'
