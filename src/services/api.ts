@@ -67,13 +67,13 @@ export interface AgenteIAContrato {
 
 export const authAPI = {
   login: (email: string, senha: string) =>
-    req<LoginResponse>('/api/usuarios/login', {
+    req<LoginResponse>('/usuarios/login', {
       method: 'POST',
       body: JSON.stringify({ email, senha }),
     }, false),
 
   cadastrarAtleta: (dados: { nome_completo: string; email: string; senha: string; id_perfil?: number }) =>
-    req<any>('/api/usuarios', {
+    req<any>('/usuarios', {
       method: 'POST',
       body: JSON.stringify({ ...dados, id_perfil: dados.id_perfil ?? 1 }),
     }, false),
