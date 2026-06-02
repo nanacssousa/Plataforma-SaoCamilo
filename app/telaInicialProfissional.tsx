@@ -1,9 +1,5 @@
 // app/telaLandingStaff.tsx
-import StaffFeaturesSection from "@/components/StaffFeaturesSection";
-import StaffHeroSection from "@/components/StaffHeroSection";
-import { styles } from "@/styles/landingStaffStyle";
 import { router } from "expo-router";
-import { useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -12,13 +8,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import StaffFeaturesSection from "../src/components/StaffFeaturesSection";
+import StaffHeroSection from "../src/components/StaffHeroSection";
+import { styles } from "../src/styles/landingStaffStyle";
 
 // ── Navbar ────────────────────────────────────────────────────────────────────
 function Navbar() {
-  const [active, setActive] = useState<"nutrição" | "performance" | "ciência">(
-    "performance",
-  );
-  const links = ["nutrição", "performance", "ciência"] as const;
+  
 
   return (
     <View style={styles.navbar}>
@@ -28,19 +24,6 @@ function Navbar() {
           <Text style={styles.navLogoLetter}>C</Text>
         </View>
         <Text style={styles.navBrand}>CLÍNICA ATLETA</Text>
-      </View>
-
-      {/* Links */}
-      <View style={styles.navLinksRow}>
-        {links.map((l) => (
-          <TouchableOpacity key={l} onPress={() => setActive(l)}>
-            <Text
-              style={[styles.navLink, active === l && styles.navLinkActive]}
-            >
-              {l.toUpperCase()}
-            </Text>
-          </TouchableOpacity>
-        ))}
       </View>
 
       {/* CTA */}

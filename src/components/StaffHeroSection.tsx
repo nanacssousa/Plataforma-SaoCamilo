@@ -53,10 +53,7 @@ export default function StaffHeroSection({ onSolicitarDemo, onExplorar }: Props)
         {/* Botões */}
         <Animated.View style={[styles.heroBtnRow, fadeUp(btnAnim)]}>
           <TouchableOpacity style={styles.heroBtnPrimary} onPress={onSolicitarDemo} activeOpacity={0.85}>
-            <Text style={styles.heroBtnPrimaryText}>SOLICITAR DEMONSTRAÇÃO</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.heroBtnSecondary} onPress={onExplorar} activeOpacity={0.8}>
-            <Text style={styles.heroBtnSecondaryText}>EXPLORAR TECNOLOGIA</Text>
+            <Text style={styles.heroBtnPrimaryText}>CADASTRA-SE</Text>
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -66,7 +63,7 @@ export default function StaffHeroSection({ onSolicitarDemo, onExplorar }: Props)
         <View style={styles.liveCard}>
           <View style={styles.liveRow}>
             <View style={styles.liveDot} />
-            <Text style={styles.liveLabel}>LIVE PERFORMANCE</Text>
+            <Text style={styles.liveLabel}>PERFORMANCE</Text>
           </View>
           <Text style={styles.liveMetric}>94.2%</Text>
           <Text style={styles.liveDesc}>NÍVEL DE HIDRATAÇÃO ÓTIMO</Text>
