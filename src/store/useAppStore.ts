@@ -279,7 +279,7 @@ interface AppContextValue {
     pesoPos: number,
     corUrina: number,
     sintomas: string[],
-  ) => HydrationEntry | null;
+  ) => Promise<HydrationEntry | null>;
   login: (
     token: string,
     usuario: {
@@ -303,6 +303,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: false,
     perfil: DEFAULT_PERFIL,
     settings: DEFAULT_SETTINGS,
+    idUsuarioBackend: null,
+    idPerfilBackend: null,
+    idSessaoBackend: null,
     historico: [],
     daily: {
       data: todayStr(),
@@ -318,6 +321,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const [state, dispatch] = useReducer(reducer, initialState);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Ref sempre atualizada com o estado mais recente — evita closure stale nos useCallbacks
+  const stateRef = useRef<State>(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   // Inicialização: restaura auth + dados locais
   useEffect(() => {
@@ -469,12 +477,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const encerrarSessao = useCallback(
-    (
+    async (
       pesoPos: number,
       corUrina: number,
       sintomas: string[],
-    ): HydrationEntry | null => {
-      const { sessaoAtiva } = state;
+    ): Promise<HydrationEntry | null> => {
+      // Usa stateRef para garantir o estado mais recente (evita closure stale)
+      const { sessaoAtiva } = stateRef.current;
       if (!sessaoAtiva) return null;
 
       const inicio = new Date(sessaoAtiva.iniciadaEm);
@@ -516,7 +525,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       dispatch({ type: "ENCERRAR_SESSAO" });
       return entry;
     },
-    [state],
+    [], // stateRef sempre atualizado, sem necessidade de [state] como dependência
   );
 
   const showToast = useCallback(
