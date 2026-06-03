@@ -93,7 +93,9 @@ export default function TelaCadastroAtleta() {
   };
 
   const handleSubmit = async () => {
+    console.log("CLICOU NO BOTÃO CADASTRO");
     setTentouEnviar(true);
+
     const novosErros = validar({
       nome,
       email,
@@ -103,50 +105,59 @@ export default function TelaCadastroAtleta() {
       peso,
       modalidade,
     });
+
     setErros(novosErros);
 
     if (Object.keys(novosErros).length > 0) {
       Alert.alert(
         "Campos incompletos",
         "Preencha todos os campos obrigatórios corretamente.",
-        [{ text: "OK" }],
       );
       return;
     }
 
     setCarregando(true);
+
     try {
-      const result = await authAPI.cadastrarAtleta({
+      console.log("Iniciando cadastro...");
+
+      const usuario = await authAPI.cadastrarAtleta({
         nome_completo: nome.trim(),
         email: email.trim().toLowerCase(),
         senha,
         id_perfil: 1,
       });
 
-      const id_usuario =
-        (result as any).id_usuario ?? (result as any).usuario?.id_usuario;
+      console.log("Usuário criado:", usuario);
 
-      if (id_usuario) {
-        await perfilAPI
-          .criarOuAtualizar(id_usuario, {
-            altura_cm: Number(altura),
-            peso_habitual_kg: Number(peso.replace(",", ".")),
-            modalidade,
-            nivel: "AMADOR",
-          })
-          .catch(() => {});
+      const idUsuario = usuario?.id_usuario || usuario?.usuario?.id_usuario;
+
+      if (!idUsuario) {
+        throw new Error("Backend não retornou id_usuario após o cadastro.");
       }
 
-      Alert.alert(
-        "✅ Conta criada!",
-        "Seu cadastro foi realizado. Faça login para continuar.",
-        [{ text: "Fazer login", onPress: () => router.replace("/telaLogin") }],
-      );
-    } catch (err: any) {
+      try {
+        await perfilAPI.criarOuAtualizar(idUsuario, {
+          altura_cm: Number(altura),
+          peso_habitual_kg: Number(peso.replace(",", ".")),
+          modalidade,
+          nivel: "AMADOR",
+        });
+
+        console.log("Perfil criado.");
+      } catch (perfilErro) {
+        console.log("Erro ao criar perfil:", perfilErro);
+      }
+
+      Alert.alert("Cadastro realizado", "Sua conta foi criada com sucesso.");
+
+      router.replace("/telaLogin");
+    } catch (error: any) {
+      console.log("ERRO COMPLETO:", error);
+
       Alert.alert(
         "Erro no cadastro",
-        err.message ?? "Tente novamente mais tarde.",
-        [{ text: "OK" }],
+        error?.message || JSON.stringify(error) || "Erro desconhecido.",
       );
     } finally {
       setCarregando(false);

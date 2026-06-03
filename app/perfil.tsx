@@ -1,6 +1,7 @@
 // app/perfil.tsx
 // Tela de Perfil — totalmente funcional com estado global persistido
-import React, { useRef, useState } from 'react';
+import { router } from "expo-router";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActionSheetIOS,
   ActivityIndicator,
@@ -14,26 +15,49 @@ import {
   Text,
   TouchableOpacity,
   View,
-} from 'react-native';
-import { router } from 'expo-router';
-import { AtletaAvatar, AtletaAvatarMini } from '../src/components/shared/AtletaAvatar';
-import { EditModal } from '../src/components/shared/EditModal';
-import { ToastContainer } from '../src/components/shared/Toast';
-import { colors } from '../src/constants/theme';
-import { styles } from '../src/styles/ProfileStyle';
-import { pickFromCamera, pickFromGallery, removeProfilePhoto } from '../src/services/imageService';
-import { cancelAllNotifications, requestNotificationPermissions, schedulePreTreinoNotification } from '../src/notifications/notificationService';
-import { useAppStore } from '../src/store/useAppStore';
-import { usePerformance } from '../src/hooks/usePerformance';
-import { clearAllData } from '../src/database/storage';
+} from "react-native";
+import {
+  AtletaAvatar,
+  AtletaAvatarMini,
+} from "../src/components/shared/AtletaAvatar";
+import { EditModal } from "../src/components/shared/EditModal";
+import { ToastContainer } from "../src/components/shared/Toast";
+import { colors } from "../src/constants/theme";
+import { clearAllData } from "../src/database/storage";
+import { usePerformance } from "../src/hooks/usePerformance";
+import {
+  cancelAllNotifications,
+  requestNotificationPermissions,
+  schedulePreTreinoNotification,
+} from "../src/notifications/notificationService";
+import { authAPI, perfilAPI } from "../src/services/api";
+import {
+  pickFromCamera,
+  pickFromGallery,
+  removeProfilePhoto,
+} from "../src/services/imageService";
+import { useAppStore } from "../src/store/useAppStore";
+import { styles } from "../src/styles/ProfileStyle";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 const Divider = () => <View style={styles.divider} />;
-const SectionLabel = ({ label }: { label: string }) => <Text style={styles.sectionLabel}>{label}</Text>;
+const SectionLabel = ({ label }: { label: string }) => (
+  <Text style={styles.sectionLabel}>{label}</Text>
+);
 
 const BiometricCard = ({
-  label, value, unit, accentColor = colors.primary, onPress,
-}: { label: string; value: string; unit: string; accentColor?: string; onPress?: () => void }) => (
+  label,
+  value,
+  unit,
+  accentColor = colors.primary,
+  onPress,
+}: {
+  label: string;
+  value: string;
+  unit: string;
+  accentColor?: string;
+  onPress?: () => void;
+}) => (
   <TouchableOpacity
     style={styles.biometricCard}
     onPress={onPress}
@@ -43,17 +67,32 @@ const BiometricCard = ({
     <View style={styles.biometricContent}>
       <Text style={styles.biometricLabel}>{label}</Text>
       <Text style={styles.biometricValue}>
-        {value}<Text style={styles.biometricUnit}> {unit}</Text>
+        {value}
+        <Text style={styles.biometricUnit}> {unit}</Text>
       </Text>
     </View>
-    {onPress && <Text style={{ color: colors.primary, fontSize: 18, paddingRight: 4 }}>›</Text>}
+    {onPress && (
+      <Text style={{ color: colors.primary, fontSize: 18, paddingRight: 4 }}>
+        ›
+      </Text>
+    )}
   </TouchableOpacity>
 );
 
 // ─── Slider de meta diária ────────────────────────────────────────────────────
 const HydrationSlider = ({
-  value, onChange, onDragging, min = 1, max = 5,
-}: { value: number; onChange: (v: number) => void; onDragging: (v: boolean) => void; min?: number; max?: number }) => {
+  value,
+  onChange,
+  onDragging,
+  min = 1,
+  max = 5,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  onDragging: (v: boolean) => void;
+  min?: number;
+  max?: number;
+}) => {
   const trackWidth = useRef(0);
   const percent = ((value - min) / (max - min)) * 100;
 
@@ -62,16 +101,25 @@ const HydrationSlider = ({
     return Math.round((ratio * (max - min) + min) * 10) / 10;
   };
 
-  const panResponder = useRef(PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onStartShouldSetPanResponderCapture: () => true,
-    onMoveShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponderCapture: () => true,
-    onPanResponderGrant: (e) => { onDragging(true); if (trackWidth.current > 0) onChange(calcValue(e.nativeEvent.locationX)); },
-    onPanResponderMove: (e) => { if (trackWidth.current > 0) onChange(calcValue(e.nativeEvent.locationX)); },
-    onPanResponderRelease: () => onDragging(false),
-    onPanResponderTerminate: () => onDragging(false),
-  })).current;
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponderCapture: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponderCapture: () => true,
+      onPanResponderGrant: (e) => {
+        onDragging(true);
+        if (trackWidth.current > 0)
+          onChange(calcValue(e.nativeEvent.locationX));
+      },
+      onPanResponderMove: (e) => {
+        if (trackWidth.current > 0)
+          onChange(calcValue(e.nativeEvent.locationX));
+      },
+      onPanResponderRelease: () => onDragging(false),
+      onPanResponderTerminate: () => onDragging(false),
+    }),
+  ).current;
 
   return (
     <View>
@@ -81,11 +129,18 @@ const HydrationSlider = ({
       </View>
       <View
         style={styles.sliderTrack}
-        onLayout={e => { trackWidth.current = e.nativeEvent.layout.width; }}
+        onLayout={(e) => {
+          trackWidth.current = e.nativeEvent.layout.width;
+        }}
         {...panResponder.panHandlers}
       >
         <View style={[styles.sliderFill, { width: `${percent}%` }]} />
-        <View style={[styles.sliderThumb, { left: `${Math.max(0, percent - 1.5)}%` }]} />
+        <View
+          style={[
+            styles.sliderThumb,
+            { left: `${Math.max(0, percent - 1.5)}%` },
+          ]}
+        />
       </View>
       <View style={styles.sliderLabels}>
         <Text style={styles.sliderLabel}>1.0 LITRO</Text>
@@ -99,16 +154,47 @@ const HydrationSlider = ({
 const DailyProgressBar = () => {
   const { state } = useAppStore();
   const { daily } = state;
-  const pct = Math.min(100, Math.round((daily.consumidoML / daily.metaML) * 100));
+  const pct = Math.min(
+    100,
+    Math.round((daily.consumidoML / daily.metaML) * 100),
+  );
   const restante = Math.max(0, daily.metaML - daily.consumidoML);
   return (
     <View style={{ marginTop: 12 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-        <Text style={styles.settingSubtitle}>Hoje: {(daily.consumidoML / 1000).toFixed(1)}L consumido</Text>
-        <Text style={[styles.settingSubtitle, { color: pct >= 100 ? colors.success : colors.primary }]}>{pct}%</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginBottom: 6,
+        }}
+      >
+        <Text style={styles.settingSubtitle}>
+          Hoje: {(daily.consumidoML / 1000).toFixed(1)}L consumido
+        </Text>
+        <Text
+          style={[
+            styles.settingSubtitle,
+            { color: pct >= 100 ? colors.success : colors.primary },
+          ]}
+        >
+          {pct}%
+        </Text>
       </View>
-      <View style={{ height: 6, backgroundColor: colors.outlineVariant, borderRadius: 3 }}>
-        <View style={{ height: 6, width: `${pct}%`, backgroundColor: pct >= 100 ? colors.success : colors.primary, borderRadius: 3 }} />
+      <View
+        style={{
+          height: 6,
+          backgroundColor: colors.outlineVariant,
+          borderRadius: 3,
+        }}
+      >
+        <View
+          style={{
+            height: 6,
+            width: `${pct}%`,
+            backgroundColor: pct >= 100 ? colors.success : colors.primary,
+            borderRadius: 3,
+          }}
+        />
       </View>
       {pct < 100 && (
         <Text style={[styles.settingSubtitle, { marginTop: 4 }]}>
@@ -120,24 +206,38 @@ const DailyProgressBar = () => {
 };
 
 // ─── Bottom Tab Bar ───────────────────────────────────────────────────────────
-type TabKey = 'sessao' | 'historico' | 'perfil';
+type TabKey = "sessao" | "historico" | "perfil";
 const TABS: { key: TabKey; label: string; icon: string }[] = [
-  { key: 'sessao', label: 'SESSÃO', icon: '⏱' },
-  { key: 'historico', label: 'HISTÓRICO', icon: '📊' },
-  { key: 'perfil', label: 'PERFIL', icon: '👤' },
+  { key: "sessao", label: "SESSÃO", icon: "⏱" },
+  { key: "historico", label: "HISTÓRICO", icon: "📊" },
+  { key: "perfil", label: "PERFIL", icon: "👤" },
 ];
-const TAB_ROUTES: Record<TabKey, string> = { sessao: '/telaAtleta', historico: '/historico', perfil: '/perfil' };
+const TAB_ROUTES: Record<TabKey, string> = {
+  sessao: "/telaAtleta",
+  historico: "/historico",
+  perfil: "/perfil",
+};
 
 const BottomTabBar = ({ active }: { active: TabKey }) => (
   <View style={styles.tabBar}>
-    {TABS.map(tab => {
+    {TABS.map((tab) => {
       const isActive = tab.key === active;
       return (
-        <TouchableOpacity key={tab.key} style={styles.tabItem} onPress={() => { if (!isActive) router.push(TAB_ROUTES[tab.key] as any); }}>
-          <View style={[styles.tabIconContainer, isActive && styles.tabIconActive]}>
+        <TouchableOpacity
+          key={tab.key}
+          style={styles.tabItem}
+          onPress={() => {
+            if (!isActive) router.push(TAB_ROUTES[tab.key] as any);
+          }}
+        >
+          <View
+            style={[styles.tabIconContainer, isActive && styles.tabIconActive]}
+          >
             <Text style={styles.tabIcon}>{tab.icon}</Text>
           </View>
-          <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>{tab.label}</Text>
+          <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
+            {tab.label}
+          </Text>
         </TouchableOpacity>
       );
     })}
@@ -145,23 +245,68 @@ const BottomTabBar = ({ active }: { active: TabKey }) => (
 );
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
-type EditField = 'nome' | 'posicao' | 'categoria' | 'peso' | 'altura' | 'idade' | null;
+type EditField =
+  | "nome"
+  | "posicao"
+  | "categoria"
+  | "peso"
+  | "altura"
+  | "idade"
+  | null;
 
 export default function ProfileScreen() {
-  const { state, setPerfil, setFotoUri, setSettings, showToast } = useAppStore();
+  const { state, setPerfil, setFotoUri, setSettings, showToast } =
+    useAppStore();
   const { perfil, settings, daily } = state;
   const performance = usePerformance();
 
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const [editField, setEditField] = useState<EditField>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  useEffect(() => {
+    carregarPerfil();
+  }, []);
+
+  const carregarPerfil = async () => {
+    try {
+      const usuario = await authAPI.getUsuarioLocal();
+      if (!usuario) return;
+
+      setPerfil({
+        nome: usuario.nome_completo,
+      });
+
+      try {
+        const perfilBanco = await perfilAPI.buscarPorUsuario(
+          usuario.id_usuario,
+        );
+
+        setPerfil({
+          nome: usuario.nome_completo,
+          peso: perfilBanco?.peso_habitual_kg ?? perfil.peso,
+          altura: perfilBanco?.altura_cm ?? perfil.altura,
+          posicao: perfilBanco?.modalidade ?? perfil.posicao,
+          categoria: perfilBanco?.nivel ?? perfil.categoria,
+        });
+      } catch (erroPerfil) {
+        console.log("Perfil atlético não encontrado", erroPerfil);
+      }
+    } catch (error) {
+      console.log("Erro ao carregar perfil:", error);
+    }
+  };
 
   // ─── Foto ─────────────────────────────────────────────────────────────────
   const handleFotoPress = () => {
-    if (Platform.OS === 'ios') {
+    if (Platform.OS === "ios") {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ['Cancelar', 'Tirar foto', 'Escolher da galeria', 'Remover foto'],
+          options: [
+            "Cancelar",
+            "Tirar foto",
+            "Escolher da galeria",
+            "Remover foto",
+          ],
           cancelButtonIndex: 0,
           destructiveButtonIndex: 3,
         },
@@ -171,16 +316,26 @@ export default function ProfileScreen() {
           if (idx === 3) {
             await removeProfilePhoto();
             setFotoUri(null);
-            showToast('Foto removida');
+            showToast("Foto removida");
           }
-        }
+        },
       );
     } else {
-      Alert.alert('Foto de perfil', 'Escolha uma opção', [
-        { text: 'Tirar foto', onPress: doPickCamera },
-        { text: 'Escolher da galeria', onPress: doPickGallery },
-        perfil.fotoUri ? { text: 'Remover foto', style: 'destructive', onPress: async () => { await removeProfilePhoto(); setFotoUri(null); showToast('Foto removida'); } } : { text: 'Cancelar', style: 'cancel' },
-        { text: 'Cancelar', style: 'cancel' },
+      Alert.alert("Foto de perfil", "Escolha uma opção", [
+        { text: "Tirar foto", onPress: doPickCamera },
+        { text: "Escolher da galeria", onPress: doPickGallery },
+        perfil.fotoUri
+          ? {
+              text: "Remover foto",
+              style: "destructive",
+              onPress: async () => {
+                await removeProfilePhoto();
+                setFotoUri(null);
+                showToast("Foto removida");
+              },
+            }
+          : { text: "Cancelar", style: "cancel" },
+        { text: "Cancelar", style: "cancel" },
       ]);
     }
   };
@@ -191,9 +346,9 @@ export default function ProfileScreen() {
     setUploadingPhoto(false);
     if (result.success && result.uri) {
       setFotoUri(result.uri);
-      showToast('Foto atualizada com sucesso!');
-    } else if (result.error && result.error !== 'Cancelado') {
-      showToast(result.error, 'error');
+      showToast("Foto atualizada com sucesso!");
+    } else if (result.error && result.error !== "Cancelado") {
+      showToast(result.error, "error");
     }
   };
 
@@ -203,9 +358,9 @@ export default function ProfileScreen() {
     setUploadingPhoto(false);
     if (result.success && result.uri) {
       setFotoUri(result.uri);
-      showToast('Foto atualizada com sucesso!');
-    } else if (result.error && result.error !== 'Cancelado') {
-      showToast(result.error, 'error');
+      showToast("Foto atualizada com sucesso!");
+    } else if (result.error && result.error !== "Cancelado") {
+      showToast(result.error, "error");
     }
   };
 
@@ -213,19 +368,24 @@ export default function ProfileScreen() {
   const handleToggleLembretes = async (val: boolean) => {
     if (val) {
       const granted = await requestNotificationPermissions();
-      if (!granted) { showToast('Permissão de notificações negada', 'error'); return; }
+      if (!granted) {
+        showToast("Permissão de notificações negada", "error");
+        return;
+      }
       await schedulePreTreinoNotification(settings.minutosAntesTreino);
-      showToast('Lembretes ativados!');
+      showToast("Lembretes ativados!");
     } else {
       await cancelAllNotifications();
-      showToast('Lembretes desativados');
+      showToast("Lembretes desativados");
     }
     setSettings({ lembretesPreTreino: val });
   };
 
   const handleToggleDesidratacao = (val: boolean) => {
     setSettings({ notifDesidratacaoCritica: val });
-    showToast(val ? 'Alertas de desidratação ativados!' : 'Alertas desativados');
+    showToast(
+      val ? "Alertas de desidratação ativados!" : "Alertas desativados",
+    );
   };
 
   // ─── Meta diária ──────────────────────────────────────────────────────────
@@ -240,14 +400,14 @@ export default function ProfileScreen() {
 
   // ─── Logout ───────────────────────────────────────────────────────────────
   const handleLogout = () => {
-    Alert.alert('Encerrar sessão', 'Deseja sair da conta?', [
-      { text: 'Cancelar', style: 'cancel' },
+    Alert.alert("Encerrar sessão", "Deseja sair da conta?", [
+      { text: "Cancelar", style: "cancel" },
       {
-        text: 'Sair',
-        style: 'destructive',
+        text: "Sair",
+        style: "destructive",
         onPress: async () => {
           await clearAllData();
-          router.replace('/telaLogin');
+          router.replace("/telaLogin");
         },
       },
     ]);
@@ -255,59 +415,117 @@ export default function ProfileScreen() {
 
   // ─── Validações para campos ───────────────────────────────────────────────
   const validatePeso = (v: string) => {
-    const n = parseFloat(v.replace(',', '.'));
-    if (isNaN(n) || n <= 0) return 'Peso deve ser maior que 0';
-    if (n > 300) return 'Peso inválido';
+    const n = parseFloat(v.replace(",", "."));
+    if (isNaN(n) || n <= 0) return "Peso deve ser maior que 0";
+    if (n > 300) return "Peso inválido";
     return null;
   };
   const validateAltura = (v: string) => {
-    const n = parseFloat(v.replace(',', '.'));
-    if (isNaN(n) || n <= 0) return 'Altura deve ser maior que 0';
-    if (n < 50 || n > 250) return 'Altura inválida (50–250 cm)';
+    const n = parseFloat(v.replace(",", "."));
+    if (isNaN(n) || n <= 0) return "Altura deve ser maior que 0";
+    if (n < 50 || n > 250) return "Altura inválida (50–250 cm)";
     return null;
   };
   const validateIdade = (v: string) => {
     const n = parseInt(v);
-    if (isNaN(n)) return 'Idade inválida';
-    if (n < 10 || n > 60) return 'Idade deve estar entre 10 e 60 anos';
+    if (isNaN(n)) return "Idade inválida";
+    if (n < 10 || n > 60) return "Idade deve estar entre 10 e 60 anos";
     return null;
   };
   const validateNome = (v: string) => {
-    if (v.trim().length < 2) return 'Nome muito curto';
+    if (v.trim().length < 2) return "Nome muito curto";
     return null;
   };
 
   const handleSaveField = (field: EditField, value: string) => {
     if (!field) return;
-    if (field === 'nome') { setPerfil({ nome: value }); showToast('Nome atualizado!'); }
-    else if (field === 'posicao') { setPerfil({ posicao: value }); showToast('Posição atualizada!'); }
-    else if (field === 'categoria') { setPerfil({ categoria: value }); showToast('Categoria atualizada!'); }
-    else if (field === 'peso') {
-      const v = parseFloat(value.replace(',', '.'));
+    if (field === "nome") {
+      setPerfil({ nome: value });
+      showToast("Nome atualizado!");
+    } else if (field === "posicao") {
+      setPerfil({ posicao: value });
+      showToast("Posição atualizada!");
+    } else if (field === "categoria") {
+      setPerfil({ categoria: value });
+      showToast("Categoria atualizada!");
+    } else if (field === "peso") {
+      const v = parseFloat(value.replace(",", "."));
       setPerfil({ peso: v });
-      showToast('Peso atualizado!');
-    } else if (field === 'altura') {
-      const v = parseFloat(value.replace(',', '.'));
+      showToast("Peso atualizado!");
+    } else if (field === "altura") {
+      const v = parseFloat(value.replace(",", "."));
       setPerfil({ altura: v });
-      showToast('Altura atualizada!');
-    } else if (field === 'idade') {
+      showToast("Altura atualizada!");
+    } else if (field === "idade") {
       setPerfil({ idade: parseInt(value) });
-      showToast('Idade atualizada!');
+      showToast("Idade atualizada!");
     }
     setEditField(null);
   };
 
   const getEditConfig = () => {
-    if (!editField) return { title: '', value: '', placeholder: '', keyboardType: 'default' as const };
-    const map: Record<string, { title: string; value: string; placeholder?: string; keyboardType?: any; unit?: string; validate?: (v: string) => string | null }> = {
-      nome: { title: 'Editar Nome', value: perfil.nome, placeholder: 'Nome completo', keyboardType: 'default' },
-      posicao: { title: 'Editar Posição', value: perfil.posicao, placeholder: 'Ex: Volante', keyboardType: 'default' },
-      categoria: { title: 'Editar Categoria', value: perfil.categoria, placeholder: 'Ex: Sub-20', keyboardType: 'default' },
-      peso: { title: 'Editar Peso', value: String(perfil.peso), placeholder: '78.4', keyboardType: 'numeric', unit: 'kg', validate: validatePeso },
-      altura: { title: 'Editar Altura', value: String(perfil.altura), placeholder: '182', keyboardType: 'numeric', unit: 'cm', validate: validateAltura },
-      idade: { title: 'Editar Idade', value: String(perfil.idade), placeholder: '19', keyboardType: 'numeric', unit: 'anos', validate: validateIdade },
+    if (!editField)
+      return {
+        title: "",
+        value: "",
+        placeholder: "",
+        keyboardType: "default" as const,
+      };
+    const map: Record<
+      string,
+      {
+        title: string;
+        value: string;
+        placeholder?: string;
+        keyboardType?: any;
+        unit?: string;
+        validate?: (v: string) => string | null;
+      }
+    > = {
+      nome: {
+        title: "Editar Nome",
+        value: perfil.nome,
+        placeholder: "Nome completo",
+        keyboardType: "default",
+      },
+      posicao: {
+        title: "Editar Posição",
+        value: perfil.posicao,
+        placeholder: "Ex: Volante",
+        keyboardType: "default",
+      },
+      categoria: {
+        title: "Editar Categoria",
+        value: perfil.categoria,
+        placeholder: "Ex: Sub-20",
+        keyboardType: "default",
+      },
+      peso: {
+        title: "Editar Peso",
+        value: String(perfil.peso),
+        placeholder: "78.4",
+        keyboardType: "numeric",
+        unit: "kg",
+        validate: validatePeso,
+      },
+      altura: {
+        title: "Editar Altura",
+        value: String(perfil.altura),
+        placeholder: "182",
+        keyboardType: "numeric",
+        unit: "cm",
+        validate: validateAltura,
+      },
+      idade: {
+        title: "Editar Idade",
+        value: String(perfil.idade),
+        placeholder: "19",
+        keyboardType: "numeric",
+        unit: "anos",
+        validate: validateIdade,
+      },
     };
-    return map[editField] ?? { title: '', value: '', placeholder: '' };
+    return map[editField] ?? { title: "", value: "", placeholder: "" };
   };
 
   const editConfig = getEditConfig();
@@ -322,7 +540,11 @@ export default function ProfileScreen() {
       <View style={styles.header}>
         <View style={{ width: 36 }} />
         <Text style={styles.headerTitle}>ATLETA</Text>
-        <TouchableOpacity style={styles.headerAvatar} activeOpacity={0.7} onPress={() => router.push('/perfil')}>
+        <TouchableOpacity
+          style={styles.headerAvatar}
+          activeOpacity={0.7}
+          onPress={() => router.push("/perfil")}
+        >
           <AtletaAvatarMini size={36} />
         </TouchableOpacity>
       </View>
@@ -337,17 +559,28 @@ export default function ProfileScreen() {
         <View style={styles.avatarSection}>
           <View style={styles.avatarWrapper}>
             <AtletaAvatar size={90} borderRadius={12} fontSize={24} />
-            <TouchableOpacity style={styles.avatarEditButton} onPress={handleFotoPress} activeOpacity={0.7}>
-              {uploadingPhoto
-                ? <ActivityIndicator size="small" color={colors.white} />
-                : <Text style={styles.avatarEditIcon}>✏️</Text>
-              }
+            <TouchableOpacity
+              style={styles.avatarEditButton}
+              onPress={handleFotoPress}
+              activeOpacity={0.7}
+            >
+              {uploadingPhoto ? (
+                <ActivityIndicator size="small" color={colors.white} />
+              ) : (
+                <Text style={styles.avatarEditIcon}>✏️</Text>
+              )}
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={() => setEditField('nome')} activeOpacity={0.7}>
+          <TouchableOpacity
+            onPress={() => setEditField("nome")}
+            activeOpacity={0.7}
+          >
             <Text style={styles.playerName}>{perfil.nome}</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setEditField('posicao')} activeOpacity={0.7}>
+          <TouchableOpacity
+            onPress={() => setEditField("posicao")}
+            activeOpacity={0.7}
+          >
             <Text style={styles.playerRole}>
               {perfil.posicao.toUpperCase()} • {perfil.categoria.toUpperCase()}
             </Text>
@@ -363,21 +596,21 @@ export default function ProfileScreen() {
           value={perfil.peso.toFixed(1)}
           unit="kg"
           accentColor={colors.primary}
-          onPress={() => setEditField('peso')}
+          onPress={() => setEditField("peso")}
         />
         <BiometricCard
           label="IDADE"
           value={String(perfil.idade)}
           unit="anos"
           accentColor={colors.secondary}
-          onPress={() => setEditField('idade')}
+          onPress={() => setEditField("idade")}
         />
         <BiometricCard
           label="ALTURA"
           value={(perfil.altura / 100).toFixed(2)}
           unit="m"
           accentColor={colors.tertiary}
-          onPress={() => setEditField('altura')}
+          onPress={() => setEditField("altura")}
         />
 
         <Divider />
@@ -389,12 +622,17 @@ export default function ProfileScreen() {
           <View style={styles.settingRow}>
             <View style={styles.settingText}>
               <Text style={styles.settingTitle}>Lembretes Pré-Treino</Text>
-              <Text style={styles.settingSubtitle}>Alertas {settings.minutosAntesTreino} min antes da atividade</Text>
+              <Text style={styles.settingSubtitle}>
+                Alertas {settings.minutosAntesTreino} min antes da atividade
+              </Text>
             </View>
             <Switch
               value={settings.lembretesPreTreino}
               onValueChange={handleToggleLembretes}
-              trackColor={{ false: colors.outlineVariant, true: colors.primary }}
+              trackColor={{
+                false: colors.outlineVariant,
+                true: colors.primary,
+              }}
               thumbColor={colors.white}
               ios_backgroundColor={colors.outlineVariant}
             />
@@ -404,13 +642,20 @@ export default function ProfileScreen() {
 
           <View style={styles.settingRow}>
             <View style={styles.settingText}>
-              <Text style={styles.settingTitle}>Notificações de Desidratação Crítica</Text>
-              <Text style={styles.settingSubtitle}>Alerta quando ≥{settings.limiteDesidratacaoPct}% perda de massa</Text>
+              <Text style={styles.settingTitle}>
+                Notificações de Desidratação Crítica
+              </Text>
+              <Text style={styles.settingSubtitle}>
+                Alerta quando ≥{settings.limiteDesidratacaoPct}% perda de massa
+              </Text>
             </View>
             <Switch
               value={settings.notifDesidratacaoCritica}
               onValueChange={handleToggleDesidratacao}
-              trackColor={{ false: colors.outlineVariant, true: colors.primary }}
+              trackColor={{
+                false: colors.outlineVariant,
+                true: colors.primary,
+              }}
               thumbColor={colors.white}
               ios_backgroundColor={colors.outlineVariant}
             />
@@ -437,37 +682,61 @@ export default function ProfileScreen() {
         {/* Performance Média */}
         <SectionLabel label="PERFORMANCE MÉDIA" />
         {performance.totalSessoes === 0 ? (
-          <View style={{ backgroundColor: colors.surfaceContainerLow, borderRadius: 10, padding: 16, marginBottom: 10, alignItems: 'center' }}>
-            <Text style={{ color: colors.onSurfaceVariant, fontFamily: 'SourceSans3_400Regular', fontSize: 14 }}>
-              Nenhuma sessão registrada ainda.{'\n'}Complete seu primeiro treino para ver sua performance.
+          <View
+            style={{
+              backgroundColor: colors.surfaceContainerLow,
+              borderRadius: 10,
+              padding: 16,
+              marginBottom: 10,
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                color: colors.onSurfaceVariant,
+                fontFamily: "SourceSans3_400Regular",
+                fontSize: 14,
+              }}
+            >
+              Nenhuma sessão registrada ainda.{"\n"}Complete seu primeiro treino
+              para ver sua performance.
             </Text>
           </View>
         ) : (
           <>
             <View style={styles.performanceCard}>
-              <View style={styles.performanceIcon}><Text style={styles.performanceEmoji}>💧</Text></View>
+              <View style={styles.performanceIcon}>
+                <Text style={styles.performanceEmoji}>💧</Text>
+              </View>
               <View>
                 <Text style={styles.performanceLabel}>TAXA SUDORESE MÉDIA</Text>
                 <Text style={styles.performanceValue}>
-                  {performance.taxaSudoroseMedia.toFixed(1)}<Text style={styles.performanceUnit}> L/h</Text>
+                  {performance.taxaSudoroseMedia.toFixed(1)}
+                  <Text style={styles.performanceUnit}> L/h</Text>
                 </Text>
               </View>
             </View>
             <View style={styles.performanceCard}>
-              <View style={styles.performanceIcon}><Text style={styles.performanceEmoji}>⚡</Text></View>
+              <View style={styles.performanceIcon}>
+                <Text style={styles.performanceEmoji}>⚡</Text>
+              </View>
               <View>
                 <Text style={styles.performanceLabel}>RECUPERAÇÃO MÉDIA</Text>
                 <Text style={styles.performanceValue}>
-                  {performance.recuperacaoMedia}<Text style={styles.performanceUnit}>%</Text>
+                  {performance.recuperacaoMedia}
+                  <Text style={styles.performanceUnit}>%</Text>
                 </Text>
               </View>
             </View>
             <View style={[styles.performanceCard, { marginTop: 2 }]}>
-              <View style={styles.performanceIcon}><Text style={styles.performanceEmoji}>📊</Text></View>
+              <View style={styles.performanceIcon}>
+                <Text style={styles.performanceEmoji}>📊</Text>
+              </View>
               <View>
                 <Text style={styles.performanceLabel}>SESSÕES REGISTRADAS</Text>
                 <Text style={styles.performanceValue}>
-                  {performance.totalSessoes}<Text style={styles.performanceUnit}> sessões</Text>
+                  {performance.totalSessoes}
+                  <Text style={styles.performanceUnit}> sessões</Text>
                 </Text>
               </View>
             </View>
@@ -477,8 +746,13 @@ export default function ProfileScreen() {
         <Divider />
 
         {/* Botões */}
-        <TouchableOpacity style={styles.btnPrimary} onPress={() => setEditField('nome')}>
-          <Text style={styles.btnPrimaryText}>👤 EDITAR DADOS PROFISSIONAIS</Text>
+        <TouchableOpacity
+          style={styles.btnPrimary}
+          onPress={() => setEditField("nome")}
+        >
+          <Text style={styles.btnPrimaryText}>
+            👤 EDITAR DADOS PROFISSIONAIS
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.btnSecondary} onPress={handleLogout}>

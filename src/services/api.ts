@@ -106,6 +106,10 @@ export const authAPI = {
     const raw = await AsyncStorage.getItem("@saocamilo:usuario");
     return raw ? JSON.parse(raw) : null;
   },
+  getUsuarioLogado: async (): Promise<UsuarioAPI | null> => {
+    const raw = await AsyncStorage.getItem("@saocamilo:usuario");
+    return raw ? JSON.parse(raw) : null;
+  },
 
   logout: () =>
     Promise.all([
@@ -128,6 +132,9 @@ export const perfilAPI = {
       method: "POST",
       body: JSON.stringify({ id_usuario, ...dados }),
     }),
+
+  buscarPorUsuario: (id_usuario: number) =>
+    req<any>(`/api/perfil-atletico/usuario/${id_usuario}`),
 };
 
 export const sessaoAPI = {
