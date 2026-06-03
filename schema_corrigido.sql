@@ -1,4 +1,4 @@
-﻿CREATE DATABASE IF NOT EXISTS db_saocamilo
+CREATE DATABASE IF NOT EXISTS db_saocamilo
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
