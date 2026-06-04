@@ -190,7 +190,6 @@ export const styles = StyleSheet.create({
   colMassa: { flex: 1.5 },
   colDelta: { flex: 1.2 },
   colUsg: { flex: 1.2 },
-  colAcoes: { width: 32 },
 
   // ─── Linha de atleta ─────────────────────────────────────────────────────────
 

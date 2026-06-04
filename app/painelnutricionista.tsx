@@ -153,9 +153,6 @@ const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
       <View style={styles.colUsg}>
         <Text style={styles.colValue}>{atleta.usg.toFixed(3)}</Text>
       </View>
-      <TouchableOpacity style={styles.acaoBtn} activeOpacity={0.6}>
-        <Text style={styles.acaoDots}>⋮</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -383,9 +380,6 @@ export default function PainelNutricionista() {
               </Text>
               <Text style={[styles.tableHeaderText, styles.colUsg]}>
                 USG (G/ML)
-              </Text>
-              <Text style={[styles.tableHeaderText, styles.colAcoes]}>
-                AÇÕES
               </Text>
             </View>
 
