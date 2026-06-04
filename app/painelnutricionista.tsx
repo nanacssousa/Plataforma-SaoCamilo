@@ -16,6 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { gerarECompartilharPDF } from "../src/services/pdfService";
 import { useAppStore } from "../src/store/useAppStore";
 
 type NavItem = "equipes" | "atletas" | "relatorios" | "perfil";
@@ -153,6 +154,9 @@ const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
       <View style={styles.colUsg}>
         <Text style={styles.colValue}>{atleta.usg.toFixed(3)}</Text>
       </View>
+      <TouchableOpacity style={styles.acaoBtn} activeOpacity={0.6}>
+        <Text style={styles.acaoDots}>⋮</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -313,10 +317,25 @@ export default function PainelNutricionista() {
 
   const handleGerarRelatorio = async () => {
     if (gerandoRelatorio) return;
+    if (atletas.length === 0) {
+      Alert.alert(
+        "Sem dados",
+        "Nenhum atleta carregado para gerar o relatório.",
+      );
+      return;
+    }
     setGerandoRelatorio(true);
     try {
-      await apiFetch("/relatorios/painel/pdf");
-      Alert.alert("Relatório gerado", "O PDF foi gerado com sucesso.");
+      const hidratados = atletas.filter(
+        (a) => a.statusHidrico === "hidratado",
+      ).length;
+      const mediaHidratacao = Math.round((hidratados / atletas.length) * 100);
+      await gerarECompartilharPDF(
+        atletas,
+        "Painel de Atletas",
+        "Monitoramento Hidrico",
+        mediaHidratacao,
+      );
     } catch (err: any) {
       Alert.alert("Erro", err.message ?? "Não foi possível gerar o relatório.");
     } finally {

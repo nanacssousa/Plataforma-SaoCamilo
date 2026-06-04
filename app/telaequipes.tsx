@@ -16,6 +16,7 @@ import {
   View,
 } from "react-native";
 import { apiFetch } from "../src/services/apiService";
+import { gerarECompartilharPDF } from "../src/services/pdfService";
 import { useAppStore } from "../src/store/useAppStore";
 
 type NavItem = "equipes" | "atletas" | "relatorios" | "perfil";
@@ -192,6 +193,12 @@ const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
           {atleta.deltaMassa.toFixed(1)}%
         </Text>
       </View>
+      <View style={styles.colUsg}>
+        <Text style={styles.colValue}>{atleta.usg.toFixed(3)}</Text>
+      </View>
+      <TouchableOpacity style={styles.acaoBtn} activeOpacity={0.6}>
+        <Text style={styles.acaoDots}>⋮</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -259,7 +266,7 @@ export default function TelaEquipes() {
   const [atletasEmRisco, setAtletasEmRisco] = useState(0);
   const [mediaHidratacao, setMediaHidratacao] = useState(0);
 
-  // ID da equipe
+  // ID da equipe — idealmente viria de navegação ou do perfil do nutricionista
   const EQUIPE_ID = 1;
 
   const carregar = useCallback(async (silencioso = false) => {
@@ -354,10 +361,21 @@ export default function TelaEquipes() {
 
   const handleGerarRelatorio = async () => {
     if (gerandoRelatorio) return;
+    if (atletas.length === 0) {
+      Alert.alert(
+        "Sem dados",
+        "Nenhum atleta carregado para gerar o relatório.",
+      );
+      return;
+    }
     setGerandoRelatorio(true);
     try {
-      await apiFetch(`/equipes/${EQUIPE_ID}/relatorio/pdf`);
-      Alert.alert("PDF gerado", "Relatório disponível para download.");
+      await gerarECompartilharPDF(
+        atletas,
+        "Relatório de Equipe",
+        `Alta Performance A — Monitoramento Hídrico`,
+        mediaHidratacao,
+      );
     } catch (err: any) {
       Alert.alert("Erro", err.message ?? "Não foi possível gerar o relatório.");
     } finally {
@@ -490,6 +508,9 @@ export default function TelaEquipes() {
               </Text>
               <Text style={[styles.tableHeaderText, styles.colUsg]}>
                 USG (G/ML)
+              </Text>
+              <Text style={[styles.tableHeaderText, styles.colAcoes]}>
+                AÇÕES
               </Text>
             </View>
             {loading ? (
