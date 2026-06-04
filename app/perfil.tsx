@@ -5,7 +5,6 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   ActionSheetIOS,
   ActivityIndicator,
-  Alert,
   PanResponder,
   Platform,
   SafeAreaView,
@@ -23,7 +22,6 @@ import {
 import { EditModal } from "../src/components/shared/EditModal";
 import { ToastContainer } from "../src/components/shared/Toast";
 import { colors } from "../src/constants/theme";
-import { clearAllData } from "../src/database/storage";
 import { usePerformance } from "../src/hooks/usePerformance";
 import {
   cancelAllNotifications,
@@ -205,6 +203,109 @@ const DailyProgressBar = () => {
   );
 };
 
+// ─── Confirm Logout Modal ─────────────────────────────────────────────────────
+const ConfirmLogoutModal = ({
+  visible,
+  onConfirm,
+  onCancel,
+}: {
+  visible: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) => {
+  if (!visible) return null;
+  return (
+    <View
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 99999,
+      }}
+    >
+      <View
+        style={{
+          backgroundColor: colors.surface,
+          borderRadius: 16,
+          padding: 24,
+          width: "82%",
+          maxWidth: 320,
+          elevation: 10,
+        }}
+      >
+        <Text
+          style={{
+            fontFamily: "SourceSans3_700Bold",
+            fontSize: 16,
+            color: colors.onSurface,
+            marginBottom: 8,
+          }}
+        >
+          Encerrar sessão
+        </Text>
+        <Text
+          style={{
+            fontFamily: "SourceSans3_400Regular",
+            fontSize: 14,
+            color: colors.onSurfaceVariant,
+            marginBottom: 24,
+          }}
+        >
+          Deseja sair da conta?
+        </Text>
+        <View style={{ flexDirection: "row", gap: 10 }}>
+          <TouchableOpacity
+            onPress={onCancel}
+            style={{
+              flex: 1,
+              paddingVertical: 14,
+              borderRadius: 10,
+              borderWidth: 1.5,
+              borderColor: colors.outlineVariant,
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "SourceSans3_700Bold",
+                fontSize: 13,
+                color: colors.onSurface,
+              }}
+            >
+              CANCELAR
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={onConfirm}
+            style={{
+              flex: 1,
+              paddingVertical: 14,
+              borderRadius: 10,
+              backgroundColor: colors.primary,
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "SourceSans3_700Bold",
+                fontSize: 13,
+                color: colors.white,
+              }}
+            >
+              SAIR
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+};
+
 // ─── Bottom Tab Bar ───────────────────────────────────────────────────────────
 type TabKey = "sessao" | "historico" | "perfil";
 const TABS: { key: TabKey; label: string; icon: string }[] = [
@@ -255,7 +356,7 @@ type EditField =
   | null;
 
 export default function ProfileScreen() {
-  const { state, setPerfil, setFotoUri, setSettings, showToast } =
+  const { state, setPerfil, setFotoUri, setSettings, showToast, logout } =
     useAppStore();
   const { perfil, settings, daily } = state;
   const performance = usePerformance();
@@ -263,6 +364,8 @@ export default function ProfileScreen() {
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const [editField, setEditField] = useState<EditField>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
   useEffect(() => {
     carregarPerfil();
   }, []);
@@ -272,15 +375,12 @@ export default function ProfileScreen() {
       const usuario = await authAPI.getUsuarioLocal();
       if (!usuario) return;
 
-      setPerfil({
-        nome: usuario.nome_completo,
-      });
+      setPerfil({ nome: usuario.nome_completo });
 
       try {
         const perfilBanco = await perfilAPI.buscarPorUsuario(
           usuario.id_usuario,
         );
-
         setPerfil({
           nome: usuario.nome_completo,
           peso: perfilBanco?.peso_habitual_kg ?? perfil.peso,
@@ -321,22 +421,9 @@ export default function ProfileScreen() {
         },
       );
     } else {
-      Alert.alert("Foto de perfil", "Escolha uma opção", [
-        { text: "Tirar foto", onPress: doPickCamera },
-        { text: "Escolher da galeria", onPress: doPickGallery },
-        perfil.fotoUri
-          ? {
-              text: "Remover foto",
-              style: "destructive",
-              onPress: async () => {
-                await removeProfilePhoto();
-                setFotoUri(null);
-                showToast("Foto removida");
-              },
-            }
-          : { text: "Cancelar", style: "cancel" },
-        { text: "Cancelar", style: "cancel" },
-      ]);
+      // Android: usa modal inline para evitar problemas com Alert
+      // (mantido simples — pick direto da galeria)
+      doPickGallery();
     }
   };
 
@@ -400,17 +487,13 @@ export default function ProfileScreen() {
 
   // ─── Logout ───────────────────────────────────────────────────────────────
   const handleLogout = () => {
-    Alert.alert("Encerrar sessão", "Deseja sair da conta?", [
-      { text: "Cancelar", style: "cancel" },
-      {
-        text: "Sair",
-        style: "destructive",
-        onPress: async () => {
-          await clearAllData();
-          router.replace("/telaLogin");
-        },
-      },
-    ]);
+    setShowLogoutConfirm(true);
+  };
+
+  const doLogout = async () => {
+    setShowLogoutConfirm(false);
+    await logout();
+    router.replace("/telaLogin");
   };
 
   // ─── Validações para campos ───────────────────────────────────────────────
@@ -449,12 +532,10 @@ export default function ProfileScreen() {
       setPerfil({ categoria: value });
       showToast("Categoria atualizada!");
     } else if (field === "peso") {
-      const v = parseFloat(value.replace(",", "."));
-      setPerfil({ peso: v });
+      setPerfil({ peso: parseFloat(value.replace(",", ".")) });
       showToast("Peso atualizado!");
     } else if (field === "altura") {
-      const v = parseFloat(value.replace(",", "."));
-      setPerfil({ altura: v });
+      setPerfil({ altura: parseFloat(value.replace(",", ".")) });
       showToast("Altura atualizada!");
     } else if (field === "idade") {
       setPerfil({ idade: parseInt(value) });
@@ -471,17 +552,7 @@ export default function ProfileScreen() {
         placeholder: "",
         keyboardType: "default" as const,
       };
-    const map: Record<
-      string,
-      {
-        title: string;
-        value: string;
-        placeholder?: string;
-        keyboardType?: any;
-        unit?: string;
-        validate?: (v: string) => string | null;
-      }
-    > = {
+    const map: Record<string, any> = {
       nome: {
         title: "Editar Nome",
         value: perfil.nome,
@@ -663,7 +734,6 @@ export default function ProfileScreen() {
 
           <View style={styles.settingRowSeparator} />
 
-          {/* Slider de meta */}
           <HydrationSlider
             value={settings.metaDiariaL}
             onChange={handleMetaChange}
@@ -673,7 +743,6 @@ export default function ProfileScreen() {
             }}
           />
 
-          {/* Progresso diário */}
           <DailyProgressBar />
         </View>
 
@@ -775,6 +844,13 @@ export default function ProfileScreen() {
         validate={(editConfig as any).validate}
         onSave={(val) => handleSaveField(editField, val)}
         onClose={() => setEditField(null)}
+      />
+
+      {/* Modal de confirmação de logout (substitui Alert nativo) */}
+      <ConfirmLogoutModal
+        visible={showLogoutConfirm}
+        onConfirm={doLogout}
+        onCancel={() => setShowLogoutConfirm(false)}
       />
     </SafeAreaView>
   );

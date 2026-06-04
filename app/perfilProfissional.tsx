@@ -14,6 +14,7 @@ import {
 
 import { colors } from "@/constants/theme";
 import { styles } from "@/styles/PerfilProfissionalStyle";
+import { useAppStore } from "../src/store/useAppStore";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 const Divider = () => <View style={styles.divider} />;
@@ -143,6 +144,109 @@ const EspecialidadeRow = ({
   </View>
 );
 
+// ─── Confirm Logout Modal ─────────────────────────────────────────────────────
+const ConfirmLogoutModal = ({
+  visible,
+  onConfirm,
+  onCancel,
+}: {
+  visible: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) => {
+  if (!visible) return null;
+  return (
+    <View
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 99999,
+      }}
+    >
+      <View
+        style={{
+          backgroundColor: colors.surface,
+          borderRadius: 16,
+          padding: 24,
+          width: "82%",
+          maxWidth: 320,
+          elevation: 10,
+        }}
+      >
+        <Text
+          style={{
+            fontFamily: "SourceSans3_700Bold",
+            fontSize: 16,
+            color: colors.onSurface,
+            marginBottom: 8,
+          }}
+        >
+          Encerrar sessão
+        </Text>
+        <Text
+          style={{
+            fontFamily: "SourceSans3_400Regular",
+            fontSize: 14,
+            color: colors.onSurfaceVariant,
+            marginBottom: 24,
+          }}
+        >
+          Deseja sair da conta?
+        </Text>
+        <View style={{ flexDirection: "row", gap: 10 }}>
+          <TouchableOpacity
+            onPress={onCancel}
+            style={{
+              flex: 1,
+              paddingVertical: 14,
+              borderRadius: 10,
+              borderWidth: 1.5,
+              borderColor: colors.outlineVariant,
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "SourceSans3_700Bold",
+                fontSize: 13,
+                color: colors.onSurface,
+              }}
+            >
+              CANCELAR
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={onConfirm}
+            style={{
+              flex: 1,
+              paddingVertical: 14,
+              borderRadius: 10,
+              backgroundColor: colors.primary,
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: "SourceSans3_700Bold",
+                fontSize: 13,
+                color: colors.white,
+              }}
+            >
+              SAIR
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+};
+
 // ─── Bottom Tab Bar ───────────────────────────────────────────────────────────
 type TabKey = "atletas" | "sessoes" | "perfil";
 
@@ -186,7 +290,9 @@ const BottomTabBar = ({ active }: { active: TabKey }) => (
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 export default function PerfilProfissionalScreen() {
+  const { logout } = useAppStore();
   const [editando, setEditando] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // Dados Profissionais
   const [nome, setNome] = useState("Dra. Ana Lima");
@@ -238,6 +344,17 @@ export default function PerfilProfissionalScreen() {
       "As alterações foram salvas com sucesso.",
       [{ text: "OK" }],
     );
+  };
+
+  // ─── Logout ───────────────────────────────────────────────────────────────
+  const handleLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const doLogout = async () => {
+    setShowLogoutConfirm(false);
+    await logout();
+    router.replace("/telaLogin");
   };
 
   return (
@@ -450,10 +567,7 @@ export default function PerfilProfissionalScreen() {
         )}
 
         {!editando && (
-          <TouchableOpacity
-            style={styles.btnSecondary}
-            onPress={() => router.push("/telaLogin")}
-          >
+          <TouchableOpacity style={styles.btnSecondary} onPress={handleLogout}>
             <Text style={styles.btnSecondaryText}>↩ ENCERRAR SESSÃO</Text>
           </TouchableOpacity>
         )}
@@ -462,6 +576,13 @@ export default function PerfilProfissionalScreen() {
       </ScrollView>
 
       <BottomTabBar active="perfil" />
+
+      {/* Modal de confirmação de logout */}
+      <ConfirmLogoutModal
+        visible={showLogoutConfirm}
+        onConfirm={doLogout}
+        onCancel={() => setShowLogoutConfirm(false)}
+      />
     </SafeAreaView>
   );
 }
