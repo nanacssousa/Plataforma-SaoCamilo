@@ -506,7 +506,7 @@ INSERT INTO estrategias_hidratacao (
   volume_durante_ml_h,
   volume_pos_ml,
   tipo_fluido_recom,
-  eletrólitos_recom,
+  eletrolitos_recom,
   valida_ate,
   ativa,
   criado_em,
@@ -536,7 +536,7 @@ ON DUPLICATE KEY UPDATE
   volume_durante_ml_h = VALUES(volume_durante_ml_h),
   volume_pos_ml = VALUES(volume_pos_ml),
   tipo_fluido_recom = VALUES(tipo_fluido_recom),
-  eletrólitos_recom = VALUES(eletrólitos_recom),
+  eletrolitos_recom = VALUES(eletrolitos_recom),
   valida_ate = VALUES(valida_ate),
   ativa = VALUES(ativa);
 
