@@ -269,6 +269,13 @@ export const styles = StyleSheet.create({
     fontFamily: fontFamilies.technicalBold,
     letterSpacing: 2,
   },
+  btnPrimaryDisabled: {
+    backgroundColor: colors.gray400,
+    opacity: 0.6,
+  },
+  btnPrimaryTextDisabled: {
+    opacity: 0.6,
+  },
 
   // ── Rodapé ──────────────────────────────────────────────────────────────────
 

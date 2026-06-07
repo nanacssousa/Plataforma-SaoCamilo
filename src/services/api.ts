@@ -118,6 +118,24 @@ export const authAPI = {
       false,
     ),
 
+  cadastrarStaff: (dados: {
+    nome_completo: string;
+    email: string;
+    senha: string;
+    id_perfil: number;
+    telefone?: string;
+    registro_profissional?: string;
+    especialidade?: string | null;
+  }) =>
+    req<any>(
+      "/usuarios/register",
+      {
+        method: "POST",
+        body: JSON.stringify(dados),
+      },
+      false,
+    ),
+
   salvarToken: (token: string, usuario: UsuarioAPI) =>
     Promise.all([
       AsyncStorage.setItem("@saocamilo:token", token),
