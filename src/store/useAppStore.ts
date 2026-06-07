@@ -120,7 +120,8 @@ type Action =
   | { type: "ENCERRAR_SESSAO" }
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SHOW_TOAST"; payload: ToastMessage }
-  | { type: "CLEAR_TOAST" };
+  | { type: "CLEAR_TOAST" }
+  | { type: "SET_IDS_BACKEND"; payload: { idUsuario: number; idPerfil: number; idSessao?: number } };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -146,6 +147,9 @@ function reducer(state: State, action: Action): State {
         idPerfil,
         isAuthenticated: true,
         perfil,
+        // Propaga para os campos Backend usados pelo Agente IA
+        idUsuarioBackend: idUsuario,
+        idPerfilBackend: idPerfil,
       };
     }
 
@@ -246,7 +250,15 @@ function reducer(state: State, action: Action): State {
 
     case "ENCERRAR_SESSAO":
       sessaoAtivaDB.clear();
-      return { ...state, sessaoAtiva: null };
+      return { ...state, sessaoAtiva: null, idSessaoBackend: null };
+
+    case "SET_IDS_BACKEND":
+      return {
+        ...state,
+        idUsuarioBackend: action.payload.idUsuario,
+        idPerfilBackend: action.payload.idPerfil,
+        idSessaoBackend: action.payload.idSessao ?? state.idSessaoBackend,
+      };
 
     case "SET_LOADING":
       return { ...state, isLoading: action.payload };
@@ -519,6 +531,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         recuperacaoPct,
         pesoPreKg: pesoPre,
         pesoPosKg: pesoPos,
+        // Preserva dados do check-in para análise no histórico
+        sintomasPre: sessaoAtiva.sintomasPre,
+        corUrinaPre: sessaoAtiva.corUrinaPre,
+        sede: sessaoAtiva.sede,
+        logFluidos: sessaoAtiva.logFluidos,
       };
 
       dispatch({ type: "ADD_ENTRY", payload: entry });

@@ -38,6 +38,11 @@ export interface HydrationEntry {
   pesoPreKg: number;
   pesoPosKg: number;
   observacoes?: string;
+  // Campos do check-in — necessários para análise no histórico
+  sintomasPre?: string[];
+  corUrinaPre?: number;
+  sede?: number;
+  logFluidos?: LogFluido[];
 }
 
 export interface DailyHydration {

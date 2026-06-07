@@ -153,12 +153,10 @@ export default function TelaCadastroAtleta() {
 
       router.replace("/telaLogin");
     } catch (error: any) {
-      console.log("ERRO COMPLETO:", error);
+      const msg = error?.message ?? String(error) ?? "Erro desconhecido";
+      console.log("ERRO CADASTRO:", msg);
 
-      Alert.alert(
-        "Erro no cadastro",
-        error?.message || JSON.stringify(error) || "Erro desconhecido.",
-      );
+      Alert.alert("Erro no cadastro", msg);
     } finally {
       setCarregando(false);
     }

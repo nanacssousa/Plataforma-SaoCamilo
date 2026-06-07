@@ -20,6 +20,7 @@ import { type HydrationEntry } from '../src/types';
 
 // ─── Card de sessão ───────────────────────────────────────────────────────────
 function SessionCard({ entry }: { entry: HydrationEntry }) {
+  const handlePress = () => router.push(`/analiseHidratacao?id=${entry.id}`);
   const isAlta = entry.desidratacaoPct >= 2;
   const date = new Date(entry.dataISO);
   const dia = date.getDate().toString().padStart(2, '0');
@@ -32,7 +33,7 @@ function SessionCard({ entry }: { entry: HydrationEntry }) {
     : entry.intensidade === 'RESISTÊNCIA' ? styles.cardBadgeResist : {};
 
   return (
-    <View style={styles.sessionCard}>
+    <TouchableOpacity style={styles.sessionCard} onPress={handlePress} activeOpacity={0.85}>
       <View style={styles.cardHeader}>
         <Text style={[styles.cardBadge, badgeStyle]}>{entry.intensidade}</Text>
         <View style={styles.cardDateContainer}>
@@ -90,7 +91,7 @@ function SessionCard({ entry }: { entry: HydrationEntry }) {
           }} />
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

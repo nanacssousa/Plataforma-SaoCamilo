@@ -1,14 +1,15 @@
-import { Request, Response } from "express"
-import { usuariosService } from "./usuariosService"
+import { Request, Response } from "express";
+import { usuariosService } from "./usuariosService";
 
 export const usuariosController = {
   async register(req: Request, res: Response): Promise<Response> {
     try {
+      console.log("[REGISTER] body recebido:", JSON.stringify(req.body));
       const result = await usuariosService.register(req.body)
-
       return res.status(201).json(result)
     } catch (error: any) {
-      return res.status(400).json({ error: error.message })
+      console.error("[REGISTER] erro:", error?.message, error?.code, error?.sqlMessage ?? "");
+      return res.status(400).json({ error: error?.message || error?.sqlMessage || String(error) || "Erro interno" })
     }
   },
 

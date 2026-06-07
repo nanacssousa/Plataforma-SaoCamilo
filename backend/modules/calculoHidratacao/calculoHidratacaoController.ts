@@ -1,5 +1,5 @@
 import { Request, Response } from "express"
-import { calculoHidratacaoService } from "./calculoHidratacaoService"
+import { calculoHidratacaoService } from "./Calculohidratacaoservice"
 
 export const calculoHidratacaoController = {
   async create(req: Request, res: Response): Promise<Response> {
@@ -26,6 +26,17 @@ export const calculoHidratacaoController = {
       return res.json(await calculoHidratacaoService.getBySessao(id_sessao))
     } catch (error: any) {
       return res.status(404).json({ error: error.message })
+    }
+  },
+
+  async calcularPorSessao(req: Request, res: Response): Promise<Response> {
+    try {
+      const id_sessao = Number(req.params.id_sessao)
+      if (isNaN(id_sessao)) return res.status(400).json({ error: "id_sessao inválido" })
+      const calculo = await calculoHidratacaoService.calcularPorSessao(id_sessao)
+      return res.status(201).json(calculo)
+    } catch (error: any) {
+      return res.status(400).json({ error: error.message })
     }
   },
 

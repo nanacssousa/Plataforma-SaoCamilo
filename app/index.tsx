@@ -3,7 +3,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import * as Location from "expo-location";
 import {
   Animated,
   Dimensions,
@@ -21,12 +22,30 @@ import {
   useFadeInUp
 } from "../src/components/Homecomponents";
 import { colors } from "../src/constants/theme";
+import { climaAPI, type ClimaAtualAPI } from "../src/services/api";
 import { styles } from "../src/styles/Homestyle";
 
 const { width: W } = Dimensions.get("window");
 
 export default function HomeScreen() {
   const [activeNav, setActiveNav] = useState(0);
+  const [clima, setClima]     = useState<ClimaAtualAPI | null>(null);
+  const [cidade, setCidade]   = useState<string | null>(null);
+  const [climaLoad, setClimaLoad] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === "granted") {
+          const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+          const geo = await Location.reverseGeocodeAsync({ latitude: loc.coords.latitude, longitude: loc.coords.longitude });
+          if (geo[0]) setCidade(`${geo[0].city ?? geo[0].subregion ?? ""}, ${geo[0].region ?? ""}`);
+        }
+      } catch {}
+      climaAPI.buscarAtual(1).then(setClima).catch(() => null).finally(() => setClimaLoad(false));
+    })();
+  }, []);
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -59,6 +78,65 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 100 }}
       >
+        {/* ── Card de Localização e Clima ── */}
+        {(climaLoad || clima || cidade) && (
+          <View style={{
+            marginHorizontal: 20, marginTop: 90, marginBottom: 0,
+            backgroundColor: "rgba(255,255,255,0.92)", borderRadius: 16,
+            padding: 14, flexDirection: "row", alignItems: "center",
+            borderWidth: 1, borderColor: "#ecc8c8", gap: 12,
+            shadowColor: "#8f000a", shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.08, shadowRadius: 8, elevation: 3,
+          }}>
+            {climaLoad ? (
+              <Text style={{ fontFamily: "SourceSans3_400Regular", fontSize: 13, color: "#5b403d" }}>
+                🌡️ Buscando clima e localização...
+              </Text>
+            ) : (
+              <>
+                <View style={{ flex: 1 }}>
+                  {cidade && (
+                    <Text style={{ fontFamily: "SourceSans3_700Bold", fontSize: 11, letterSpacing: 1, color: "#8f000a", marginBottom: 2 }}>
+                      📍 {cidade}
+                    </Text>
+                  )}
+                  {clima ? (
+                    <View style={{ flexDirection: "row", gap: 16, flexWrap: "wrap" }}>
+                      <Text style={{ fontFamily: "Newsreader_700Bold", fontSize: 20, color: "#1c1c1a" }}>
+                        {clima.temperatura_c.toFixed(1)}°C
+                      </Text>
+                      <View>
+                        <Text style={{ fontFamily: "SourceSans3_400Regular", fontSize: 12, color: "#5b403d" }}>
+                          💧 Umidade {clima.umidade_pct.toFixed(0)}%
+                        </Text>
+                        <Text style={{ fontFamily: "SourceSans3_400Regular", fontSize: 12, color: "#5b403d" }}>
+                          🌡️ Índice calor {clima.indice_calor_c.toFixed(1)}°C
+                        </Text>
+                      </View>
+                    </View>
+                  ) : (
+                    <Text style={{ fontFamily: "SourceSans3_400Regular", fontSize: 12, color: "#5b403d" }}>
+                      Sem dados climáticos disponíveis
+                    </Text>
+                  )}
+                </View>
+                {clima && (
+                  <View style={{
+                    paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8,
+                    backgroundColor: clima.condicao === "CONFORTAVEL" ? "#dcfce7" : clima.condicao === "ATENCAO" ? "#fef3c7" : "#fee2e2",
+                  }}>
+                    <Text style={{
+                      fontFamily: "SourceSans3_700Bold", fontSize: 10, letterSpacing: 1,
+                      color: clima.condicao === "CONFORTAVEL" ? "#166534" : clima.condicao === "ATENCAO" ? "#92400e" : "#991b1b",
+                    }}>
+                      {clima.condicao}
+                    </Text>
+                  </View>
+                )}
+              </>
+            )}
+          </View>
+        )}
         {/* ── Hero ── */}
         <ImageBackground
           source={{

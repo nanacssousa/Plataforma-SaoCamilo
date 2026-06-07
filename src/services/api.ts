@@ -3,7 +3,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const API_URL =
-  process.env.EXPO_PUBLIC_API_URL ?? "http://192.168.15.18:3000";
+  process.env.EXPO_PUBLIC_API_URL ?? "http://192.168.15.5:3000";
 
 async function getToken(): Promise<string | null> {
   return AsyncStorage.getItem("@saocamilo:token");
@@ -24,9 +24,31 @@ async function req<T>(
   auth = true,
 ): Promise<T> {
   const headers = await buildHeaders(auth);
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error((data as any).error ?? `Erro ${res.status}`);
+
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, { ...options, headers });
+  } catch (networkErr: any) {
+    const msg = networkErr?.message ?? String(networkErr);
+    throw new Error(
+      `Sem conexão com o servidor (${API_URL}). Detalhe: ${msg}`
+    );
+  }
+
+  const rawText = await res.text().catch(() => "");
+  console.log(`[API] ${options.method ?? "GET"} ${path} → status ${res.status} | body: ${rawText.slice(0, 300)}`);
+
+  let data: any = {};
+  try {
+    if (rawText) data = JSON.parse(rawText);
+  } catch {
+    if (!res.ok) throw new Error(`Erro ${res.status}: resposta inválida — ${rawText.slice(0, 200)}`);
+  }
+
+  if (!res.ok) {
+    throw new Error(data?.error ?? data?.message ?? `Erro ${res.status}`);
+  }
+
   return data as T;
 }
 
@@ -128,13 +150,13 @@ export const perfilAPI = {
       nivel?: string;
     },
   ) =>
-    req<any>("/api/perfil-atletico", {
+    req<any>("/perfil-atletico", {
       method: "POST",
       body: JSON.stringify({ id_usuario, ...dados }),
     }),
 
   buscarPorUsuario: (id_usuario: number) =>
-    req<any>(`/api/perfil-atletico/usuario/${id_usuario}`),
+    req<any>(`/perfil-atletico/usuario/${id_usuario}`),
 };
 
 export const sessaoAPI = {
@@ -145,7 +167,7 @@ export const sessaoAPI = {
     hora_inicio: string;
     intensidade: string;
   }) =>
-    req<SessaoTreinoAPI>("/api/sessoes-treino", {
+    req<SessaoTreinoAPI>("/sessoes-treino", {
       method: "POST",
       body: JSON.stringify(dados),
     }),
@@ -153,7 +175,7 @@ export const sessaoAPI = {
     id_sessao: number,
     dados: { hora_fim?: string; duracao_minutos?: number },
   ) =>
-    req<any>(`/api/sessoes-treino/${id_sessao}`, {
+    req<any>(`/sessoes-treino/${id_sessao}`, {
       method: "PUT",
       body: JSON.stringify(dados),
     }),
@@ -161,7 +183,7 @@ export const sessaoAPI = {
 
 export const pesagemAPI = {
   registrar: (id_sessao: number, momento: "PRE" | "POS", massa_kg: number) =>
-    req<any>("/api/pesagens", {
+    req<any>("/pesagens", {
       method: "POST",
       body: JSON.stringify({ id_sessao, momento, massa_kg }),
     }),
@@ -169,7 +191,7 @@ export const pesagemAPI = {
 
 export const urinaAPI = {
   registrar: (id_sessao: number, momento: "PRE" | "POS", escala_cor: number) =>
-    req<any>("/api/registro-cor-urina", {
+    req<any>("/registro-cor-urina", {
       method: "POST",
       body: JSON.stringify({ id_sessao, momento, escala_cor }),
     }),
@@ -182,7 +204,7 @@ export const fluidoAPI = {
     volume_ml: number,
     tipo_fluido = "AGUA",
   ) =>
-    req<any>("/api/ingestao-fluido", {
+    req<any>("/ingestao-fluido", {
       method: "POST",
       body: JSON.stringify({ id_sessao, momento, volume_ml, tipo_fluido }),
     }),
@@ -198,7 +220,7 @@ export const triagemAPI = {
       sensacao_sede?: boolean;
     },
   ) =>
-    req<any>("/api/triagens", {
+    req<any>("/triagens", {
       method: "POST",
       body: JSON.stringify({ id_sessao, ...dados }),
     }),
@@ -206,14 +228,14 @@ export const triagemAPI = {
 
 export const calculoAPI = {
   calcular: (id_sessao: number) =>
-    req<any>(`/api/calculos-hidratacao/sessao/${id_sessao}`, {
+    req<any>(`/calculos-hidratacao/sessao/${id_sessao}`, {
       method: "POST",
     }),
 };
 
 export const climaAPI = {
   buscarAtual: (id_local = 1) =>
-    req<ClimaAtualAPI>(`/api/ambiente-clima/atual/${id_local}`),
+    req<ClimaAtualAPI>(`/ambiente-clima/atual/${id_local}`),
 };
 
 export const agenteIA = {
@@ -226,7 +248,7 @@ export const agenteIA = {
     sintomas?: string[];
     nivel_sede?: number;
   }) =>
-    req<AgenteIAContrato>("/api/agente-ia/analisar-pre", {
+    req<AgenteIAContrato>("/agente-ia/analisar-pre", {
       method: "POST",
       body: JSON.stringify(params),
     }),
@@ -235,7 +257,7 @@ export const agenteIA = {
     id_usuario: number;
     id_local?: number;
   }) =>
-    req<AgenteIAContrato>("/api/agente-ia/analisar-pos", {
+    req<AgenteIAContrato>("/agente-ia/analisar-pos", {
       method: "POST",
       body: JSON.stringify(params),
     }),

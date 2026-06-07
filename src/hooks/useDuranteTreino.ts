@@ -1,5 +1,4 @@
 // src/hooks/useDuranteTreino.ts
-// Hook de sessão de treino em tempo real — usa AsyncStorage no lugar de localStorage
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
@@ -32,22 +31,24 @@ async function loadState(): Promise<SessionState | null> {
   return null;
 }
 
-async function saveState(state: SessionState): Promise<void> {
-  try { await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
+async function saveState(s: SessionState): Promise<void> {
+  try { await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch {}
 }
 
-export function useDuranteTreino() {
-  const [seconds, setSeconds] = useState<number>(0);
-  const [total, setTotal] = useState<number>(0);
-  const [log, setLog] = useState<LogEntry[]>([]);
-  const [showCustom, setShowCustom] = useState(false);
+export function useDuranteTreino(sessaoAtiva: boolean = false) {
+  const [seconds, setSeconds]     = useState<number>(0);
+  const [total, setTotal]         = useState<number>(0);
+  const [log, setLog]             = useState<LogEntry[]>([]);
+  const [showCustom, setShowCustom]   = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [flash, setFlash] = useState(false);
+  const [flash, setFlash]         = useState(false);
   const [initialized, setInitialized] = useState(false);
 
-  const logIdRef = useRef<number>(1);
+  const logIdRef   = useRef<number>(1);
+  // Ref para o intervalo — controlado pelo sessaoAtiva
+  const timerRef   = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Load saved state
+  // ── Carrega estado salvo ──────────────────────────────────────────────────
   useEffect(() => {
     loadState().then(saved => {
       if (saved) {
@@ -60,25 +61,39 @@ export function useDuranteTreino() {
     });
   }, []);
 
-  const goalReached = total >= META_ML;
-
-  // Timer
+  // ── Timer só roda se há sessão ativa (check-in feito) ─────────────────────
   useEffect(() => {
-    const id = setInterval(() => setSeconds(s => s + 1), 1000);
-    return () => clearInterval(id);
-  }, []);
+    if (!sessaoAtiva) {
+      // Sem check-in: garante que o timer está parado
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
+    // Com check-in: inicia o timer
+    timerRef.current = setInterval(() => setSeconds(s => s + 1), 1000);
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [sessaoAtiva]);
 
-  // Persist on state change
+  // ── Persiste no storage ───────────────────────────────────────────────────
   useEffect(() => {
     if (initialized) saveState({ seconds, total, log });
   }, [seconds, total, log, initialized]);
 
+  const goalReached = total >= META_ML;
+
+  // ── Adicionar água ────────────────────────────────────────────────────────
   const addWater = useCallback((ml: number, type: string) => {
-    const t = timeNow();
     const entry: LogEntry = {
       id: logIdRef.current++,
       title: `${ml}ml ingeridos`,
-      subtitle: `${t} • ${type}`,
+      subtitle: `${timeNow()} • ${type}`,
       ml,
       ts: Date.now(),
     };

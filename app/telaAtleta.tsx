@@ -1,18 +1,28 @@
 // app/telaAtleta.tsx
 // Dashboard principal do atleta — dados reais do estado global
 import { router } from 'expo-router';
-import React from 'react';
-import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AtletaAvatarMini } from '../src/components/shared/AtletaAvatar';
 import { ToastContainer } from '../src/components/shared/Toast';
-import { useAppStore } from '../src/store/useAppStore';
 import { usePerformance } from '../src/hooks/usePerformance';
+import { climaAPI, type ClimaAtualAPI } from '../src/services/api';
+import { useAppStore } from '../src/store/useAppStore';
 import { styles } from '../src/styles/atletaStyle';
 
 export default function TelaAtleta() {
   const { state } = useAppStore();
   const { daily, historico, perfil } = state;
   const perf = usePerformance();
+  const [clima, setClima] = useState<ClimaAtualAPI | null>(null);
+  const [climaCarregando, setClimaCarregando] = useState(true);
+
+  useEffect(() => {
+    climaAPI.buscarAtual(1)
+      .then(setClima)
+      .catch(() => null)
+      .finally(() => setClimaCarregando(false));
+  }, []);
 
   const pctMeta = Math.min(100, Math.round((daily.consumidoML / daily.metaML) * 100));
   const ultimaSessao = historico[0];
@@ -46,6 +56,44 @@ export default function TelaAtleta() {
             </Text>
           </View>
         )}
+
+        {/* Card Clima */}
+        {climaCarregando ? (
+          <View style={climaStyles.card}>
+            <ActivityIndicator size="small" color="#8f000a" />
+            <Text style={climaStyles.sub}>Buscando condições climáticas...</Text>
+          </View>
+        ) : clima ? (
+          <View style={[climaStyles.card, {
+            borderLeftColor: clima.condicao === 'CONFORTAVEL' ? '#22c55e'
+              : clima.condicao === 'ATENCAO' ? '#f59e0b' : '#ef4444'
+          }]}>
+            <View style={climaStyles.row}>
+              <Text style={climaStyles.titulo}>🌡️ Condições Ambientais</Text>
+              <View style={[climaStyles.badge, {
+                backgroundColor: clima.condicao === 'CONFORTAVEL' ? '#22c55e22'
+                  : clima.condicao === 'ATENCAO' ? '#f59e0b22' : '#ef444422'
+              }]}>
+                <Text style={[climaStyles.badgeText, {
+                  color: clima.condicao === 'CONFORTAVEL' ? '#22c55e'
+                    : clima.condicao === 'ATENCAO' ? '#f59e0b' : '#ef4444'
+                }]}>{clima.condicao}</Text>
+              </View>
+            </View>
+            <View style={climaStyles.grid}>
+              <View style={climaStyles.gi}><Text style={climaStyles.gv}>{clima.temperatura_c.toFixed(1)}°C</Text><Text style={climaStyles.gl}>Temp.</Text></View>
+              <View style={climaStyles.gi}><Text style={climaStyles.gv}>{clima.umidade_pct.toFixed(0)}%</Text><Text style={climaStyles.gl}>Umidade</Text></View>
+              <View style={climaStyles.gi}>
+                <Text style={[climaStyles.gv, {
+                  color: clima.condicao === 'CONFORTAVEL' ? '#22c55e'
+                    : clima.condicao === 'ATENCAO' ? '#f59e0b' : '#ef4444'
+                }]}>{clima.indice_calor_c.toFixed(1)}°C</Text>
+                <Text style={climaStyles.gl}>Índice calor</Text>
+              </View>
+            </View>
+            <Text style={climaStyles.sub}>{clima.descricao_condicao} · {clima.fonte}</Text>
+          </View>
+        ) : null}
 
         {/* Hero iniciar sessão */}
         <View style={styles.heroCard}>
@@ -154,3 +202,16 @@ export default function TelaAtleta() {
     </SafeAreaView>
   );
 }
+
+const climaStyles = StyleSheet.create({
+  card: { backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: '#e4beb9', elevation: 1, flexDirection: 'column', gap: 4 },
+  row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  titulo: { fontFamily: 'SourceSans3_700Bold', fontSize: 13, color: '#1c1c1a' },
+  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
+  badgeText: { fontFamily: 'SourceSans3_700Bold', fontSize: 10 },
+  grid: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 6 },
+  gi: { alignItems: 'center' },
+  gv: { fontFamily: 'Newsreader_700Bold', fontSize: 18, color: '#1c1c1a' },
+  gl: { fontFamily: 'SourceSans3_400Regular', fontSize: 10, color: '#5b403d', marginTop: 2 },
+  sub: { fontFamily: 'SourceSans3_400Regular', fontSize: 11, color: '#5b403d', textAlign: 'center', marginTop: 2 },
+});

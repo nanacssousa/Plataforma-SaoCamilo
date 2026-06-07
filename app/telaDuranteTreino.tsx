@@ -1,3 +1,4 @@
+// app/telaDuranteTreino.tsx
 import { useRouter } from "expo-router";
 import React from "react";
 import {
@@ -6,9 +7,10 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 
+import { AclimatacaoChart } from "../src/components/duranteTreino/Aclimatacaochart";
 import { ConfirmSessionModal } from "../src/components/duranteTreino/ConfirmSessionModal";
 import { CustomWaterModal } from "../src/components/duranteTreino/CustomWaterModal";
 import { HydrationCards } from "../src/components/duranteTreino/HydrationCards";
@@ -22,6 +24,10 @@ import { useAppStore } from "../src/store/useAppStore";
 export default function TelaDuranteTreino() {
   const router = useRouter();
   const { adicionarFluido, state } = useAppStore();
+
+  // ── passa se há sessão ativa — timer só corre após check-in ──────────────
+  const temSessao = !!state.sessaoAtiva;
+
   const {
     seconds,
     total,
@@ -35,9 +41,8 @@ export default function TelaDuranteTreino() {
     handleQuickAdd: _handleQuickAdd,
     handleCustomAdd: _handleCustomAdd,
     handleNewSession,
-  } = useDuranteTreino();
+  } = useDuranteTreino(temSessao);
 
-  // Sincroniza com store global
   function handleQuickAdd(ml: number) {
     const tipos: Record<number, string> = { 200: "INGESTÃO RÁPIDA", 500: "HIDRATAÇÃO PADRÃO" };
     adicionarFluido(ml, tipos[ml] ?? "HIDRATAÇÃO");
@@ -55,7 +60,6 @@ export default function TelaDuranteTreino() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Flash feedback */}
       {flash && (
         <View style={styles.flashBanner} pointerEvents="none">
           <Text style={styles.flashText}>💧 Água adicionada!</Text>
@@ -71,7 +75,9 @@ export default function TelaDuranteTreino() {
         <View style={styles.header}>
           <View>
             <Text style={styles.headerEyebrow}>TREINO ATIVO</Text>
-            <Text style={styles.headerTitle}>{state.sessaoAtiva?.tipoTreino ?? "Hidratação"}</Text>
+            <Text style={styles.headerTitle}>
+              {state.sessaoAtiva?.tipoTreino ?? "Hidratação"}
+            </Text>
           </View>
           <TouchableOpacity
             style={styles.btnNextSession}
@@ -84,10 +90,11 @@ export default function TelaDuranteTreino() {
 
         <SessionTimer seconds={seconds} />
         <HydrationCards total={total} goalReached={goalReached} />
-        <QuickAddButtons
-          onAdd={handleQuickAdd}
-          onCustom={() => setShowCustom(true)}
-        />
+        <QuickAddButtons onAdd={handleQuickAdd} onCustom={() => setShowCustom(true)} />
+
+        {/* ── Gráfico de Aclimatação / Análise Avançada ── */}
+        <AclimatacaoChart />
+
         <SessionLog log={log} />
       </ScrollView>
 
@@ -110,17 +117,9 @@ export default function TelaDuranteTreino() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#fdf5f5",
-  },
-  scroll: {
-    flex: 1,
-  },
-  content: {
-    padding: spacing.s5,
-    paddingBottom: spacing.s8,
-  },
+  safe:    { flex: 1, backgroundColor: "#fdf5f5" },
+  scroll:  { flex: 1 },
+  content: { padding: spacing.s5, paddingBottom: spacing.s8 },
   header: {
     flexDirection: "row",
     alignItems: "center",
