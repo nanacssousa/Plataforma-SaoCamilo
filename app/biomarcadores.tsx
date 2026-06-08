@@ -1,8 +1,8 @@
 // app/biomarcadores.tsx
 // Biomarcadores — busca dados reais de USG, marcadores laboratoriais e taxa de sudorese do backend
-import { apiFetch } from "@/services/apiService";
-import { useAppStore } from "@/store/useAppStore";
-import { styles } from "@/styles/biomarcadoresStyle";
+import { apiFetch } from "../src/services/apiService";
+import { useAppStore } from "../src/store/useAppStore";
+import { styles } from "../src/styles/biomarcadoresStyle";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {

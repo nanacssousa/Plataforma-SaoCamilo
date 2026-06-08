@@ -1,6 +1,6 @@
 // app/telaequipes.tsx
 // Tela de equipes — busca atletas e dados do gráfico do backend
-import { styles } from "@/styles/TelaEquipesStyle";
+import { styles } from "../src/styles/TelaEquipesStyle";
 import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import {

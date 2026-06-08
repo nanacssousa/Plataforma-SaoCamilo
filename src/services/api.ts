@@ -254,6 +254,40 @@ export const calculoAPI = {
 export const climaAPI = {
   buscarAtual: (id_local = 1) =>
     req<ClimaAtualAPI>(`/ambiente-clima/atual/${id_local}`),
+
+  buscarPorCoordenadas: async (lat: number, lon: number): Promise<ClimaAtualAPI> => {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,precipitation&wind_speed_unit=ms&timezone=America%2FSao_Paulo`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Open-Meteo erro ${res.status}`);
+    const data = await res.json();
+    const c = data.current;
+    const t = c.temperature_2m;
+    const h = c.relative_humidity_2m;
+    // índice de calor (fórmula Steadman)
+    let indice = t;
+    if (t >= 27) {
+      indice = -8.78 + 1.611 * t + 2.339 * h - 0.146 * t * h
+        - 0.01231 * t * t - 0.01642 * h * h
+        + 0.00221 * t * t * h + 0.000725 * t * h * h
+        - 0.00000358 * t * t * h * h;
+    }
+    const condicao: ClimaAtualAPI["condicao"] =
+      indice < 27 ? "CONFORTAVEL" : indice < 38 ? "ATENCAO" : "CRITICO";
+    const descricao =
+      condicao === "CONFORTAVEL" ? "Condições ideais para treino"
+      : condicao === "ATENCAO"   ? "Calor moderado — hidratação reforçada recomendada"
+      :                            "Risco de exaustão por calor — avaliar suspensão do treino";
+    return {
+      fonte: "OPENMETEO",
+      temperatura_c: t,
+      umidade_pct: h,
+      indice_calor_c: Math.round(indice * 10) / 10,
+      condicao,
+      descricao_condicao: descricao,
+      lido_em: new Date().toISOString(),
+      id_leitura: 0,
+    };
+  },
 };
 
 export const agenteIA = {

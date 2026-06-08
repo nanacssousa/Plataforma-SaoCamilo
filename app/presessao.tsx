@@ -2,8 +2,8 @@
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Alert, PanResponder, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { colors } from "@/constants/theme";
-import { styles } from "@/styles/PreSessaoStyle";
+import { colors } from "../src/constants/theme";
+import { styles } from "../src/styles/PreSessaoStyle";
 import { AtletaAvatarMini } from "../src/components/shared/AtletaAvatar";
 import { useAppStore } from "../src/store/useAppStore";
 import { agenteIA, climaAPI, type AgenteIAContrato, type ClimaAtualAPI } from "../src/services/api";
@@ -117,7 +117,12 @@ export default function PreSessaoScreen() {
   const [analiseIA, setAnaliseIA] = useState<AgenteIAContrato | null>(null);
   const [carregandoIA, setCarregandoIA] = useState(false);
 
-  useEffect(() => { climaAPI.buscarAtual(1).then(setClima).catch(() => {}).finally(() => setCarregandoClima(false)); }, []);
+  useEffect(() => {
+    climaAPI.buscarPorCoordenadas(-23.6639, -46.5383)
+      .then(setClima)
+      .catch(() => {})
+      .finally(() => setCarregandoClima(false));
+  }, []);
 
   const toggleSintoma = (s: Sintoma) => setSintomas((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]);
   const handlePesoChange = (text: string) => { const cleaned = text.replace(/[^0-9.,]/g, ""); if ((cleaned.match(/[.,]/g) || []).length > 1) return; const parts = cleaned.split(/[.,]/); if (parts.length > 1 && parts[1].length > 2) return; setPeso(cleaned); };

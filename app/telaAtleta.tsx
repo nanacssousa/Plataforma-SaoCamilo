@@ -1,5 +1,6 @@
 // app/telaAtleta.tsx
 // Dashboard principal do atleta — dados reais do estado global
+import * as Location from 'expo-location';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -16,12 +17,41 @@ export default function TelaAtleta() {
   const perf = usePerformance();
   const [clima, setClima] = useState<ClimaAtualAPI | null>(null);
   const [climaCarregando, setClimaCarregando] = useState(true);
+  const [cidade, setCidade] = useState<string | null>(null);
+  const [climaErro, setClimaErro] = useState<string | null>(null);
+
+  // Coordenadas padrão: Santo André / São Paulo
+  const LAT_DEFAULT = -23.6639;
+  const LON_DEFAULT = -46.5383;
 
   useEffect(() => {
-    climaAPI.buscarAtual(1)
-      .then(setClima)
-      .catch(() => null)
-      .finally(() => setClimaCarregando(false));
+    (async () => {
+      let lat = LAT_DEFAULT;
+      let lon = LON_DEFAULT;
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status === 'granted') {
+          const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+          lat = loc.coords.latitude;
+          lon = loc.coords.longitude;
+          const geo = await Location.reverseGeocodeAsync({ latitude: lat, longitude: lon });
+          if (geo[0]) setCidade(`${geo[0].city ?? geo[0].subregion ?? ''}, ${geo[0].region ?? ''}`);
+        } else {
+          setCidade('Santo André, SP');
+        }
+      } catch {
+        setCidade('Santo André, SP');
+      }
+      try {
+        const resultado = await climaAPI.buscarPorCoordenadas(lat, lon);
+        setClima(resultado);
+      } catch (e: any) {
+        setClimaErro(e?.message ?? 'Erro ao buscar clima');
+        setClima(null);
+      } finally {
+        setClimaCarregando(false);
+      }
+    })();
   }, []);
 
   const pctMeta = Math.min(100, Math.round((daily.consumidoML / daily.metaML) * 100));
@@ -69,7 +99,14 @@ export default function TelaAtleta() {
               : clima.condicao === 'ATENCAO' ? '#f59e0b' : '#ef4444'
           }]}>
             <View style={climaStyles.row}>
-              <Text style={climaStyles.titulo}>🌡️ Condições Ambientais</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={climaStyles.titulo}>Condições Ambientais</Text>
+                {cidade && (
+                  <Text style={{ fontFamily: 'SourceSans3_400Regular', fontSize: 11, color: '#5b403d', marginTop: 2 }}>
+                   {cidade}
+                  </Text>
+                )}
+              </View>
               <View style={[climaStyles.badge, {
                 backgroundColor: clima.condicao === 'CONFORTAVEL' ? '#22c55e22'
                   : clima.condicao === 'ATENCAO' ? '#f59e0b22' : '#ef444422'
@@ -92,6 +129,14 @@ export default function TelaAtleta() {
               </View>
             </View>
             <Text style={climaStyles.sub}>{clima.descricao_condicao} · {clima.fonte}</Text>
+          </View>
+        ) : climaErro ? (
+          <View style={[climaStyles.card, { borderLeftColor: '#94a3b8', flexDirection: 'row', alignItems: 'center', gap: 10 }]}>
+            <Text style={{ fontSize: 18 }}>🌡️</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={[climaStyles.titulo, { color: '#64748b' }]}>Clima indisponível</Text>
+              <Text style={[climaStyles.sub, { textAlign: 'left', marginTop: 2 }]}>{climaErro}</Text>
+            </View>
           </View>
         ) : null}
 

@@ -141,7 +141,7 @@ export default function TelaCadastroAtleta() {
           altura_cm: Number(altura),
           peso_habitual_kg: Number(peso.replace(",", ".")),
           modalidade,
-          nivel: "AMADOR",
+          nivel: "INICIANTE",
         });
 
         console.log("Perfil criado.");
@@ -149,9 +149,11 @@ export default function TelaCadastroAtleta() {
         console.log("Erro ao criar perfil:", perfilErro);
       }
 
-      Alert.alert("Cadastro realizado", "Sua conta foi criada com sucesso.");
-
-      router.replace("/telaLogin");
+      Alert.alert(
+        "Cadastro realizado",
+        "Sua conta foi criada com sucesso.",
+        [{ text: "OK", onPress: () => router.replace("/telaLogin") }]
+      );
     } catch (error: any) {
       const msg = error?.message ?? String(error) ?? "Erro desconhecido";
       console.log("ERRO CADASTRO:", msg);

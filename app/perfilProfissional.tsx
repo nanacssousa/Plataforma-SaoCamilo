@@ -12,8 +12,8 @@ import {
   View,
 } from "react-native";
 
-import { colors } from "@/constants/theme";
-import { styles } from "@/styles/PerfilProfissionalStyle";
+import { colors } from "../src/constants/theme";
+import { styles } from "../src/styles/PerfilProfissionalStyle";
 import { useAppStore } from "../src/store/useAppStore";
 
 // ─── Sub-components ───────────────────────────────────────────────────────────

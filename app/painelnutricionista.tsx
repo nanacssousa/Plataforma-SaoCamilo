@@ -1,7 +1,7 @@
 // app/painelnutricionista.tsx
 // Painel do nutricionista — busca atletas e seus dados hídricos do backend
-import { apiFetch } from "@/services/apiService";
-import { styles } from "@/styles/PainelNutricionistaStyle";
+import { apiFetch } from "../src/services/apiService";
+import { styles } from "../src/styles/PainelNutricionistaStyle";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {

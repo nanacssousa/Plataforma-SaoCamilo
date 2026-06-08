@@ -1,6 +1,6 @@
 // app/admsistema.tsx
 // Painel do administrador — busca profissionais e equipes do backend
-import { styles } from "@/styles/admSistemaStyle";
+import { styles } from "../src/styles/admSistemaStyle";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
