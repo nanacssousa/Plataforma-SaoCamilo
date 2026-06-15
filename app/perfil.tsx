@@ -28,7 +28,7 @@ import {
   requestNotificationPermissions,
   schedulePreTreinoNotification,
 } from "../src/notifications/notificationService";
-import { authAPI, perfilAPI } from "../src/services/api";
+import { authAPI, perfilAPI, usuarioAPI } from "../src/services/api";
 import {
   pickFromCamera,
   pickFromGallery,
@@ -367,32 +367,63 @@ export default function ProfileScreen() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   useEffect(() => {
-    carregarPerfil();
-  }, []);
+    if (state.isInitialized) {
+      carregarPerfil();
+    }
+  }, [state.isInitialized]);
+
+  const calcularIdade = (dataNascimento?: string | null) => {
+    if (!dataNascimento) return perfil.idade;
+    const nascimento = new Date(dataNascimento);
+    if (isNaN(nascimento.getTime())) return perfil.idade;
+    const hoje = new Date();
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const mesDiff = hoje.getMonth() - nascimento.getMonth();
+    if (
+      mesDiff < 0 ||
+      (mesDiff === 0 && hoje.getDate() < nascimento.getDate())
+    ) {
+      idade -= 1;
+    }
+    return idade;
+  };
 
   const carregarPerfil = async () => {
     try {
-      const usuario = await authAPI.getUsuarioLocal();
-      if (!usuario) return;
+      const usuarioLocal = await authAPI.getUsuarioLocal();
+      if (!usuarioLocal) return;
 
-      setPerfil({ nome: usuario.nome_completo });
-
+      let usuarioCompleto = usuarioLocal;
       try {
-        const perfilBanco = await perfilAPI.buscarPorUsuario(
-          usuario.id_usuario,
-        );
-        setPerfil({
-          nome: usuario.nome_completo,
-          peso: perfilBanco?.peso_habitual_kg ?? perfil.peso,
-          altura: perfilBanco?.altura_cm ?? perfil.altura,
-          posicao: perfilBanco?.modalidade ?? perfil.posicao,
-          categoria: perfilBanco?.nivel ?? perfil.categoria,
-        });
-      } catch (erroPerfil) {
-        console.log("Perfil atlético não encontrado", erroPerfil);
+        usuarioCompleto = await usuarioAPI.getById(usuarioLocal.id_usuario);
+      } catch (error: any) {
+        console.log("Não foi possível buscar usuário completo:", error.message ?? error);
       }
-    } catch (error) {
-      console.log("Erro ao carregar perfil:", error);
+
+      const perfilBanco = await perfilAPI.buscarPorUsuario(usuarioLocal.id_usuario);
+      console.log("carregarPerfil -> usuarioLocal", usuarioLocal);
+      console.log("carregarPerfil -> usuarioCompleto", usuarioCompleto);
+      console.log("carregarPerfil -> perfilBanco", perfilBanco);
+      const idadeCalculada = calcularIdade(usuarioCompleto.data_nascimento);
+
+      setPerfil({
+        nome: usuarioCompleto.nome_completo,
+        peso:
+          perfilBanco?.peso_habitual_kg !== null &&
+          perfilBanco?.peso_habitual_kg !== undefined
+            ? Number(perfilBanco.peso_habitual_kg)
+            : perfil.peso,
+        altura:
+          perfilBanco?.altura_cm !== null &&
+          perfilBanco?.altura_cm !== undefined
+            ? Number(perfilBanco.altura_cm)
+            : perfil.altura,
+        posicao: perfilBanco?.modalidade ?? perfil.posicao,
+        categoria: perfilBanco?.nivel ?? perfil.categoria,
+        idade: idadeCalculada,
+      });
+    } catch (error: any) {
+      console.log("Erro ao carregar perfil:", error.message ?? error);
     }
   };
 
@@ -664,21 +695,21 @@ export default function ProfileScreen() {
         <SectionLabel label="DADOS BIOMÉTRICOS" />
         <BiometricCard
           label="PESO DE REFERÊNCIA"
-          value={perfil.peso.toFixed(1)}
+          value={Number(perfil.peso).toFixed(1)}
           unit="kg"
           accentColor={colors.primary}
           onPress={() => setEditField("peso")}
         />
         <BiometricCard
           label="IDADE"
-          value={String(perfil.idade)}
+          value={String(Number(perfil.idade) || 0)}
           unit="anos"
           accentColor={colors.secondary}
           onPress={() => setEditField("idade")}
         />
         <BiometricCard
           label="ALTURA"
-          value={(perfil.altura / 100).toFixed(2)}
+          value={(Number(perfil.altura) / 100).toFixed(2)}
           unit="m"
           accentColor={colors.tertiary}
           onPress={() => setEditField("altura")}

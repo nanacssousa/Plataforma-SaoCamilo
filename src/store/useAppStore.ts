@@ -2,34 +2,34 @@
 // Estado global — mantém dados do atleta padrão + adiciona suporte a auth
 
 import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useReducer,
-  useRef,
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useReducer,
+    useRef,
 } from "react";
 import {
-  dailyDB,
-  historicoDB,
-  perfilDB,
-  sessaoAtivaDB,
-  settingsDB,
+    dailyDB,
+    historicoDB,
+    perfilDB,
+    sessaoAtivaDB,
+    settingsDB,
 } from "../database/storage";
 import {
-  clearAuthToken,
-  getAuthToken,
-  getAuthUser,
-  saveAuthToken,
+    clearAuthToken,
+    getAuthToken,
+    getAuthUser,
+    salvarToken,
 } from "../services/apiService";
 import {
-  AtletaProfile,
-  DailyHydration,
-  HydrationEntry,
-  HydrationSettings,
-  LogFluido,
-  SessaoAtiva,
-  ToastMessage,
+    AtletaProfile,
+    DailyHydration,
+    HydrationEntry,
+    HydrationSettings,
+    LogFluido,
+    SessaoAtiva,
+    ToastMessage,
 } from "../types";
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
@@ -63,6 +63,20 @@ function todayStr() {
 
 function generateId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizePerfilData(p: Partial<AtletaProfile>): Partial<AtletaProfile> {
+  const normalized: Partial<AtletaProfile> = { ...p };
+  if (normalized.peso !== undefined && normalized.peso !== null) {
+    normalized.peso = Number(normalized.peso) || 0;
+  }
+  if (normalized.altura !== undefined && normalized.altura !== null) {
+    normalized.altura = Number(normalized.altura) || 0;
+  }
+  if (normalized.idade !== undefined && normalized.idade !== null) {
+    normalized.idade = Number(normalized.idade) || 0;
+  }
+  return normalized;
 }
 
 function calcIniciais(nome: string): string {
@@ -133,6 +147,7 @@ function reducer(state: State, action: Action): State {
       const iniciais = calcIniciais(nome);
       const perfil: AtletaProfile = {
         ...state.perfil, // mantém campos existentes (posicao, peso, etc.)
+        ...normalizePerfilData({ nome, email }),
         id: String(idUsuario),
         nome,
         email,
@@ -170,7 +185,7 @@ function reducer(state: State, action: Action): State {
       const nome = action.payload.nome ?? state.perfil.nome;
       const updated: AtletaProfile = {
         ...state.perfil,
-        ...action.payload,
+        ...normalizePerfilData(action.payload),
         iniciais: calcIniciais(nome),
         atualizadoEm: new Date().toISOString(),
       };
@@ -377,7 +392,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         type: "INIT",
         payload: {
           // Se há perfil salvo usa ele, senão usa o padrão Gabriel
-          perfil: perfil ?? DEFAULT_PERFIL,
+          perfil: {
+            ...DEFAULT_PERFIL,
+            ...(perfil ?? DEFAULT_PERFIL),
+            ...normalizePerfilData(perfil ?? DEFAULT_PERFIL),
+          },
           settings: settings ?? DEFAULT_SETTINGS,
           historico,
           daily,
@@ -403,7 +422,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         email: string;
       },
     ) => {
-      await saveAuthToken(token, usuario as any);
+      await salvarToken(token, usuario);
       dispatch({
         type: "LOGIN",
         payload: {

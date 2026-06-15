@@ -57,11 +57,30 @@ export interface UsuarioAPI {
   nome_completo: string;
   email: string;
   id_perfil: number;
+  data_nascimento?: string | null;
+  genero?: "MASCULINO" | "FEMININO" | "NAO_BINARIO" | "PREFIRO_NAO_INFORMAR" | null;
+  telefone?: string | null;
+  foto_perfil_url?: string | null;
+  registro_profissional?: string | null;
+  especialidade?: string | null;
 }
 
 export interface LoginResponse {
   token: string;
   usuario: UsuarioAPI;
+}
+
+export interface PerfilAtleticoAPI {
+  id_perfil_atletico: number;
+  id_usuario: number;
+  modalidade: string;
+  nivel: string;
+  altura_cm: number | string | null;
+  peso_habitual_kg: number | string | null;
+  condicao_medica: string | null;
+  observacoes: string | null;
+  criado_em: string;
+  atualizado_em: string;
 }
 
 export interface SessaoTreinoAPI {
@@ -174,7 +193,11 @@ export const perfilAPI = {
     }),
 
   buscarPorUsuario: (id_usuario: number) =>
-    req<any>(`/perfil-atletico/usuario/${id_usuario}`),
+    req<PerfilAtleticoAPI>(`/perfil-atletico/usuario/${id_usuario}`),
+};
+
+export const usuarioAPI = {
+  getById: (id_usuario: number) => req<UsuarioAPI>(`/usuarios/${id_usuario}`),
 };
 
 export const sessaoAPI = {

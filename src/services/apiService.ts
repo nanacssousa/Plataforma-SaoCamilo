@@ -4,11 +4,11 @@ export const API_URL =
   process.env.EXPO_PUBLIC_API_URL ?? "http://192.168.15.5:3000";
 
 const TOKEN_KEY = "@saocamilo:token";
-const USER_KEY = "@saocamilo:auth_user";
+const USER_KEY = "@saocamilo:usuario";
 
 // ─── Persistência do token ────────────────────────────────────────────────────
 
-export async function saveAuthToken(
+export async function salvarToken(
   token: string,
   usuario: Record<string, unknown>,
 ) {
