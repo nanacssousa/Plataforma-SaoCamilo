@@ -273,23 +273,26 @@ export default function TelaEquipes() {
     if (!silencioso) setLoading(true);
     try {
       // Busca atletas da equipe
-      const atletasRaw = await apiFetch<any[]>(`/equipes/${EQUIPE_ID}/atletas`);
+      const atletasRaw = await apiFetch<any[]>(`/perfil-atletico/consolidado`);
 
       if (Array.isArray(atletasRaw)) {
         const atletasMapped: Atleta[] = atletasRaw.map((item: any) => {
-          const deltaMassa = Number(item.deltaMassa ?? item.delta_massa ?? 0);
-          const usg = Number(item.usg ?? 1.015);
-          return {
-            id: String(item.id ?? item.id_usuario),
-            nome: item.nome ?? item.nome_completo ?? "Atleta",
-            posicao: item.posicao ?? "Atleta",
-            categoria: item.categoria ?? "PRINCIPAL",
-            massaAtual: Number(item.massaAtual ?? item.massa_atual ?? 0),
-            deltaMassa,
-            usg,
-            statusHidrico: calcularStatusHidrico(deltaMassa, usg),
-          };
-        });
+           const massaAtual = Number(item.massa_atual ?? 0);
+            const mediaM = Number(item.media_massa ?? massaAtual);
+            const deltaMassa = mediaM > 0 ? ((massaAtual - mediaM) / mediaM) * 100 : 0;
+            const usg = 1.015; // fixo até ter dado real de USG
+
+            return {
+              id: String(item.id_usuario),
+              nome: item.nome_completo ?? "Atleta",
+              posicao: item.posicao ?? "—",
+              categoria: item.categoria ?? "—",
+              massaAtual,
+              deltaMassa,
+              usg,
+              statusHidrico: calcularStatusHidrico(deltaMassa, usg),
+            };
+          });
         setAtletas(atletasMapped);
         setAtletasEmRisco(
           atletasMapped.filter((a) => a.statusHidrico === "desidratado").length,

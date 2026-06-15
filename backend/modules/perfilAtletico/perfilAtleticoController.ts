@@ -54,5 +54,12 @@ export const perfilAtleticoController = {
     } catch (error: any) {
       return res.status(404).json({ error: error.message })
     }
+  },
+  async getAllComDados(req: Request, res: Response): Promise<Response> {
+    try {
+      return res.json(await perfilAtleticoService.getAllComDados())
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message })
+    }
   }
 }

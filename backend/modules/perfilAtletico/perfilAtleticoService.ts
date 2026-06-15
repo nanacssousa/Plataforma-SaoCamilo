@@ -42,5 +42,9 @@ export const perfilAtleticoService = {
   async delete(id: number): Promise<void> {
     await this.getById(id)
     return perfilAtleticoRepository.delete(id)
+  },
+
+  async getAllComDados(): Promise<any[]> {
+    return perfilAtleticoRepository.findAllComDados()
   }
 }

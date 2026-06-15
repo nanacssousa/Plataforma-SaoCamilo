@@ -92,5 +92,24 @@ export const perfilAtleticoRepository = {
 
   async delete(id: number): Promise<void> {
     await execute("DELETE FROM perfis_atleticos WHERE id_perfil_atletico = ?", [id])
+  },
+  
+  async findAllComDados(): Promise<any[]> {
+    return runQuery<any>(`
+        SELECT
+          pa.id_perfil_atletico,
+          pa.id_usuario,
+          u.nome_completo,
+          pa.modalidade AS posicao,
+          pa.nivel AS categoria,
+          MAX(p.massa_kg) AS massa_atual,
+          AVG(p.massa_kg) AS media_massa
+        FROM perfis_atleticos pa
+        JOIN usuarios u ON u.id_usuario = pa.id_usuario
+        LEFT JOIN sessoes_treino st ON st.id_usuario = pa.id_usuario
+        LEFT JOIN pesagens p ON p.id_sessao = st.id_sessao AND p.momento = 'POS'
+        GROUP BY pa.id_perfil_atletico, pa.id_usuario, u.nome_completo, pa.modalidade, pa.nivel
+        ORDER BY u.nome_completo ASC
+  `)
   }
 }
