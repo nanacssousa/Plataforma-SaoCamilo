@@ -25,7 +25,15 @@ export const usuariosController = {
 
   async getAll(req: Request, res: Response): Promise<Response> {
     try {
-      const usuarios = await usuariosService.getAll()
+      const idPerfilRaw = req.query.id_perfil as string | undefined
+      const idPerfis = idPerfilRaw
+        ? idPerfilRaw
+            .split(",")
+            .map((v) => Number(v.trim()))
+            .filter((n) => !Number.isNaN(n))
+        : undefined
+
+      const usuarios = await usuariosService.getAll(idPerfis)
 
       return res.json(usuarios)
     } catch (error: any) {

@@ -75,9 +75,12 @@ export default function TelaLogin() {
       await login(data.token, data.usuario);
       showToast(`Bem-vindo, ${data.usuario.nome_completo.split(" ")[0]}! 👋`);
       const { id_perfil } = data.usuario;
+      // id_perfil: 1=atleta | 2=nutricionista | 3=treinador | 4=médico | 5=administrador
       if (id_perfil === 1) router.replace("/telaAtleta");
       else if (id_perfil === 2) router.replace("/painelnutricionista");
-      else if (id_perfil === 5) router.replace("/admsistema");
+      else if (id_perfil === 3) router.replace("/painelTreinador");
+      else if (id_perfil === 4) router.replace("/painelMedico");
+      else if (id_perfil === 5) router.replace("/painelAdm");
       else router.replace("/telaInicialProfissional");
     } catch (err: any) {
       Alert.alert(

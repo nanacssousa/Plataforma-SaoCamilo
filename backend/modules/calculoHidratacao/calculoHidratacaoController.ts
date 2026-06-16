@@ -29,6 +29,16 @@ export const calculoHidratacaoController = {
     }
   },
 
+  async getByUsuario(req: Request, res: Response): Promise<Response> {
+    try {
+      const id_usuario = Number(req.params.id_usuario)
+      const limit = req.query.limit ? Number(req.query.limit) : undefined
+      return res.json(await calculoHidratacaoService.getByUsuario(id_usuario, limit))
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message })
+    }
+  },
+
   async calcularPorSessao(req: Request, res: Response): Promise<Response> {
     try {
       const id_sessao = Number(req.params.id_sessao)

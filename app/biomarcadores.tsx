@@ -15,50 +15,9 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-// ─── Sidebar ──────────────────────────────────────────────────────────────────
-type NavItem = "equipes" | "atletas" | "relatorios" | "perfil";
-const NAV_ROUTES: Record<NavItem, string> = {
-  equipes: "/telaequipes",
-  atletas: "/painelnutricionista",
-  relatorios: "/biomarcadores",
-  perfil: "/perfilProfissional",
-};
-const NAV_ITEMS: { id: NavItem; label: string; icon: string }[] = [
-  { id: "equipes", label: "Equipes", icon: "👥" },
-  { id: "atletas", label: "Atletas", icon: "🏃" },
-  { id: "relatorios", label: "Relatórios", icon: "📊" },
-  { id: "perfil", label: "Perfil", icon: "⚙️" },
-];
-
-const Sidebar = ({ activeNav }: { activeNav: NavItem }) => (
-  <View style={styles.sidebar}>
-    <View style={styles.sidebarLogo}>
-      <Text style={styles.sidebarLogoTop}>CLINICAL</Text>
-      <Text style={styles.sidebarLogoBottom}>ATHLETE</Text>
-    </View>
-    <View style={styles.sidebarNav}>
-      {NAV_ITEMS.map((item) => {
-        const isActive = item.id === activeNav;
-        return (
-          <TouchableOpacity
-            key={item.id}
-            style={[styles.navItem, isActive && styles.navItemActive]}
-            onPress={() => {
-              if (!isActive) router.push(NAV_ROUTES[item.id] as any);
-            }}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.navIcon}>{item.icon}</Text>
-            <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
-  </View>
-);
+import StaffGuard from "../src/components/StaffGuard";
+import StaffSidebar from "../src/components/StaffSidebar";
+import { PERFIL_PARA_ROLE } from "../src/config/staffPermissions";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 interface PontoGrafico {
@@ -246,6 +205,7 @@ const MarcadorRow = ({
   marcador,
   isLast,
 }: {
+  key?: React.Key;
   marcador: MarcadorLab;
   isLast: boolean;
 }) => (
@@ -303,8 +263,10 @@ function calcularUsgReal(escala: number): number {
 
 // ─── Tela principal ───────────────────────────────────────────────────────────
 
-export default function Biomarcadores() {
+function BiomarcadoresConteudo() {
   const { state } = useAppStore();
+  // Sem fallback fixo: se o perfil não for staff reconhecido, StaffGuard já redireciona antes de chegar aqui.
+  const staffRole = state.idPerfil ? PERFIL_PARA_ROLE[state.idPerfil] : undefined;
 
   const [pontosGrafico, setPontosGrafico] =
     useState<PontoGrafico[]>(PONTOS_DEFAULT);
@@ -468,7 +430,7 @@ export default function Biomarcadores() {
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor="#fcf9f5" />
       <View style={styles.layout}>
-        <Sidebar activeNav="relatorios" />
+        <StaffSidebar role={staffRole ?? "medico"} activeNav="biomarcadores" />
 
         <ScrollView
           style={styles.scroll}
@@ -605,7 +567,7 @@ export default function Biomarcadores() {
                     TENDÊNCIA
                   </Text>
                 </View>
-                {marcadores.map((m, i) => (
+                {marcadores.map((m: MarcadorLab, i: number) => (
                   <MarcadorRow
                     key={m.id}
                     marcador={m}
@@ -672,5 +634,13 @@ export default function Biomarcadores() {
         </ScrollView>
       </View>
     </SafeAreaView>
+  );
+}
+
+export default function Biomarcadores() {
+  return (
+    <StaffGuard rotaAtual="/biomarcadores">
+      <BiomarcadoresConteudo />
+    </StaffGuard>
   );
 }

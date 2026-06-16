@@ -127,9 +127,8 @@ export const usuariosRepository = {
     )
   },
 
-  async findAll(): Promise<PublicUsuario[]> {
-    const usuarios = await runQuery<Usuario>(
-      `SELECT
+  async findAll(idPerfis?: number[]): Promise<PublicUsuario[]> {
+    let sql = `SELECT
         id_usuario,
         id_perfil,
         nome_completo,
@@ -146,9 +145,18 @@ export const usuariosRepository = {
         ativo,
         criado_em,
         atualizado_em
-      FROM usuarios
-      ORDER BY id_usuario ASC`
-    )
+      FROM usuarios`
+    const params: unknown[] = []
+
+    if (idPerfis && idPerfis.length > 0) {
+      const placeholders = idPerfis.map(() => "?").join(", ")
+      sql += ` WHERE id_perfil IN (${placeholders})`
+      params.push(...idPerfis)
+    }
+
+    sql += ` ORDER BY id_usuario ASC`
+
+    const usuarios = await runQuery<Usuario>(sql, params)
 
     return usuarios.map(toPublicUsuario)
   },

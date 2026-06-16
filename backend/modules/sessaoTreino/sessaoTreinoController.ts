@@ -31,7 +31,10 @@ export const sessaoTreinoController = {
 
   async getAll(req: Request, res: Response): Promise<Response> {
     try {
-      return res.json(await sessaoTreinoService.getAll())
+      const id_usuario = req.query.id_usuario ? Number(req.query.id_usuario) : undefined
+      const limit = req.query.limit ? Number(req.query.limit) : undefined
+
+      return res.json(await sessaoTreinoService.getAll({ id_usuario, limit }))
     } catch (error: any) {
       return res.status(500).json({ error: error.message })
     }

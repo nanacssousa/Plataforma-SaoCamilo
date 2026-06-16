@@ -16,51 +16,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import StaffGuard from "../src/components/StaffGuard";
+import StaffSidebar from "../src/components/StaffSidebar";
+import { PERFIL_PARA_ROLE } from "../src/config/staffPermissions";
 import { gerarECompartilharPDF } from "../src/services/pdfService";
 import { useAppStore } from "../src/store/useAppStore";
-
-type NavItem = "equipes" | "atletas" | "relatorios" | "perfil";
-const NAV_ROUTES: Record<NavItem, string> = {
-  equipes: "/telaequipes",
-  atletas: "/painelnutricionista",
-  relatorios: "/biomarcadores",
-  perfil: "/perfilProfissional",
-};
-const NAV_ITEMS: { id: NavItem; label: string; icon: string }[] = [
-  { id: "equipes", label: "Equipes", icon: "👥" },
-  { id: "atletas", label: "Atletas", icon: "🏃" },
-  { id: "relatorios", label: "Relatórios", icon: "📊" },
-  { id: "perfil", label: "Perfil", icon: "⚙️" },
-];
-
-const Sidebar = ({ activeNav }: { activeNav: NavItem }) => (
-  <View style={styles.sidebar}>
-    <View style={styles.sidebarLogo}>
-      <Text style={styles.sidebarLogoTop}>CLINICAL</Text>
-      <Text style={styles.sidebarLogoBottom}>ATHLETE</Text>
-    </View>
-    <View style={styles.sidebarNav}>
-      {NAV_ITEMS.map((item) => {
-        const isActive = item.id === activeNav;
-        return (
-          <TouchableOpacity
-            key={item.id}
-            style={[styles.navItem, isActive && styles.navItemActive]}
-            onPress={() => {
-              if (!isActive) router.push(NAV_ROUTES[item.id] as any);
-            }}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.navIcon}>{item.icon}</Text>
-            <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
-  </View>
-);
 
 type StatusHidrico = "desidratado" | "hidratado" | "alerta_leve";
 
@@ -111,7 +71,7 @@ const BadgeStatus = ({ status }: { status: StatusHidrico }) => {
   );
 };
 
-const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
+const AtletaRow = ({ atleta, isLast }: { key?: React.Key; atleta: Atleta; isLast: boolean }) => {
   const deltaPositivo = atleta.deltaMassa >= 0;
   return (
     <View style={[styles.atletaRow, !isLast && styles.atletaRowBorder]}>
@@ -161,7 +121,7 @@ const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
   );
 };
 
-const SugestaoCard = ({ sugestao }: { sugestao: Sugestao }) => (
+const SugestaoCard = ({ sugestao }: { key?: React.Key; sugestao: Sugestao }) => (
   <View style={styles.sugestaoCard}>
     <View
       style={[
@@ -222,8 +182,9 @@ function gerarSugestoes(atletas: Atleta[]): Sugestao[] {
       ];
 }
 
-export default function PainelNutricionista() {
+function PainelNutricionistaConteudo() {
   const { state } = useAppStore();
+  const staffRole = state.idPerfil ? PERFIL_PARA_ROLE[state.idPerfil] : undefined;
   const [filtro, setFiltro] = useState("");
   const [atletas, setAtletas] = useState<Atleta[]>([]);
   const [loading, setLoading] = useState(true);
@@ -233,7 +194,7 @@ export default function PainelNutricionista() {
   const carregarAtletas = useCallback(async (silencioso = false) => {
     if (!silencioso) setLoading(true);
     try {
-      // Busca todos os atletas (perfil 1) com suas últimas métricas
+      // Busca apenas atletas (perfil 1) — backend agora filtra de fato por id_perfil
       const usuarios = await apiFetch<any[]>("/usuarios?id_perfil=1");
 
       if (!Array.isArray(usuarios) || usuarios.length === 0) {
@@ -241,24 +202,35 @@ export default function PainelNutricionista() {
         return;
       }
 
-      // Para cada atleta, busca a última pesagem e calcula status
+      // Defesa extra: garante que só atletas (id_perfil === 1) entrem na lista,
+      // mesmo se o backend algum dia voltar a ignorar o filtro.
+      const apenasAtletas = usuarios.filter((u: any) => u.id_perfil === 1);
+
+      if (apenasAtletas.length === 0) {
+        setAtletas([]);
+        return;
+      }
+
+      // Para cada atleta, busca o cálculo de hidratação mais recente (já pronto no backend)
       const atletasComDados = await Promise.all(
-        usuarios.map(async (u: any) => {
+        apenasAtletas.map(async (u: any) => {
           let massaAtual = 0;
           let deltaMassa = 0;
           let usg = 1.015;
 
           try {
-            const sessoes = await apiFetch<any[]>(
-              `/sessoes-treino?id_usuario=${u.id_usuario}&limit=2`,
+            const calculos = await apiFetch<any[]>(
+              `/calculos-hidratacao/usuario/${u.id_usuario}?limit=2`,
             );
-            if (Array.isArray(sessoes) && sessoes.length > 0) {
-              const ultima = sessoes[0];
-              massaAtual = ultima.massa_pos_kg ?? ultima.massa_pre_kg ?? 0;
-              if (sessoes.length > 1) {
-                const anterior = sessoes[1];
-                const massaAnterior =
-                  anterior.massa_pos_kg ?? anterior.massa_pre_kg ?? massaAtual;
+            if (Array.isArray(calculos) && calculos.length > 0) {
+              const ultimo = calculos[0];
+              massaAtual = Number(ultimo.massa_pos_kg ?? ultimo.massa_pre_kg ?? 0);
+
+              if (calculos.length > 1) {
+                const anterior = calculos[1];
+                const massaAnterior = Number(
+                  anterior.massa_pos_kg ?? anterior.massa_pre_kg ?? massaAtual,
+                );
                 deltaMassa =
                   massaAnterior > 0
                     ? parseFloat(
@@ -269,10 +241,15 @@ export default function PainelNutricionista() {
                       )
                     : 0;
               }
-              usg = ultima.usg ?? 1.015;
+
+              // escala_cor (1-8) vem de registros_cor_urina via join no backend;
+              // convertida para uma faixa de USG aproximada (1.000 a 1.035)
+              if (ultimo.escala_cor) {
+                usg = parseFloat((1.0 + (Number(ultimo.escala_cor) * 0.005)).toFixed(3));
+              }
             }
           } catch {
-            /* mantém padrões */
+            /* mantém padrões caso o atleta ainda não tenha sessões registradas */
           }
 
           return {
@@ -309,7 +286,7 @@ export default function PainelNutricionista() {
     carregarAtletas(true);
   }, [carregarAtletas]);
 
-  const atletasFiltrados = atletas.filter((a) =>
+  const atletasFiltrados = atletas.filter((a: Atleta) =>
     a.nome.toLowerCase().includes(filtro.toLowerCase()),
   );
 
@@ -327,7 +304,7 @@ export default function PainelNutricionista() {
     setGerandoRelatorio(true);
     try {
       const hidratados = atletas.filter(
-        (a) => a.statusHidrico === "hidratado",
+        (a: Atleta) => a.statusHidrico === "hidratado",
       ).length;
       const mediaHidratacao = Math.round((hidratados / atletas.length) * 100);
       await gerarECompartilharPDF(
@@ -347,7 +324,7 @@ export default function PainelNutricionista() {
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor="#fcf9f5" />
       <View style={styles.layout}>
-        <Sidebar activeNav="atletas" />
+        <StaffSidebar role={staffRole ?? "medico"} activeNav="sessoes" />
         <ScrollView
           style={styles.scroll}
           showsVerticalScrollIndicator={false}
@@ -422,7 +399,7 @@ export default function PainelNutricionista() {
                 </Text>
               </View>
             ) : (
-              atletasFiltrados.map((atleta, index) => (
+              atletasFiltrados.map((atleta: Atleta, index: number) => (
                 <AtletaRow
                   key={atleta.id}
                   atleta={atleta}
@@ -448,7 +425,7 @@ export default function PainelNutricionista() {
               <Text style={styles.relatorioDesc}>
                 {atletas.length} atletas monitorados.{" "}
                 {
-                  atletas.filter((a) => a.statusHidrico === "desidratado")
+                  atletas.filter((a: Atleta) => a.statusHidrico === "desidratado")
                     .length
                 }{" "}
                 em estado crítico.
@@ -486,5 +463,13 @@ export default function PainelNutricionista() {
         </ScrollView>
       </View>
     </SafeAreaView>
+  );
+}
+
+export default function PainelNutricionista() {
+  return (
+    <StaffGuard rotaAtual="/painelnutricionista">
+      <PainelNutricionistaConteudo />
+    </StaffGuard>
   );
 }

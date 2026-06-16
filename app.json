@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "H2O Elite",
-    "slug": "h2o-elite",
+    "name": "APP-SCAM",
+    "slug": "APP-SCAM",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./src/assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "h2oelite",
+    "scheme": "app-scam",
     "splash": {
       "backgroundColor": "#FAFAF8"
     },

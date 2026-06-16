@@ -26,6 +26,11 @@ export const equipeService = {
     return equipeRepository.findAtletasByEquipe(id)
   },
 
+  async getHistoricoByEquipe(id: number, dias?: number) {
+    await this.getById(id)
+    return equipeRepository.findHistoricoByEquipe(id, dias)
+  },
+
   async getAll(): Promise<Equipe[]> {
     return equipeRepository.findAll()
   },

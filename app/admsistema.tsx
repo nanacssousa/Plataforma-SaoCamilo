@@ -1,6 +1,5 @@
 // app/admsistema.tsx
 // Painel do administrador — busca profissionais e equipes do backend
-import { styles } from "../src/styles/admSistemaStyle";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
@@ -14,51 +13,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import StaffSidebar from "../src/components/StaffSidebar";
 import { apiFetch } from "../src/services/apiService";
 import { useAppStore } from "../src/store/useAppStore";
-
-type NavItem = "equipes" | "atletas" | "relatorios" | "perfil";
-const NAV_ROUTES: Record<NavItem, string> = {
-  equipes: "/telaequipes",
-  atletas: "/painelnutricionista",
-  relatorios: "/biomarcadores",
-  perfil: "/perfilProfissional",
-};
-const NAV_ITEMS = [
-  { id: "equipes" as NavItem, label: "Equipes", icon: "👥" },
-  { id: "atletas" as NavItem, label: "Atletas", icon: "🏃" },
-  { id: "relatorios" as NavItem, label: "Relatórios", icon: "📊" },
-  { id: "perfil" as NavItem, label: "Perfil", icon: "⚙️" },
-];
-
-const Sidebar = ({ activeNav }: { activeNav: NavItem }) => (
-  <View style={styles.sidebar}>
-    <View style={styles.sidebarLogo}>
-      <Text style={styles.sidebarLogoTop}>CLINICAL</Text>
-      <Text style={styles.sidebarLogoBottom}>ATHLETE</Text>
-    </View>
-    <View style={styles.sidebarNav}>
-      {NAV_ITEMS.map((item) => {
-        const isActive = item.id === activeNav;
-        return (
-          <TouchableOpacity
-            key={item.id}
-            style={[styles.navItem, isActive && styles.navItemActive]}
-            onPress={() => {
-              if (!isActive) router.push(NAV_ROUTES[item.id] as any);
-            }}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.navIcon}>{item.icon}</Text>
-            <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
-  </View>
-);
+import { styles } from "../src/styles/admSistemaStyle";
 
 type CargoTipo =
   | "medico"
@@ -121,6 +79,7 @@ const ProfissionalRow = ({
   prof,
   isLast,
 }: {
+  key?: React.Key;
   prof: Profissional;
   isLast: boolean;
 }) => (
@@ -148,6 +107,7 @@ const EquipeItem = ({
   equipe,
   isLast,
 }: {
+  key?: React.Key;
   equipe: Equipe;
   isLast: boolean;
 }) => (
@@ -240,7 +200,7 @@ export default function AdmSistema() {
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor="#fcf9f5" />
       <View style={styles.layout}>
-        <Sidebar activeNav="equipes" />
+        <StaffSidebar role="administrador" activeNav="configuracoes" />
         <ScrollView
           style={styles.scroll}
           showsVerticalScrollIndicator={false}
@@ -312,9 +272,9 @@ export default function AdmSistema() {
                   </Text>
                 </View>
               ) : (
-                profissionais.map((prof, index) => (
+                profissionais.map((prof: Profissional, index: number) => (
                   <ProfissionalRow
-                    key={prof.id}
+                    key={String(prof.id)}
                     prof={prof}
                     isLast={index === profissionais.length - 1}
                   />
@@ -337,9 +297,9 @@ export default function AdmSistema() {
                 </Text>
               ) : (
                 <View style={styles.equipeList}>
-                  {equipes.map((equipe, index) => (
+                  {equipes.map((equipe: Equipe, index: number) => (
                     <EquipeItem
-                      key={equipe.id}
+                      key={String(equipe.id)}
                       equipe={equipe}
                       isLast={index === equipes.length - 1}
                     />

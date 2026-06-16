@@ -61,6 +61,10 @@ export const calculoHidratacaoService = {
     return calculoHidratacaoRepository.findAll()
   },
 
+  async getByUsuario(id_usuario: number, limit?: number) {
+    return calculoHidratacaoRepository.findByUsuario(id_usuario, limit)
+  },
+
   async update(id: number, data: UpdateCalculoHidratacaoDTO): Promise<CalculoHidratacao> {
     await this.getById(id)
     return calculoHidratacaoRepository.update(id, data)

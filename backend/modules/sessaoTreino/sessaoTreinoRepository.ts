@@ -34,10 +34,23 @@ export const sessaoTreinoRepository = {
     )
   },
 
-  async findAll(): Promise<SessaoTreino[]> {
-    return runQuery<SessaoTreino>(
-      "SELECT id_sessao, id_usuario, id_tipo_exercicio, data_treino, hora_inicio, hora_fim, duracao_minutos, intensidade, local_treino, observacoes, validado_nutricionista, id_nutricionista_validador, criado_em FROM sessoes_treino ORDER BY data_treino DESC, hora_inicio DESC"
-    )
+  async findAll(filtros?: { id_usuario?: number; limit?: number }): Promise<SessaoTreino[]> {
+    let sql = "SELECT id_sessao, id_usuario, id_tipo_exercicio, data_treino, hora_inicio, hora_fim, duracao_minutos, intensidade, local_treino, observacoes, validado_nutricionista, id_nutricionista_validador, criado_em FROM sessoes_treino"
+    const params: unknown[] = []
+
+    if (filtros?.id_usuario !== undefined) {
+      sql += " WHERE id_usuario = ?"
+      params.push(filtros.id_usuario)
+    }
+
+    sql += " ORDER BY data_treino DESC, hora_inicio DESC"
+
+    if (filtros?.limit !== undefined) {
+      sql += " LIMIT ?"
+      params.push(filtros.limit)
+    }
+
+    return runQuery<SessaoTreino>(sql, params)
   },
 
   async update(id: number, data: UpdateSessaoTreinoDTO): Promise<SessaoTreino> {

@@ -31,6 +31,17 @@ export const equipeController = {
     }
   },
 
+  async getHistoricoByEquipe(req: Request, res: Response): Promise<Response> {
+    try {
+      const id = Number(req.params.id)
+      const dias = req.query.dias ? Number(req.query.dias) : undefined
+      return res.json(await equipeService.getHistoricoByEquipe(id, dias))
+    } catch (error: any) {
+      const status = error.message === "Equipe não encontrada" ? 404 : 500
+      return res.status(status).json({ error: error.message })
+    }
+  },
+
 
   async getAll(req: Request, res: Response): Promise<Response> {
     try {

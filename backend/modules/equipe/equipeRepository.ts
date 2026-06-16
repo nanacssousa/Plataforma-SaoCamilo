@@ -89,6 +89,31 @@ async findAtletasByEquipe(id_equipe: number): Promise<EquipeAtleta[]> {
     )
   },
 
+  // Histórico de cálculos de hidratação dos últimos N dias para todos os
+  // atletas de uma equipe — usado para alimentar o gráfico semanal.
+  async findHistoricoByEquipe(id_equipe: number, dias = 7): Promise<{
+    data_treino: string
+    perda_percentual_massa: number
+    usg: number | null
+  }[]> {
+    return runQuery(
+      `SELECT
+        st.data_treino,
+        ch.perda_percentual_massa,
+        ru.escala_cor AS usg_escala
+      FROM equipe_membros em
+      JOIN sessoes_treino st ON st.id_usuario = em.id_usuario
+      JOIN calculos_hidratacao ch ON ch.id_sessao = st.id_sessao
+      LEFT JOIN registros_cor_urina ru
+        ON ru.id_sessao = st.id_sessao AND ru.momento = 'POS'
+      WHERE em.id_equipe = ?
+        AND em.ativo = 1
+        AND st.data_treino >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+      ORDER BY st.data_treino ASC`,
+      [id_equipe, dias]
+    )
+  },
+
   async update(id: number, data: UpdateEquipeDTO): Promise<Equipe> {
     const fields: string[] = []
     const values: unknown[] = []

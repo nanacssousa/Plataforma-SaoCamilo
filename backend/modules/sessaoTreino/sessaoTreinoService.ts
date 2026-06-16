@@ -24,8 +24,8 @@ export const sessaoTreinoService = {
     return sessaoTreinoRepository.findByUsuario(id_usuario)
   },
 
-  async getAll(): Promise<SessaoTreino[]> {
-    return sessaoTreinoRepository.findAll()
+  async getAll(filtros?: { id_usuario?: number; limit?: number }): Promise<SessaoTreino[]> {
+    return sessaoTreinoRepository.findAll(filtros)
   },
 
   async update(id: number, data: UpdateSessaoTreinoDTO): Promise<SessaoTreino> {

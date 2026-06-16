@@ -2,7 +2,7 @@
 // Tela de equipes — busca atletas e dados do gráfico do backend
 import { styles } from "../src/styles/TelaEquipesStyle";
 import { router } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type Key } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -15,52 +15,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import StaffGuard from "../src/components/StaffGuard";
+import StaffSidebar from "../src/components/StaffSidebar";
+import { PERFIL_PARA_ROLE } from "../src/config/staffPermissions";
 import { apiFetch } from "../src/services/apiService";
 import { gerarECompartilharPDF } from "../src/services/pdfService";
 import { useAppStore } from "../src/store/useAppStore";
-
-type NavItem = "equipes" | "atletas" | "relatorios" | "perfil";
-const NAV_ROUTES: Record<NavItem, string> = {
-  equipes: "/telaequipes",
-  atletas: "/painelnutricionista",
-  relatorios: "/biomarcadores",
-  perfil: "/perfilProfissional",
-};
-const NAV_ITEMS = [
-  { id: "equipes" as NavItem, label: "Equipes", icon: "👥" },
-  { id: "atletas" as NavItem, label: "Atletas", icon: "🏃" },
-  { id: "relatorios" as NavItem, label: "Relatórios", icon: "📊" },
-  { id: "perfil" as NavItem, label: "Perfil", icon: "⚙️" },
-];
-
-const Sidebar = ({ activeNav }: { activeNav: NavItem }) => (
-  <View style={styles.sidebar}>
-    <View style={styles.sidebarLogo}>
-      <Text style={styles.sidebarLogoTop}>CLINICAL</Text>
-      <Text style={styles.sidebarLogoBottom}>ATHLETE</Text>
-    </View>
-    <View style={styles.sidebarNav}>
-      {NAV_ITEMS.map((item) => {
-        const isActive = item.id === activeNav;
-        return (
-          <TouchableOpacity
-            key={item.id}
-            style={[styles.navItem, isActive && styles.navItemActive]}
-            onPress={() => {
-              if (!isActive) router.push(NAV_ROUTES[item.id] as any);
-            }}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.navIcon}>{item.icon}</Text>
-            <Text style={[styles.navLabel, isActive && styles.navLabelActive]}>
-              {item.label}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
-  </View>
-);
 
 type StatusHidrico = "desidratado" | "hidratado" | "alerta_leve";
 interface Atleta {
@@ -153,7 +113,7 @@ const BadgeStatus = ({ status }: { status: StatusHidrico }) => {
   );
 };
 
-const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
+const AtletaRow = ({ atleta, isLast }: { key?: Key; atleta: Atleta; isLast: boolean }) => {
   const deltaPos = atleta.deltaMassa >= 0;
   return (
     <View style={[styles.atletaRow, !isLast && styles.atletaRowBorder]}>
@@ -203,7 +163,7 @@ const AtletaRow = ({ atleta, isLast }: { atleta: Atleta; isLast: boolean }) => {
   );
 };
 
-const SugestaoCard = ({ sugestao }: { sugestao: Sugestao }) => (
+const SugestaoCard = ({ sugestao }: { key?: Key; sugestao: Sugestao }) => (
   <View style={styles.sugestaoCard}>
     <View
       style={[
@@ -253,8 +213,9 @@ function normalizarParaGrafico(sessoes: any[]): DiaGrafico[] {
   });
 }
 
-export default function TelaEquipes() {
+function TelaEquipesConteudo() {
   const { state } = useAppStore();
+  const staffRole = state.idPerfil ? PERFIL_PARA_ROLE[state.idPerfil] : undefined;
   const [filtro, setFiltro] = useState("");
   const [atletas, setAtletas] = useState<Atleta[]>([]);
   const [grafico, setGrafico] = useState<DiaGrafico[]>(
@@ -272,27 +233,29 @@ export default function TelaEquipes() {
   const carregar = useCallback(async (silencioso = false) => {
     if (!silencioso) setLoading(true);
     try {
-      // Busca atletas da equipe
-      const atletasRaw = await apiFetch<any[]>(`/perfil-atletico/consolidado`);
+      // Busca atletas da equipe — endpoint já faz join com sessões, cálculos de
+      // hidratação e biomarcador de USG mais recentes.
+      const atletasRaw = await apiFetch<any[]>(`/equipes/${EQUIPE_ID}/atletas`);
 
       if (Array.isArray(atletasRaw)) {
         const atletasMapped: Atleta[] = atletasRaw.map((item: any) => {
-           const massaAtual = Number(item.massa_atual ?? 0);
-            const mediaM = Number(item.media_massa ?? massaAtual);
-            const deltaMassa = mediaM > 0 ? ((massaAtual - mediaM) / mediaM) * 100 : 0;
-            const usg = 1.015; // fixo até ter dado real de USG
+          const massaAtual = Number(item.massaAtual ?? 0);
+          const deltaMassa = Number(item.deltaMassa ?? 0);
+          const usg = item.usg !== undefined && item.usg !== null && !Number.isNaN(Number(item.usg))
+            ? Number(item.usg)
+            : 1.015;
 
-            return {
-              id: String(item.id_usuario),
-              nome: item.nome_completo ?? "Atleta",
-              posicao: item.posicao ?? "—",
-              categoria: item.categoria ?? "—",
-              massaAtual,
-              deltaMassa,
-              usg,
-              statusHidrico: calcularStatusHidrico(deltaMassa, usg),
-            };
-          });
+          return {
+            id: String(item.id),
+            nome: item.nome ?? "Atleta",
+            posicao: item.posicao ?? "—",
+            categoria: item.categoria ?? "—",
+            massaAtual,
+            deltaMassa,
+            usg,
+            statusHidrico: (item.statusHidrico as StatusHidrico) ?? calcularStatusHidrico(deltaMassa, usg),
+          };
+        });
         setAtletas(atletasMapped);
         setAtletasEmRisco(
           atletasMapped.filter((a) => a.statusHidrico === "desidratado").length,
@@ -307,14 +270,26 @@ export default function TelaEquipes() {
         );
       }
 
-      // Busca sessões para o gráfico longitudinal
+      // Busca histórico real da equipe (últimos 7 dias) para o gráfico longitudinal
       try {
-        const sessoes = await apiFetch<any[]>(
-          `/sessoes-treino?id_equipe=${EQUIPE_ID}&limit=50`,
+        const historico = await apiFetch<any[]>(
+          `/equipes/${EQUIPE_ID}/historico?dias=7`,
         );
-        if (Array.isArray(sessoes)) setGrafico(normalizarParaGrafico(sessoes));
+        if (Array.isArray(historico)) {
+          setGrafico(
+            normalizarParaGrafico(
+              historico.map((h: any) => ({
+                data_treino: h.data_treino,
+                perda_percentual_massa: Number(h.perda_percentual_massa ?? 0),
+                usg: h.usg_escala
+                  ? 1.0 + Number(h.usg_escala) * 0.005
+                  : 1.015,
+              })),
+            ),
+          );
+        }
       } catch {
-        /* gráfico permanece zerado */
+        /* gráfico permanece zerado se não houver histórico ainda */
       }
     } catch (err: any) {
       Alert.alert(
@@ -336,18 +311,18 @@ export default function TelaEquipes() {
     carregar(true);
   }, [carregar]);
 
-  const atletasFiltrados = atletas.filter((a) =>
+  const atletasFiltrados = atletas.filter((a: Atleta) =>
     a.nome.toLowerCase().includes(filtro.toLowerCase()),
   );
 
   const sugestoes: Sugestao[] = atletas.some(
-    (a) => a.statusHidrico === "desidratado",
+    (a: Atleta) => a.statusHidrico === "desidratado",
   )
     ? [
         {
           id: "1",
           tipo: "emergencial",
-          titulo: `Protocolo Emergencial: ${atletas.find((a) => a.statusHidrico === "desidratado")?.nome.split(" ")[0]}`,
+          titulo: `Protocolo Emergencial: ${atletas.find((a: Atleta) => a.statusHidrico === "desidratado")?.nome.split(" ")[0]}`,
           descricao:
             "Reposição de 1.200ml de solução isotônica (6% carb) em 90 min.",
         },
@@ -390,7 +365,10 @@ export default function TelaEquipes() {
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor="#fcf9f5" />
       <View style={styles.layout}>
-        <Sidebar activeNav="equipes" />
+        <StaffSidebar
+          role={staffRole ?? "treinador"}
+          activeNav="equipes"
+        />
         <ScrollView
           style={styles.scroll}
           showsVerticalScrollIndicator={false}
@@ -530,7 +508,7 @@ export default function TelaEquipes() {
                 </Text>
               </View>
             ) : (
-              atletasFiltrados.map((atleta, index) => (
+              atletasFiltrados.map((atleta: Atleta, index: number) => (
                 <AtletaRow
                   key={atleta.id}
                   atleta={atleta}
@@ -589,5 +567,13 @@ export default function TelaEquipes() {
         </ScrollView>
       </View>
     </SafeAreaView>
+  );
+}
+
+export default function TelaEquipes() {
+  return (
+    <StaffGuard rotaAtual="/telaequipes">
+      <TelaEquipesConteudo />
+    </StaffGuard>
   );
 }

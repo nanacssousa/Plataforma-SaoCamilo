@@ -1,4 +1,8 @@
 // app/telaCadastroStaff.tsx
+// Cadastro de Staff — Treinador, Médico ou Administrador.
+// Usa os componentes RolePicker e PermissionsCard já existentes.
+// Após cadastro bem-sucedido, redireciona para o painel correto do perfil.
+
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -14,63 +18,44 @@ import {
 import PermissionsCard from "../src/components/PermissionsCard";
 import RolePicker, { StaffRole } from "../src/components/RolePicker";
 import { colors } from "../src/constants/theme";
+import { ROLE_PARA_PERFIL, ROTA_INICIAL_STAFF } from "../src/config/staffPermissions";
 import { authAPI } from "../src/services/api";
+import { useAppStore } from "../src/store/useAppStore";
 import { styles } from "../src/styles/cadastroStaffStyle";
 
 const ESPECIALIDADES = [
-  "Futebol",
-  "Basquete",
-  "Atletismo",
-  "Natação",
-  "Voleibol",
-  "Musculação",
-  "CrossFit",
-  "Outro",
+  "Futebol", "Basquete", "Atletismo", "Natação",
+  "Voleibol", "Musculação", "CrossFit", "Outro",
 ];
 
 const ESPECIALIDADES_MEDICA = [
-  "Medicina Esportiva",
-  "Fisiologia",
-  "Nutrição Clínica",
-  "Ortopedia",
-  "Cardiologia",
-  "Fisioterapia",
-  "Outro",
+  "Medicina Esportiva", "Fisiologia", "Nutrição Clínica",
+  "Ortopedia", "Cardiologia", "Fisioterapia", "Outro",
 ];
 
 function validarStaff(campos: {
-  nome: string;
-  email: string;
-  senha: string;
-  telefone: string;
-  registro: string;
-  especialidade: string;
-  role: StaffRole;
+  nome: string; email: string; senha: string;
+  telefone: string; registro: string; especialidade: string; role: StaffRole;
 }) {
   const erros: Record<string, string> = {};
-
   if (!campos.nome.trim()) erros.nome = "Nome obrigatório";
   else if (campos.nome.trim().length < 3) erros.nome = "Mínimo 3 caracteres";
-
   if (!campos.email.trim()) erros.email = "E-mail obrigatório";
   else if (!campos.email.includes("@")) erros.email = "E-mail inválido";
-
   if (!campos.senha.trim()) erros.senha = "Senha obrigatória";
   else if (campos.senha.length < 6) erros.senha = "Mínimo 6 caracteres";
-
   if (!campos.telefone.trim()) erros.telefone = "Telefone obrigatório";
-
   if (!campos.registro.trim())
     erros.registro = `${campos.role === "medico" ? "CRM" : campos.role === "administrador" ? "CPF" : "CREF"} obrigatório`;
-
   if (campos.role !== "administrador" && !campos.especialidade)
     erros.especialidade = "Especialidade obrigatória";
-
   return erros;
 }
 
 export default function TelaCadastroStaff() {
   const router = useRouter();
+  const { login, showToast } = useAppStore();
+
   const [role, setRole] = useState<StaffRole>("treinador");
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -91,75 +76,58 @@ export default function TelaCadastroStaff() {
 
   const registroLabel = isMedico ? "CRM" : isAdmin ? "CPF" : "CREF";
   const registroPlaceholder = isMedico
-    ? "000000/SP"
-    : isAdmin
-    ? "000.000.000-00"
-    : "000000-G/SP";
+    ? "000000/SP" : isAdmin ? "000.000.000-00" : "000000-G/SP";
 
-  function inputStyle(field: string) {
-    return [styles.input, focusedField === field && styles.inputFocused];
-  }
-
-  const getIdPerfil = (role: StaffRole) => {
-    const perfis: Record<StaffRole, number> = {
-      treinador: 3,
-      medico: 4,
-      administrador: 5,
-    };
-    return perfis[role];
+  // Ao trocar de role, limpa especialidade e erros relacionados
+  const handleRoleChange = (r: StaffRole) => {
+    setRole(r);
+    setEspecialidade("");
+    if (tentouEnviar) {
+      setErros(validarStaff({ nome, email, senha, telefone, registro, especialidade: "", role: r }));
+    }
   };
 
+  function inputStyle(field: string) {
+    return [styles.input, focusedField === field && styles.inputFocused,
+      erros[field] ? { borderColor: colors.error } : undefined,
+    ].filter(Boolean);
+  }
+
   const handleSubmit = async () => {
-    console.log("CLICOU NO BOTÃO CADASTRO STAFF");
     setTentouEnviar(true);
-
-    const novosErros = validarStaff({
-      nome,
-      email,
-      senha,
-      telefone,
-      registro,
-      especialidade,
-      role,
-    });
-
+    const novosErros = validarStaff({ nome, email, senha, telefone, registro, especialidade, role });
     setErros(novosErros);
-
     if (Object.keys(novosErros).length > 0) {
-      Alert.alert(
-        "Campos incompletos",
-        "Preencha todos os campos obrigatórios corretamente.",
-      );
+      Alert.alert("Campos incompletos", "Preencha todos os campos obrigatórios corretamente.");
       return;
     }
-
     setCarregando(true);
-
     try {
-      console.log("Iniciando cadastro de staff...");
-
-      const usuario = await authAPI.cadastrarStaff({
+      const data = await authAPI.cadastrarStaff({
         nome_completo: nome.trim(),
         email: email.trim().toLowerCase(),
         senha,
-        id_perfil: getIdPerfil(role),
+        id_perfil: ROLE_PARA_PERFIL[role as StaffRole],
         telefone: telefone.trim(),
         registro_profissional: registro.trim(),
         especialidade: especialidade || null,
       });
 
-      console.log("Usuário staff criado:", usuario);
-
-      Alert.alert("Cadastro realizado", "O profissional foi registrado com sucesso.");
-
-      router.replace("/telaLogin");
+      // Se o backend retornar token + usuário no cadastro, faz login direto
+      if (data?.token && data?.usuario) {
+        await login(data.token, data.usuario);
+        showToast(`Bem-vindo, ${nome.split(" ")[0]}! 👋`);
+        router.replace(ROTA_INICIAL_STAFF[role as StaffRole] as any);
+      } else {
+        // Sem token → vai para login para autenticar
+        Alert.alert(
+          "Cadastro realizado",
+          "Profissional registrado com sucesso. Faça login para acessar o painel.",
+          [{ text: "Ir para Login", onPress: () => router.replace("/telaLogin") }],
+        );
+      }
     } catch (error: any) {
-      console.log("ERRO COMPLETO:", error);
-
-      Alert.alert(
-        "Erro no cadastro",
-        error?.message || JSON.stringify(error) || "Erro desconhecido.",
-      );
+      Alert.alert("Erro no cadastro", error?.message || "Erro desconhecido.");
     } finally {
       setCarregando(false);
     }
@@ -167,14 +135,19 @@ export default function TelaCadastroStaff() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FDFCF8" />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.surface} />
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* ── Header ─────────────────────────────────────────────────────── */}
+        {/* Header */}
         <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={{ marginBottom: 12 }}>
+            <Text style={{ color: colors.primary, fontFamily: "SourceSans3_400Regular", fontSize: 14 }}>
+              ← Voltar
+            </Text>
+          </TouchableOpacity>
           <Text style={styles.tag}>PROTOCOLO DE REGISTRO</Text>
           <Text style={styles.title}>Cadastro do{"\n"}Profissional</Text>
           <Text style={styles.subtitle}>
@@ -183,10 +156,10 @@ export default function TelaCadastroStaff() {
           </Text>
         </View>
 
-        {/* ── Seleção de cargo ────────────────────────────────────────────── */}
-        <RolePicker selected={role} onSelect={setRole} />
+        {/* Seleção de cargo */}
+        <RolePicker selected={role} onSelect={handleRoleChange} />
 
-        {/* ── Formulário ──────────────────────────────────────────────────── */}
+        {/* Formulário */}
         <View style={styles.form}>
           {/* Nome */}
           <View style={styles.inputGroup}>
@@ -200,6 +173,7 @@ export default function TelaCadastroStaff() {
               onFocus={() => setFocusedField("nome")}
               onBlur={() => setFocusedField(null)}
             />
+            {erros.nome ? <Text style={{ color: colors.error, fontSize: 12, marginTop: 4 }}>{erros.nome}</Text> : null}
           </View>
 
           {/* E-mail + Telefone */}
@@ -217,6 +191,7 @@ export default function TelaCadastroStaff() {
                 onFocus={() => setFocusedField("email")}
                 onBlur={() => setFocusedField(null)}
               />
+              {erros.email ? <Text style={{ color: colors.error, fontSize: 11, marginTop: 4 }}>{erros.email}</Text> : null}
             </View>
             <View style={styles.rowItem}>
               <Text style={styles.label}>TELEFONE</Text>
@@ -230,15 +205,21 @@ export default function TelaCadastroStaff() {
                 onFocus={() => setFocusedField("telefone")}
                 onBlur={() => setFocusedField(null)}
               />
+              {erros.telefone ? <Text style={{ color: colors.error, fontSize: 11, marginTop: 4 }}>{erros.telefone}</Text> : null}
             </View>
           </View>
 
           {/* Senha */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>SENHA</Text>
-            <View style={[styles.input, focusedField === "senha" && styles.inputFocused, { flexDirection: "row", alignItems: "center", paddingRight: 10 }]}>
+            <View style={[
+              styles.input,
+              focusedField === "senha" && styles.inputFocused,
+              { flexDirection: "row", alignItems: "center", paddingRight: 10 },
+              erros.senha ? { borderColor: colors.error } : undefined,
+            ]}>
               <TextInput
-                style={{ flex: 1, color: colors.onSurface }}
+                style={{ flex: 1, color: colors.onSurface, fontFamily: "SourceSans3_400Regular" }}
                 placeholder="Mínimo 6 caracteres"
                 placeholderTextColor={colors.onSurfaceVariant}
                 secureTextEntry={!mostrarSenha}
@@ -253,9 +234,10 @@ export default function TelaCadastroStaff() {
                 </Text>
               </TouchableOpacity>
             </View>
+            {erros.senha ? <Text style={{ color: colors.error, fontSize: 12, marginTop: 4 }}>{erros.senha}</Text> : null}
           </View>
 
-          {/* Número de registro profissional */}
+          {/* Registro profissional */}
           <View style={styles.inputGroup}>
             <Text style={styles.label}>{registroLabel}</Text>
             <TextInput
@@ -267,62 +249,45 @@ export default function TelaCadastroStaff() {
               onFocus={() => setFocusedField("registro")}
               onBlur={() => setFocusedField(null)}
             />
+            {erros.registro ? <Text style={{ color: colors.error, fontSize: 12, marginTop: 4 }}>{erros.registro}</Text> : null}
           </View>
 
-          {/* Especialidade (dropdown) — oculto para admin */}
+          {/* Especialidade — oculto para admin */}
           {!isAdmin && (
             <View style={styles.inputGroup}>
               <Text style={styles.label}>ESPECIALIDADE</Text>
               <TouchableOpacity
                 style={styles.selectInput}
-                onPress={() => setShowDropdown((v) => !v)}
+                onPress={() => setShowDropdown((v: boolean) => !v)}
                 activeOpacity={0.8}
               >
-                <Text
-                  style={[
-                    styles.selectText,
-                    !especialidade && styles.selectPlaceholder,
-                  ]}
-                >
+                <Text style={[styles.selectText, !especialidade && styles.selectPlaceholder]}>
                   {especialidade || "Selecione a especialidade"}
                 </Text>
-                <Text style={styles.selectIcon}>
-                  {showDropdown ? "▲" : "▼"}
-                </Text>
+                <Text style={styles.selectIcon}>{showDropdown ? "▲" : "▼"}</Text>
               </TouchableOpacity>
               {showDropdown && (
                 <View style={styles.dropdownContainer}>
                   {opcoes.map((op, i) => (
                     <TouchableOpacity
                       key={op}
-                      style={[
-                        styles.dropdownItem,
-                        i === opcoes.length - 1 && styles.dropdownItemLast,
-                      ]}
-                      onPress={() => {
-                        setEspecialidade(op);
-                        setShowDropdown(false);
-                      }}
+                      style={[styles.dropdownItem, i === opcoes.length - 1 && styles.dropdownItemLast]}
+                      onPress={() => { setEspecialidade(op); setShowDropdown(false); }}
                     >
-                      <Text
-                        style={[
-                          styles.dropdownItemText,
-                          especialidade === op &&
-                            styles.dropdownItemTextActive,
-                        ]}
-                      >
+                      <Text style={[styles.dropdownItemText, especialidade === op && styles.dropdownItemTextActive]}>
                         {op}
                       </Text>
                     </TouchableOpacity>
                   ))}
                 </View>
               )}
+              {erros.especialidade ? <Text style={{ color: colors.error, fontSize: 12, marginTop: 4 }}>{erros.especialidade}</Text> : null}
             </View>
           )}
 
           <View style={styles.divider} />
 
-          {/* Permissões dinâmicas */}
+          {/* Permissões dinâmicas — componente já existente */}
           <PermissionsCard role={role} />
 
           {/* Botão */}
@@ -332,19 +297,24 @@ export default function TelaCadastroStaff() {
             onPress={handleSubmit}
             disabled={carregando}
           >
-            <Text
-              style={[
-                styles.btnPrimaryText,
-                carregando && styles.btnPrimaryTextDisabled,
-              ]}
-            >
+            <Text style={[styles.btnPrimaryText, carregando && styles.btnPrimaryTextDisabled]}>
               {carregando ? "CADASTRANDO..." : "FINALIZAR REGISTRO →"}
             </Text>
           </TouchableOpacity>
 
+          <View style={{ flexDirection: "row", justifyContent: "center", marginTop: 16 }}>
+            <Text style={{ color: colors.onSurfaceVariant, fontSize: 13, fontFamily: "SourceSans3_400Regular" }}>
+              Já tem conta?{" "}
+            </Text>
+            <TouchableOpacity onPress={() => router.push("/telaLogin")}>
+              <Text style={{ color: colors.primary, fontSize: 13, fontFamily: "SourceSans3_700Bold" }}>
+                Fazer login
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           <Text style={styles.footerText}>
-            AO PROSSEGUIR, VOCÊ CONCORDA COM OS{"\n"}PROTOCOLOS DE DADOS DA
-            PLATAFORMA.
+            AO PROSSEGUIR, VOCÊ CONCORDA COM OS{"\n"}PROTOCOLOS DE DADOS DA PLATAFORMA.
           </Text>
         </View>
       </ScrollView>

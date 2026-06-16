@@ -77,8 +77,8 @@ export const usuariosService = {
     } as PublicUsuario
   },
 
-  async getAll(): Promise<PublicUsuario[]> {
-    return usuariosRepository.findAll()
+  async getAll(idPerfis?: number[]): Promise<PublicUsuario[]> {
+    return usuariosRepository.findAll(idPerfis)
   },
 
   async update(id: number, data: UpdateUsuarioDTO): Promise<PublicUsuario> {

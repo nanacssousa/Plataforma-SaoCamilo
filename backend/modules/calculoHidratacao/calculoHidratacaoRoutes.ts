@@ -9,6 +9,7 @@ router.get("/", authMiddleware, calculoHidratacaoController.getAll)
 // POST /calculos-hidratacao/sessao/:id_sessao — calcula automaticamente
 router.post("/sessao/:id_sessao", authMiddleware, calculoHidratacaoController.calcularPorSessao)
 router.get("/sessao/:id_sessao", authMiddleware, calculoHidratacaoController.getBySessao)
+router.get("/usuario/:id_usuario", authMiddleware, calculoHidratacaoController.getByUsuario)
 router.get("/:id", authMiddleware, calculoHidratacaoController.getById)
 router.put("/:id", authMiddleware, calculoHidratacaoController.update)
 router.delete("/:id", authMiddleware, calculoHidratacaoController.delete)

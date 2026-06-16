@@ -2,7 +2,7 @@
 // Dashboard principal do atleta — dados reais do estado global
 import * as Location from 'expo-location';
 import { router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AtletaAvatarMini } from '../src/components/shared/AtletaAvatar';
 import { ToastContainer } from '../src/components/shared/Toast';
